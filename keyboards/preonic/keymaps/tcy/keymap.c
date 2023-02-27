@@ -153,8 +153,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /* Arrows
  * ,-----------------------------------------------------------------------------------.
  * |      |      |      |      |      |      |      |      |      |      |      |      |
- * |------+------+------+------+------+------+------+------+------+------+------+------|
- * |      |      |      |      |      |      |      |      |      |      |      |      |
  * |------+------+------+------+------+-------------+------+------+------+------+------|
  * |      |      |      |      |      |      | Left | Down |  Up  |Right |      |      |
  * |------+------+------+------+------+------|------+------+------+------+------+------|
@@ -199,20 +197,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case ARROWS:
           if (record->event.pressed) {
             layer_on(_ARROWS);
-            update_tri_layer(_LOWER, _RAISE, _ADJUST);
           } else {
             layer_off(_ARROWS);
-            update_tri_layer(_LOWER, _RAISE, _ADJUST);
           }
           return false;
           break;
         case MOUSE:
           if (record->event.pressed) {
             layer_on(_MOUSE);
-            update_tri_layer(_LOWER, _RAISE, _ADJUST);
           } else {
             layer_off(_MOUSE);
-            update_tri_layer(_LOWER, _RAISE, _ADJUST);
           }
           return false;
           break;
