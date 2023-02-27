@@ -18,5 +18,6 @@ AUDIO_ENABLE = no           # Audio output
 RGB_MATRIX_ENABLE = yes     # Use RGB matrix
 RGB_MATRIX_DRIVER = WS2812
 LTO_ENABLE = yes
+TAP_DANCE_ENABLE = yes
 
 LAYOUTS = 75_ansi
