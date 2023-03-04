@@ -280,6 +280,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         case KC_LALT:
         case KC_LGUI:
+        case KC_LSFT:
           if (record->event.pressed) {
               is_tapdance_disabled = true;
           } else {
@@ -288,24 +289,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           return true;
           break;
 
-        case TD(TD_TAB):
-          if (is_tapdance_disabled) {
-              if (record->event.pressed) {
-                  register_code(KC_TAB);
-              } else {
-                  unregister_code(KC_TAB);
-              }
-              return true;
-          }
-
-          action = &tap_dance_actions[TD_INDEX(keycode)];
-          if (!record->event.pressed && action->state.count && !action->state.finished) {
-              tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
-              tap_code16(tap_hold->tap);
-          }
-          break;
-
         case TD(TD_O):  // list all tap dance keycodes with tap-hold configurations
+        case TD(TD_TAB):
         case TD(TD_P):
         case TD(TD_L):
         case TD(TD_SCLN):
@@ -448,6 +433,7 @@ void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
 
     if (state->pressed) {
         if (state->count == 1
+            && !is_tapdance_disabled
 #ifndef PERMISSIVE_HOLD
             && !state->interrupted
 #endif
