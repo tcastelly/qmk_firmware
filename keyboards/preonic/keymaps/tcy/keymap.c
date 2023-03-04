@@ -60,6 +60,10 @@ typedef struct {
 enum {
     TD_ESC,
     TD_TAB,
+    TD_O,
+    TD_P,
+    TD_L,
+    TD_SCLN
 };
 
 bool is_tapdance_disabled = false;
@@ -88,11 +92,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------------------------------------------------------'
  */
 [_QWERTY] = LAYOUT_preonic_grid(
-  KC_GRV,        KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_BSPC,
-  TD(TD_TAB),    KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_DEL,
-  TD(TD_ESC),    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
-  KC_LSFT,       KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_ENT,
-  KC_LCTL,       MOUSE,   KC_LALT, KC_LGUI, LOWER,   KC_SPC,  KC_SPC,  RAISE,   KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT
+  KC_GRV,        KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,        KC_BSPC,
+  TD(TD_TAB),    KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    TD(TD_O),TD(TD_P),    KC_DEL,
+  TD(TD_ESC),    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    TD(TD_L),TD(TD_SCLN), KC_QUOT,
+  KC_LSFT,       KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,     KC_ENT,
+  KC_LCTL,       MOUSE,   KC_LALT, KC_LGUI, LOWER,   KC_SPC,  KC_SPC,  RAISE,   KC_LEFT, KC_DOWN, KC_UP,       KC_RGHT
 ),
 
 
@@ -214,6 +218,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           }
           return false;
           break;
+
         case MOUSE:
           if (record->event.pressed) {
             layer_on(_MOUSE);
@@ -222,12 +227,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           }
           return false;
           break;
+
         case QWERTY:
           if (record->event.pressed) {
             set_single_persistent_default_layer(_QWERTY);
           }
           return false;
           break;
+
         case LOWER:
           if (record->event.pressed) {
             layer_on(_LOWER);
@@ -238,6 +245,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           }
           return false;
           break;
+
         case RAISE:
           if (record->event.pressed) {
             layer_on(_RAISE);
@@ -248,6 +256,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           }
           return false;
           break;
+
         case BACKLIT:
           if (record->event.pressed) {
             register_code(KC_RSFT);
@@ -279,7 +288,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           return true;
           break;
 
-        case TD(TD_TAB):  // list all tap dance keycodes with tap-hold configurations
+        case TD(TD_TAB):
           if (is_tapdance_disabled) {
               if (record->event.pressed) {
                   register_code(KC_TAB);
@@ -294,6 +303,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
               tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
               tap_code16(tap_hold->tap);
           }
+          break;
+
+        case TD(TD_O):  // list all tap dance keycodes with tap-hold configurations
+        case TD(TD_P):
+        case TD(TD_L):
+        case TD(TD_SCLN):
+          action = &tap_dance_actions[TD_INDEX(keycode)];
+          if (!record->event.pressed && action->state.count && !action->state.finished) {
+              tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
+              tap_code16(tap_hold->tap);
+          }
+          break;
       }
     return true;
 };
@@ -455,7 +476,11 @@ void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data) {
 // Associate our tap dance key with its functionality
 tap_dance_action_t tap_dance_actions[] = {
     [TD_ESC] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, ql_finished, ql_reset),
-    [TD_TAB] = ACTION_TAP_DANCE_TAP_HOLD(KC_TAB, KC_TILD)
+    [TD_TAB] = ACTION_TAP_DANCE_TAP_HOLD(KC_TAB, KC_TILD),
+    [TD_O] = ACTION_TAP_DANCE_TAP_HOLD(KC_O, KC_LPRN),
+    [TD_P] = ACTION_TAP_DANCE_TAP_HOLD(KC_P, KC_RPRN),
+    [TD_L] = ACTION_TAP_DANCE_TAP_HOLD(KC_L, KC_LCBR),
+    [TD_SCLN] = ACTION_TAP_DANCE_TAP_HOLD(KC_SCLN, KC_RCBR),
 };
 
 // Set a long-ish tapping term for tap-dance keys
