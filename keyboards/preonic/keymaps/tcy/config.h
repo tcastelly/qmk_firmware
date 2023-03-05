@@ -38,7 +38,7 @@
 
 /* enable advanced MIDI features:
    - MIDI notes can be added to the keymap
-   - Octave shift and transpose
+   - Octave shift and Transpose
    - Virtual sustain, portamento, and modulation wheel
    - etc.
 */
@@ -49,3 +49,4 @@
 
 // global time for tap dance
 #define TAPPING_TERM 175
+#define TAPPING_TERM_PER_KEY

@@ -75,7 +75,7 @@ td_state_t cur_dance(tap_dance_state_t *state);
 
 // Functions associated with individual tap dances
 void ql_finished(tap_dance_state_t *state, void *user_data);
-void ql_reset(tap_dance_state_t *state, void *user_data);
+void ql_esc_reset(tap_dance_state_t *state, void *user_data);
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /* Qwerty
@@ -406,7 +406,7 @@ static td_tap_t ql_tap_state = {
 };
 
 // Functions that control what our tap dance key does
-void ql_finished(tap_dance_state_t *state, void *user_data) {
+void ql_esc_finished(tap_dance_state_t *state, void *user_data) {
     ql_tap_state.state = cur_dance(state);
     switch (ql_tap_state.state) {
         case TD_SINGLE_TAP:
@@ -420,7 +420,7 @@ void ql_finished(tap_dance_state_t *state, void *user_data) {
     }
 }
 
-void ql_reset(tap_dance_state_t *state, void *user_data) {
+void ql_esc_reset(tap_dance_state_t *state, void *user_data) {
     // If the key was held down and now is released then switch off the layer
     if (ql_tap_state.state == TD_SINGLE_HOLD) {
         layer_off(_ARROWS);
@@ -461,7 +461,7 @@ void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data) {
 
 // Associate our tap dance key with its functionality
 tap_dance_action_t tap_dance_actions[] = {
-    [TD_ESC] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, ql_finished, ql_reset),
+    [TD_ESC] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, ql_esc_finished, ql_esc_reset),
     [TD_TAB] = ACTION_TAP_DANCE_TAP_HOLD(KC_TAB, KC_TILD),
     [TD_O] = ACTION_TAP_DANCE_TAP_HOLD(KC_O, KC_LPRN),
     [TD_P] = ACTION_TAP_DANCE_TAP_HOLD(KC_P, KC_RPRN),
@@ -472,8 +472,10 @@ tap_dance_action_t tap_dance_actions[] = {
 // Set a long-ish tapping term for tap-dance keys
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
+        // case TD(TD_ESC):
+        //     return 100;
         case QK_TAP_DANCE ... QK_TAP_DANCE_MAX:
-            return 275;
+           return 275;
         default:
             return TAPPING_TERM;
     }
