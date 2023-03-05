@@ -55,8 +55,8 @@ enum {
 td_state_t cur_dance(tap_dance_state_t *state);
 
 // Functions associated with individual tap dances
-void ql_finished(tap_dance_state_t *state, void *user_data);
-void ql_reset(tap_dance_state_t *state, void *user_data);
+void ql_esc_finished(tap_dance_state_t *state, void *user_data);
+void ql_esc_reset(tap_dance_state_t *state, void *user_data);
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -153,7 +153,7 @@ static td_tap_t ql_tap_state = {
 };
 
 // Functions that control what our tap dance key does
-void ql_finished(tap_dance_state_t *state, void *user_data) {
+void ql_esc_finished(tap_dance_state_t *state, void *user_data) {
     ql_tap_state.state = cur_dance(state);
     switch (ql_tap_state.state) {
         case TD_SINGLE_TAP:
@@ -168,7 +168,7 @@ void ql_finished(tap_dance_state_t *state, void *user_data) {
     }
 }
 
-void ql_reset(tap_dance_state_t *state, void *user_data) {
+void ql_esc_reset(tap_dance_state_t *state, void *user_data) {
     // If the key was held down and now is released then switch off the layer
     if (ql_tap_state.state == TD_SINGLE_HOLD) {
         layer_off(_ARROWS);
@@ -178,7 +178,7 @@ void ql_reset(tap_dance_state_t *state, void *user_data) {
 
 // Associate our tap dance key with its functionality
 tap_dance_action_t tap_dance_actions[] = {
-    [TD_ESC] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, ql_finished, ql_reset)
+    [TD_ESC] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, ql_esc_finished, ql_esc_reset)
 };
 
 // Set a long-ish tapping term for tap-dance keys

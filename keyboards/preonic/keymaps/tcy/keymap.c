@@ -74,7 +74,7 @@ bool is_tapdance_disabled = false;
 td_state_t cur_dance(tap_dance_state_t *state);
 
 // Functions associated with individual tap dances
-void ql_finished(tap_dance_state_t *state, void *user_data);
+void ql_esc_finished(tap_dance_state_t *state, void *user_data);
 void ql_esc_reset(tap_dance_state_t *state, void *user_data);
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
