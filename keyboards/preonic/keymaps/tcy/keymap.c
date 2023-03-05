@@ -409,6 +409,7 @@ static td_tap_t ql_tap_state = {
 void ql_esc_finished(tap_dance_state_t *state, void *user_data) {
     ql_tap_state.state = cur_dance(state);
     switch (ql_tap_state.state) {
+        case TD_DOUBLE_TAP:
         case TD_SINGLE_TAP:
             tap_code(KC_ESC);
             break;
