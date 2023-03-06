@@ -47,7 +47,7 @@ enum {
     TD_SCLN
 };
 
-bool is_tapdance_disabled = false;
+bool is_hold_tapdance_disabled = false;
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -132,9 +132,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case KC_LGUI:
         case KC_LSFT:
           if (record->event.pressed) {
-              is_tapdance_disabled = true;
+              is_hold_tapdance_disabled = true;
           } else {
-              is_tapdance_disabled = false;
+              is_hold_tapdance_disabled = false;
           }
           return true;
           break;
@@ -153,6 +153,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
           if (!record->event.pressed && keycode == TD(TD_ESC)) {
               layer_off(_ARROWS);
+              is_hold_tapdance_disabled = false;
           }
           break;
       }
@@ -164,7 +165,7 @@ void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
 
     if (state->pressed) {
         if (state->count == 1
-            && !is_tapdance_disabled
+            && !is_hold_tapdance_disabled
 #ifndef PERMISSIVE_HOLD
             && !state->interrupted
 #endif
@@ -189,6 +190,8 @@ void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data) {
 
 void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
+
+    is_hold_tapdance_disabled = true;
 
     if (state->pressed) {
         if (state->count == 1
