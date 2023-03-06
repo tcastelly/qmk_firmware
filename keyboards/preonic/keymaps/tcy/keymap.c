@@ -189,9 +189,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
         case ARROWS:
           if (record->event.pressed) {
+            is_hold_tapdance_disabled = true;
             layer_on(_ARROWS);
           } else {
             layer_off(_ARROWS);
+            is_hold_tapdance_disabled = false;
           }
           return false;
           break;
