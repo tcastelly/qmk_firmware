@@ -421,6 +421,7 @@ void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_dat
         } else {
             register_code16(tap_hold->tap);
             tap_hold->held = tap_hold->tap;
+            is_hold_tapdance_disabled = false;
         }
     }
 }
