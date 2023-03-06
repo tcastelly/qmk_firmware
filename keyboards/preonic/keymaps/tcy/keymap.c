@@ -66,7 +66,7 @@ enum {
     TD_SCLN
 };
 
-bool is_tapdance_disabled = false;
+bool is_hold_tapdance_disabled = false;
 
 // Declare the functions to be used with your tap dance key(s)
 
@@ -237,22 +237,26 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         case LOWER:
           if (record->event.pressed) {
+            is_hold_tapdance_disabled = true;
             layer_on(_LOWER);
             update_tri_layer(_LOWER, _RAISE, _ADJUST);
           } else {
             layer_off(_LOWER);
             update_tri_layer(_LOWER, _RAISE, _ADJUST);
+            is_hold_tapdance_disabled = false;
           }
           return false;
           break;
 
         case RAISE:
           if (record->event.pressed) {
+            is_hold_tapdance_disabled = true;
             layer_on(_RAISE);
             update_tri_layer(_LOWER, _RAISE, _ADJUST);
           } else {
             layer_off(_RAISE);
             update_tri_layer(_LOWER, _RAISE, _ADJUST);
+            is_hold_tapdance_disabled = false;
           }
           return false;
           break;
@@ -282,9 +286,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case KC_LGUI:
         case KC_LSFT:
           if (record->event.pressed) {
-              is_tapdance_disabled = true;
+              is_hold_tapdance_disabled = true;
           } else {
-              is_tapdance_disabled = false;
+              is_hold_tapdance_disabled = false;
           }
           return true;
           break;
@@ -299,6 +303,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
               tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
               tap_code16(tap_hold->tap);
           }
+          return false;
           break;
       }
     return true;
@@ -393,10 +398,16 @@ bool music_mask_user(uint16_t keycode) {
 // Determine the current tap dance state
 td_state_t cur_dance(tap_dance_state_t *state) {
     if (state->count == 1) {
-        if (!state->pressed) return TD_SINGLE_TAP;
-        else return TD_SINGLE_HOLD;
-    } else if (state->count == 2) return TD_DOUBLE_TAP;
-    else return TD_UNKNOWN;
+        if (!state->pressed) {
+            return TD_SINGLE_TAP;
+        }
+        else {
+            return TD_SINGLE_HOLD;
+        }
+    } else if (state->count == 2) {
+        return TD_DOUBLE_TAP;
+    }
+    return TD_UNKNOWN;
 }
 
 // Initialize tap structure associated with example tap dance key
@@ -407,6 +418,8 @@ static td_tap_t ql_tap_state = {
 
 // Functions that control what our tap dance key does
 void ql_esc_finished(tap_dance_state_t *state, void *user_data) {
+    is_hold_tapdance_disabled = true;
+
     ql_tap_state.state = cur_dance(state);
     switch (ql_tap_state.state) {
         case TD_DOUBLE_TAP:
@@ -427,6 +440,8 @@ void ql_esc_reset(tap_dance_state_t *state, void *user_data) {
         layer_off(_ARROWS);
     }
     ql_tap_state.state = TD_NONE;
+
+    is_hold_tapdance_disabled = false;
 }
 
 void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
@@ -434,7 +449,7 @@ void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
 
     if (state->pressed) {
         if (state->count == 1
-            && !is_tapdance_disabled
+            && !is_hold_tapdance_disabled
 #ifndef PERMISSIVE_HOLD
             && !state->interrupted
 #endif
