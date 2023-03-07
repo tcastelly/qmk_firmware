@@ -25,7 +25,6 @@ enum kb75_layers {
 
 enum kbd75_keycodes {
   QWERTY = SAFE_RANGE,
-  ARROWS,
   ADJUST,
   CUST_RGB
 };
@@ -92,17 +91,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   tap_dance_action_t *action;
 
   switch (keycode) {
-        case ARROWS:
-          if (record->event.pressed) {
-            is_hold_tapdance_disabled = true;
-            layer_on(_ARROWS);
-          } else {
-            layer_off(_ARROWS);
-            is_hold_tapdance_disabled = false;
-          }
-          return false;
-          break;
-
         case CUST_RGB:
           if (record->event.pressed) {
             layer_on(_CUST_RGB);
@@ -204,8 +192,18 @@ void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_dat
         } else {
             register_code16(tap_hold->tap);
             tap_hold->held = tap_hold->tap;
-            is_hold_tapdance_disabled = false;
         }
+    }
+}
+
+void tap_dance_tap_hold_reset_layout(tap_dance_state_t *state, void *user_data) {
+    tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
+
+    is_hold_tapdance_disabled = false;
+
+    if (tap_hold->held) {
+        unregister_code16(tap_hold->held);
+        tap_hold->held = 0;
     }
 }
 
@@ -213,7 +211,7 @@ void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_dat
     { .fn = {NULL, tap_dance_tap_hold_finished, tap_dance_tap_hold_reset}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
 
 #define ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(tap, hold) \
-    { .fn = {NULL, tap_dance_tap_hold_finished_layout, tap_dance_tap_hold_reset}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
+    { .fn = {NULL, tap_dance_tap_hold_finished_layout, tap_dance_tap_hold_reset_layout}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
 
 // Associate our tap dance key with its functionality
 tap_dance_action_t tap_dance_actions[] = {
