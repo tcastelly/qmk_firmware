@@ -56,9 +56,9 @@ bool is_hold_tapdance_disabled = false;
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /* Qwerty
  * ,-----------------------------------------------------------------------------------.
- * |   `  |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |   0  | Bksp |
+ * |   `  |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |   0  | Del  |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * | Tab  |   Q  |   W  |   E  |   R  |   T  |   Y  |   U  |   I  |   O  |   P  | Del  |
+ * | Tab  |   Q  |   W  |   E  |   R  |   T  |   Y  |   U  |   I  |   O  |   P  | Bksp |
  * |------+------+------+------+------+-------------+------+------+------+------+------|
  * | Esc  |   A  |   S  |   D  |   F  |   G  |   H  |   J  |   K  |   L  |   ;  |  "   |
  * |------+------+------+------+------+------|------+------+------+------+------+------|
@@ -68,8 +68,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------------------------------------------------------'
  */
 [_QWERTY] = LAYOUT_preonic_grid(
-  KC_GRV,        KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,        KC_BSPC,
-  TD(TD_TAB),    KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    TD(TD_O),TD(TD_P),    KC_DEL,
+  KC_GRV,        KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,        KC_DEL,
+  TD(TD_TAB),    KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    TD(TD_O),TD(TD_P),    KC_BSPC,
   TD(TD_ESC),    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    TD(TD_L),TD(TD_SCLN), KC_QUOT,
   KC_LSFT,       KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,     KC_ENT,
   KC_LCTL,       MOUSE,   KC_LALT, KC_LGUI, LOWER,   KC_SPC,  KC_SPC,  RAISE,   KC_LEFT, KC_DOWN, KC_UP,       KC_RGHT
@@ -266,15 +266,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case TD(TD_P):
         case TD(TD_L):
         case TD(TD_SCLN):
+          if (keycode == TD(TD_ESC) && !record->event.pressed) {
+              layer_off(_ARROWS);
+              is_hold_tapdance_disabled = false;
+          }
+
           action = &tap_dance_actions[TD_INDEX(keycode)];
           if (!record->event.pressed && action->state.count && !action->state.finished) {
               tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
               tap_code16(tap_hold->tap);
-          }
-
-          if (!record->event.pressed && keycode == TD(TD_ESC)) {
-              layer_off(_ARROWS);
-              is_hold_tapdance_disabled = false;
           }
           break;
       }
@@ -399,29 +399,12 @@ void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_dat
     is_hold_tapdance_disabled = true;
 
     if (state->pressed) {
-        if (state->count == 1
-#ifndef PERMISSIVE_HOLD
-            && !state->interrupted
-#endif
-        ) {
-            layer_on(tap_hold->hold);
-            tap_hold->held = tap_hold->hold;
-        } else {
-            register_code16(tap_hold->tap);
-            tap_hold->held = tap_hold->tap;
-        }
+        layer_on(tap_hold->hold);
     }
 }
 
 void tap_dance_tap_hold_reset_layout(tap_dance_state_t *state, void *user_data) {
-    tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
-
     is_hold_tapdance_disabled = false;
-
-    if (tap_hold->held) {
-        unregister_code16(tap_hold->held);
-        tap_hold->held = 0;
-    }
 }
 
 #define ACTION_TAP_DANCE_TAP_HOLD(tap, hold) \
@@ -440,17 +423,3 @@ tap_dance_action_t tap_dance_actions[] = {
     [TD_SCLN] = ACTION_TAP_DANCE_TAP_HOLD(KC_SCLN, KC_RCBR),
 };
 
-// Set a long-ish tapping term for tap-dance keys
-uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case QK_TAP_DANCE_MAX:
-            return 275;
-            break;
-        case TD(TD_ESC):
-            return 120;
-            break;
-        default:
-            return TAPPING_TERM;
-            break;
-    }
-}
