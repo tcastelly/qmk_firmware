@@ -76,5 +76,5 @@
 #define RGB_MATRIX_SPD_STEP 10
 
 // global time for tap dance
-#define TAPPING_TERM 175
-#define TAPPING_TERM_PER_KEY
+#define TAPPING_TERM 200
+// #define TAPPING_TERM_PER_KEY
