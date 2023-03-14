@@ -16,4 +16,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#define TAPPING_TERM 280
+#define TAPPING_TERM 175
+#define TAPPING_TERM_PER_KEY
