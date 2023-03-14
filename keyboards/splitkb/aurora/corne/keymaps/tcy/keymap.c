@@ -17,6 +17,10 @@ enum custom_keycodes {
   RAISE,
   ADJUST,
   ARROWS,
+  ACCENT_GRAVE,
+  ACCENT_CIRCUM,
+  ACCENT_E_GRAVE,
+  ACCENT_A_GRAVE,
 };
 
 typedef struct {
@@ -107,9 +111,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_ARROWS] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      _______, _______, _______, _______, _______, _______,                      KC_WH_L, KC_WH_D, KC_WH_U, KC_WH_R, _______, KC_DEL,
+      ACCENT_GRAVE, _______, _______, ACCENT_E_GRAVE, _______, _______,                      ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, KC_DEL,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      _______, _______, _______, _______, _______, _______,                      KC_LEFT, KC_DOWN, KC_UP,  KC_RIGHT, _______, _______,
+      _______, ACCENT_A_GRAVE, _______, _______, _______, _______,                      KC_LEFT, KC_DOWN, KC_UP,  KC_RIGHT, _______, _______,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, _______, _______, _______, _______, _______,                      KC_MS_LEFT,KC_MS_DOWN,KC_MS_UP, KC_MS_RIGHT, _______,  _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
@@ -119,7 +123,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_NUM_PADS] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      _______, _______, _______, _______, _______, _______,                      _______, _______, KC_7,    KC_8,    KC_9, KC_BSPC,
+     _______, _______, _______, _______, _______, _______,                      _______, _______, KC_7,    KC_8,    KC_9, KC_BSPC,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, _______, _______, _______, _______, _______,                      _______, _______, KC_4,    KC_5,    KC_6, KC_DOT,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
@@ -196,6 +200,50 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
       return true;
       break;
+
+    case ACCENT_CIRCUM:
+      if (record->event.pressed) {
+          register_code(KC_RALT);
+          register_code(KC_6);
+      } else {
+          unregister_code(KC_6);
+          unregister_code(KC_RALT);
+      }
+      break;
+
+    case ACCENT_GRAVE:
+      if (record->event.pressed) {
+          register_code(KC_RALT);
+          register_code(KC_GRV);
+      } else {
+          unregister_code(KC_GRV);
+          unregister_code(KC_RALT);
+      }
+      break;
+
+    case ACCENT_E_GRAVE:
+      if (record->event.pressed) {
+          register_code(KC_RALT);
+          register_code(KC_GRV);
+      } else {
+          unregister_code(KC_GRV);
+          unregister_code(KC_RALT);
+          register_code(KC_E);
+          unregister_code(KC_E);
+      }
+      break;
+
+     case ACCENT_A_GRAVE:
+       if (record->event.pressed) {
+           register_code(KC_RALT);
+           register_code(KC_GRV);
+       } else {
+           unregister_code(KC_GRV);
+           unregister_code(KC_RALT);
+           register_code(KC_A);
+           unregister_code(KC_A);
+       }
+       break;
 
     case TD(TD_O):  // list all tap dance keycodes with tap-hold configurations
     case TD(TD_ESC):
