@@ -18,3 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define TAPPING_TERM 175
 #define TAPPING_TERM_PER_KEY
+
+// use the power light of liatris controller
+// to display the cap lock light
+#define LED_CAPS_LOCK_PIN 24
+#define LED_PIN_ON_STATE 0
