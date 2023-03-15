@@ -6,7 +6,8 @@ enum layer_names {
     _LOWER,
     _RAISE,
     _ADJUST,
-    _ARROWS,
+    _ESC,
+    _ESC_LINUX,
     _NUM_PADS
 };
 
@@ -16,7 +17,7 @@ enum custom_keycodes {
   LOWER,
   RAISE,
   ADJUST,
-  ARROWS,
+  ESC,
   ACCENT_GRAVE,
   ACCENT_CIRCUM,
   ACCENT_E_GRAVE,
@@ -47,6 +48,7 @@ typedef struct {
 // custom tap dance
 enum {
     TD_ESC,
+    TD_ESC_LINUX,
     TD_TAB,
     TD_O,
     TD_P,
@@ -77,7 +79,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
       TD(TD_TAB),  KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,TD(TD_O),TD(TD_P), KC_BSPC,
   //|--------+--------+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      TD(TD_ESC),  KC_A,   KC_S,    KC_D,  KC_F,     KC_G,                          KC_H,    KC_J,    KC_K,TD(TD_L),TD(TD_SCLN), KC_QUOT,
+      TD(TD_ESC_LINUX),KC_A,KC_S,KC_D,  KC_F,     KC_G,                          KC_H,    KC_J,    KC_K,TD(TD_L),TD(TD_SCLN), KC_QUOT,
   //|--------+---- ----+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       KC_LSFT,     KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, KC_ENT,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
@@ -109,13 +111,25 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                       //`--------------------------'  `--------------------------'
   ),
 
-  [_ARROWS] = LAYOUT_split_3x6_3(
+  [_ESC] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, _______, _______,                      ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, KC_DEL,
+      ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, _______, _______,    ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, KC_DEL,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      _______, ACCENT_A_GRAVE, _______, _______, _______, _______,                      KC_LEFT, KC_DOWN, KC_UP,  KC_RIGHT, _______, _______,
+      _______, ACCENT_A_GRAVE, _______, _______, _______, _______,              KC_LEFT, KC_DOWN, KC_UP,  KC_RIGHT, _______, _______,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, _______, _______, _______, _______, _______,                      KC_MS_LEFT,KC_MS_DOWN,KC_MS_UP, KC_MS_RIGHT, _______,  _______,
+  //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
+                                          _______, _______,KC_MS_BTN2, KC_MS_BTN1, _______, _______
+                                      //`--------------------------'  `--------------------------'
+  ),
+
+  [_ESC_LINUX] = LAYOUT_split_3x6_3(
+  //,-----------------------------------------------------.                    ,-----------------------------------------------------.
+      ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, _______, _______,   ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, KC_DEL,
+  //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
+      _______, ACCENT_A_GRAVE, _______, _______, _______, _______,              KC_LEFT, KC_DOWN, KC_UP,  KC_RIGHT, _______, _______,
+  //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
+      _______, _______, _______, _______, _______, _______,                     KC_MS_LEFT,KC_MS_DOWN,KC_MS_UP, KC_MS_RIGHT, _______,  _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           _______, _______,KC_MS_BTN1, KC_MS_BTN2, _______, _______
                                       //`--------------------------'  `--------------------------'
@@ -135,11 +149,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_ADJUST] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      _______, QWERTY, _______ , _______, _______, _______,                      _______, _______, _______, _______, _______, QK_BOOT,
+      _______, QWERTY, QWERTY_LINUX , _______, _______, _______,                 _______, _______, _______, _______, _______, QK_BOOT,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      _______, _______,      _______, _______, _______, QWERTY,                QWERTY_LINUX,  _______, _______,  _______, _______, _______,
+      _______, _______,      _______, _______, _______, _______,                _______,  _______, _______,  _______, _______, _______,
   //|--------+--------+-     -------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      _______, _______,      _______, _______, _______, AG_NORM,                AG_LSWP, _______, _______, _______, _______, _______,
+      _______, _______,      _______, _______, _______, _______,                _______, _______, _______, _______, _______, _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           _______, _______, _______,    _______, _______, _______
                                       //`--------------------------'  `--------------------------'
@@ -247,12 +261,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     case TD(TD_O):  // list all tap dance keycodes with tap-hold configurations
     case TD(TD_ESC):
+    case TD(TD_ESC_LINUX):
     case TD(TD_TAB):
     case TD(TD_P):
     case TD(TD_L):
     case TD(TD_SCLN):
-      if (keycode == TD(TD_ESC) && !record->event.pressed) {
-          layer_off(_ARROWS);
+      if ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_LINUX)) && !record->event.pressed) {
+          layer_off(_ESC);
+          layer_off(_ESC_LINUX);
           is_hold_tapdance_disabled = false;
       }
 
@@ -495,7 +511,8 @@ void td_lgui_reset (tap_dance_state_t *state, void *user_data) {
 
 // Associate our tap dance key with its functionality
 tap_dance_action_t tap_dance_actions[] = {
-    [TD_ESC] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ARROWS),
+    [TD_ESC] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC),
+    [TD_ESC_LINUX] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC_LINUX),
     [TD_TAB] = ACTION_TAP_DANCE_TAP_HOLD(KC_TAB, KC_TILD),
     [TD_O] = ACTION_TAP_DANCE_TAP_HOLD(KC_O, KC_LPRN),
     [TD_P] = ACTION_TAP_DANCE_TAP_HOLD(KC_P, KC_RPRN),
