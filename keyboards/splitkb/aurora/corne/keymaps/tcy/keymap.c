@@ -8,7 +8,8 @@ enum layer_names {
     _ADJUST,
     _ESC,
     _ESC_LINUX,
-    _NUM_PADS
+    _NUM_PADS,
+    _ACCENTS_RALT
 };
 
 enum custom_keycodes {
@@ -20,8 +21,16 @@ enum custom_keycodes {
   ESC,
   ACCENT_GRAVE,
   ACCENT_CIRCUM,
+  ACCENT_TREMA,
   ACCENT_E_GRAVE,
   ACCENT_A_GRAVE,
+
+  // to be used with RALT already pressed
+  ACCENT_I_CIRC_RALT,
+  ACCENT_O_CIRC_RALT,
+  ACCENT_U_AIGU_RALT,
+  ACCENT_C_RALT,
+  ACCENT_A_GRAVE_RALT
 };
 
 typedef struct {
@@ -124,7 +133,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
       ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, _______, _______,    ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, KC_DEL,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      _______, ACCENT_A_GRAVE, _______, _______, _______, _______,              KC_LEFT, KC_DOWN, KC_UP,  KC_RIGHT, _______, _______,
+      _______, ACCENT_A_GRAVE, _______, _______, _______, _______,         KC_LEFT, KC_DOWN, KC_UP,  KC_RIGHT, _______, ACCENT_TREMA,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, _______, _______, _______, _______, _______,                      KC_MS_LEFT,KC_MS_DOWN,KC_MS_UP, KC_MS_RIGHT, _______,  _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
@@ -136,7 +145,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
       ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, _______, _______,   ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, KC_DEL,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      _______, ACCENT_A_GRAVE, _______, _______, _______, _______,              KC_LEFT, KC_DOWN, KC_UP,  KC_RIGHT, _______, _______,
+      _______, ACCENT_A_GRAVE, _______, _______, _______, _______,              KC_LEFT, KC_DOWN, KC_UP,  KC_RIGHT, _______, ACCENT_TREMA,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, _______, _______, _______, _______, _______,                     KC_MS_LEFT,KC_MS_DOWN,KC_MS_UP, KC_MS_RIGHT, _______,  _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
@@ -153,6 +162,18 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       _______, _______, _______, _______, _______, _______,                      _______, _______, KC_1,    KC_2,    KC_3, KC_0,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           _______, _______, _______,    _______, _______, KC_DOT
+                                      //`--------------------------'  `--------------------------'
+  ),
+
+  [_ACCENTS_RALT] = LAYOUT_split_3x6_3(
+  //,-----------------------------------------------------.                    ,-----------------------------------------------------.
+      _______, _______, _______ , _______, _______, _______,                    _______, ACCENT_U_AIGU_RALT, ACCENT_I_CIRC_RALT, ACCENT_O_CIRC_RALT, _______, _______,
+  //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
+      _______, ACCENT_A_GRAVE_RALT, _______, _______, _______, _______,         _______,  _______, _______,  _______, _______, _______,
+  //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
+      _______, _______, _______, ACCENT_C_RALT, _______, _______,               _______, _______, _______, _______, _______, _______,
+  //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
+                                          _______, _______, _______,    _______, _______, _______
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -234,6 +255,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
       break;
 
+    case ACCENT_TREMA:
+      if (record->event.pressed) {
+          register_code(KC_RALT);
+          register_code(KC_LSFT);
+          register_code(KC_QUOT);
+      } else {
+          unregister_code(KC_QUOT);
+          unregister_code(KC_LSFT);
+          unregister_code(KC_RALT);
+      }
+      break;
+
     case ACCENT_GRAVE:
       if (record->event.pressed) {
           register_code(KC_RALT);
@@ -255,6 +288,75 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           unregister_code(KC_E);
       }
       break;
+
+      // to be used with RALT already pressed
+     case ACCENT_A_GRAVE_RALT:
+       if (record->event.pressed) {
+           register_code(KC_GRV);
+       } else {
+           unregister_code(KC_GRV);
+           unregister_code(KC_RALT);
+           register_code(KC_A);
+           unregister_code(KC_A);
+
+           // will be unregister by `td_ralt_reset`
+           register_code(KC_RALT);
+       }
+       break;
+
+     case ACCENT_I_CIRC_RALT:
+       if (record->event.pressed) {
+           register_code(KC_6);
+       } else {
+           unregister_code(KC_6);
+           unregister_code(KC_RALT);
+           register_code(KC_I);
+           unregister_code(KC_I);
+
+           // will be unregister by `td_ralt_reset`
+           register_code(KC_RALT);
+       }
+       break;
+
+     case ACCENT_O_CIRC_RALT:
+       if (record->event.pressed) {
+           register_code(KC_6);
+       } else {
+           unregister_code(KC_6);
+           unregister_code(KC_RALT);
+           register_code(KC_O);
+           unregister_code(KC_O);
+
+           // will be unregister by `td_ralt_reset`
+           register_code(KC_RALT);
+       }
+       break;
+
+     case ACCENT_U_AIGU_RALT:
+       if (record->event.pressed) {
+           register_code(KC_GRV);
+       } else {
+           unregister_code(KC_GRV);
+           unregister_code(KC_RALT);
+           register_code(KC_U);
+           unregister_code(KC_U);
+
+           // will be unregister by `td_ralt_reset`
+           register_code(KC_RALT);
+       }
+       break;
+
+     case ACCENT_C_RALT:
+       if (record->event.pressed) {
+           register_code(KC_COMM);
+       } else {
+           unregister_code(KC_COMM);
+           unregister_code(KC_RALT);
+
+           // will be unregister by `td_ralt_reset`
+           register_code(KC_RALT);
+       }
+       break;
 
      case ACCENT_A_GRAVE:
        if (record->event.pressed) {
@@ -389,6 +491,7 @@ void td_ralt_lin_finished (tap_dance_state_t *state, void *user_data) {
       case SINGLE_TAP:
       case SINGLE_HOLD:
           register_code(KC_RALT);
+          layer_on(_ACCENTS_RALT);
           break;
 
       case DOUBLE_SINGLE_TAP:
@@ -405,6 +508,7 @@ void td_ralt_lin_reset (tap_dance_state_t *state, void *user_data) {
         case SINGLE_TAP:
         case SINGLE_HOLD:
             unregister_code(KC_RALT);
+            layer_off(_ACCENTS_RALT);
             break;
 
         case DOUBLE_SINGLE_TAP:
@@ -423,6 +527,7 @@ void td_ralt_finished (tap_dance_state_t *state, void *user_data) {
       case SINGLE_TAP:
       case SINGLE_HOLD:
           register_code(KC_RALT);
+          layer_on(_ACCENTS_RALT);
           break;
 
       case DOUBLE_SINGLE_TAP:
@@ -439,6 +544,7 @@ void td_ralt_reset (tap_dance_state_t *state, void *user_data) {
         case SINGLE_TAP:
         case SINGLE_HOLD:
             unregister_code(KC_RALT);
+            layer_off(_ACCENTS_RALT);
             break;
 
         case DOUBLE_SINGLE_TAP:
