@@ -45,6 +45,9 @@ enum {
   DOUBLE_TAP = 3,
   DOUBLE_HOLD = 4,
   DOUBLE_SINGLE_TAP = 5, //send two single taps
+  TRIPLE_TAP = 6,
+  TRIPLE_HOLD = 7,
+  TRIPLE_SINGLE_TAP = 8
 };
 
 // "tap-hold"
@@ -433,35 +436,46 @@ void tap_dance_tap_hold_reset_layout(tap_dance_state_t *state, void *user_data) 
 
 // START default tap-dance
 int cur_dance (tap_dance_state_t *state) {
-  if (state->count == 1) {
-    //key has not been interrupted, but they key is still held. Means you want to send a 'HOLD'.
-    if (state->interrupted || !state->pressed) {
-        return SINGLE_TAP;
+    if (state->count == 1) {
+        //key has not been interrupted, but they key is still held. Means you want to send a 'HOLD'.
+        if (state->interrupted || !state->pressed) {
+            return SINGLE_TAP;
+        }
+        //key has not been interrupted, but they key is still held. Means you want to send a 'HOLD'.
+        else {
+            return SINGLE_HOLD;
+        }
     }
-    //key has not been interrupted, but they key is still held. Means you want to send a 'HOLD'.
-    else {
-        return SINGLE_HOLD;
+    else if (state->count == 2) {
+        /*
+         * DOUBLE_SINGLE_TAP is to distinguish between typing "pepper", and actually wanting a double tap
+         * action when hitting 'pp'. Suggested use case for this return value is when you want to send two
+         * keystrokes of the key, and not the 'double tap' action/macro.
+         */
+        if (state->interrupted) {
+            return DOUBLE_SINGLE_TAP;
+        }
+        else if (state->pressed) {
+            return DOUBLE_HOLD;
+        }
+        else {
+            return DOUBLE_TAP;
+        }
     }
-  }
-  else if (state->count == 2) {
-    /*
-     * DOUBLE_SINGLE_TAP is to distinguish between typing "pepper", and actually wanting a double tap
-     * action when hitting 'pp'. Suggested use case for this return value is when you want to send two
-     * keystrokes of the key, and not the 'double tap' action/macro.
-    */
-    if (state->interrupted) {
-        return DOUBLE_SINGLE_TAP;
+    else if (state->count == 3) {
+        if (state->interrupted) {
+            return TRIPLE_SINGLE_TAP;
+        }
+        else if (state->pressed) {
+            return TRIPLE_HOLD;
+        }
+        else {
+            return TRIPLE_TAP;
+        }
     }
-    else if (state->pressed) {
-        return DOUBLE_HOLD;
-    }
-    else {
-        return DOUBLE_TAP;
-    }
-  }
 
-  //magic number. At some point this method will expand to work for more presses
-  return 8;
+    //magic number. At some point this method will expand to work for more presses
+    return 8;
 }
 
 //instanalize an instance of 'tap' for the 'x' tap dance.
@@ -485,6 +499,11 @@ void td_ralt_lin_finished (tap_dance_state_t *state, void *user_data) {
       case DOUBLE_HOLD:
           register_code(KC_LCTL);
           break;
+
+      case TRIPLE_SINGLE_TAP:
+      case TRIPLE_HOLD:
+          register_code(KC_LSFT);
+          break;
   }
 }
 
@@ -502,6 +521,11 @@ void td_ralt_lin_reset (tap_dance_state_t *state, void *user_data) {
         case DOUBLE_HOLD:
             unregister_code(KC_LCTL);
             break;
+
+      case TRIPLE_SINGLE_TAP:
+      case TRIPLE_HOLD:
+          unregister_code(KC_LSFT);
+          break;
     }
     xtap_state.state = 0;
 }
@@ -521,6 +545,11 @@ void td_ralt_finished (tap_dance_state_t *state, void *user_data) {
       case DOUBLE_HOLD:
           register_code(KC_LGUI);
           break;
+
+      case TRIPLE_SINGLE_TAP:
+      case TRIPLE_HOLD:
+          register_code(KC_LSFT);
+          break;
   }
 }
 
@@ -537,6 +566,11 @@ void td_ralt_reset (tap_dance_state_t *state, void *user_data) {
         case DOUBLE_SINGLE_TAP:
         case DOUBLE_HOLD:
             unregister_code(KC_LGUI);
+            break;
+
+        case TRIPLE_SINGLE_TAP:
+        case TRIPLE_HOLD:
+            unregister_code(KC_LSFT);
             break;
     }
     xtap_state.state = 0;
