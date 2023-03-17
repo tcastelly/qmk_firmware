@@ -69,7 +69,11 @@ enum {
     TD_LGUI,
     TD_RALT,
     TD_LALT,
-    TD_RALT_LIN
+    TD_RALT_LIN,
+    TD_BSPC,
+    TD_BSPC_LIN,
+    TD_DEL,
+    TD_DEL_LIN
 };
 
 bool is_hold_tapdance_disabled = false;
@@ -86,7 +90,7 @@ void keyboard_pre_init_user(void) {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY_LINUX] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      TD(TD_TAB),  KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,TD(TD_O),TD(TD_P), KC_BSPC,
+      TD(TD_TAB),  KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,TD(TD_O),TD(TD_P), TD(TD_BSPC_LIN),
   //|--------+--------+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       TD(TD_ESC_LINUX),KC_A,KC_S,KC_D,  KC_F,     KC_G,                          KC_H,    KC_J,    KC_K,TD(TD_L),TD(TD_SCLN), KC_QUOT,
   //|--------+---- ----+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
@@ -98,7 +102,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_QWERTY] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      TD(TD_TAB),  KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,TD(TD_O),TD(TD_P), KC_BSPC,
+      TD(TD_TAB),  KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,TD(TD_O),TD(TD_P), TD(TD_BSPC),
   //|--------+--------+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       TD(TD_ESC),  KC_A,   KC_S,    KC_D,  KC_F,     KC_G,                          KC_H,    KC_J,    KC_K,TD(TD_L),TD(TD_SCLN), KC_QUOT,
   //|--------+---- ----+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
@@ -135,7 +139,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_ESC] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, _______, _______,    ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, KC_DEL,
+      ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, _______, _______,    ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, TD(TD_DEL),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, ACCENT_A_GRAVE, _______, _______, _______, _______,         KC_LEFT, KC_DOWN, KC_UP,  KC_RIGHT, _______, ACCENT_TREMA,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
@@ -147,7 +151,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_ESC_LINUX] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, _______, _______,   ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, KC_DEL,
+      ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, _______, _______,   ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, TD(TD_DEL_LIN),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, ACCENT_A_GRAVE, _______, _______, _______, _______,              KC_LEFT, KC_DOWN, KC_UP,  KC_RIGHT, _______, ACCENT_TREMA,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
@@ -367,6 +371,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case TD(TD_P):
     case TD(TD_L):
     case TD(TD_SCLN):
+    case TD(TD_BSPC):
+    case TD(TD_BSPC_LIN):
+    case TD(TD_DEL):
+    case TD(TD_DEL_LIN):
       if ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_LINUX)) && !record->event.pressed) {
           layer_off(_ESC);
           layer_off(_ESC_LINUX);
@@ -411,6 +419,26 @@ void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
     }
 }
 
+// allow call multiple tap dance simultaneously
+// e.g: TD_DEL/TD_DEL_LIN
+void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *user_data) {
+    tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
+
+    if (state->pressed) {
+        if (state->count == 1
+#ifndef PERMISSIVE_HOLD
+            && !state->interrupted
+#endif
+        ) {
+            register_code16(tap_hold->hold);
+            tap_hold->held = tap_hold->hold;
+        } else {
+            register_code16(tap_hold->tap);
+            tap_hold->held = tap_hold->tap;
+        }
+    }
+}
+
 // START tap-hold
 void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
@@ -428,6 +456,11 @@ void tap_dance_tap_hold_reset_layout(tap_dance_state_t *state, void *user_data) 
 
 #define ACTION_TAP_DANCE_TAP_HOLD(tap, hold) \
     { .fn = {NULL, tap_dance_tap_hold_finished, tap_dance_tap_hold_reset}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
+
+// allow call multiple tap dance simultaneously
+// e.g: TD_DEL/TD_DEL_LIN
+#define ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(tap, hold) \
+    { .fn = {NULL, tap_dance_tap_hold_finished_unprotected, tap_dance_tap_hold_reset}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
 
 #define ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(tap, hold) \
     { .fn = {NULL, tap_dance_tap_hold_finished_layout, tap_dance_tap_hold_reset_layout}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
@@ -659,6 +692,12 @@ tap_dance_action_t tap_dance_actions[] = {
     // enable it for osx and linux
     [TD_LALT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lalt_finished, td_lalt_reset),
     [TD_LGUI] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lgui_finished, td_lgui_reset),
+
+    [TD_BSPC] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LALT(KC_BSPC)),
+    [TD_BSPC_LIN] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LCTL(KC_BSPC)),
+
+    [TD_DEL] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_DEL, LALT(KC_DEL)),
+    [TD_DEL_LIN] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_DEL, LCTL(KC_DEL)),
 
     [TD_RALT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_finished, td_ralt_reset),
     [TD_RALT_LIN] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_lin_finished, td_ralt_lin_reset)
