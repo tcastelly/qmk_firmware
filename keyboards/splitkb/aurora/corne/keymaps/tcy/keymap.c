@@ -74,7 +74,11 @@ enum {
     TD_BSPC,
     TD_BSPC_LIN,
     TD_DEL,
-    TD_DEL_LIN
+    TD_DEL_LIN,
+    TD_LEFT,
+    TD_LEFT_LIN,
+    TD_RIGHT,
+    TD_RIGHT_LIN
 };
 
 bool is_hold_tapdance_disabled = false;
@@ -142,9 +146,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
       ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, _______, _______,    ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, TD(TD_DEL),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      _______, ACCENT_A_GRAVE, _______, _______, _______, _______,         KC_LEFT, KC_DOWN, KC_UP,  KC_RIGHT, _______, ACCENT_TREMA,
+      _______, ACCENT_A_GRAVE, _______, _______, _______, _______,              TD(TD_LEFT), KC_DOWN, KC_UP,  TD(TD_RIGHT), _______, ACCENT_TREMA,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      _______, _______, _______, _______, _______, _______,                      KC_MS_LEFT,KC_MS_DOWN,KC_MS_UP, KC_MS_RIGHT, _______,  _______,
+      _______, _______, _______, _______, _______, _______,                     KC_MS_LEFT,KC_MS_DOWN,KC_MS_UP, KC_MS_RIGHT, _______,  _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           _______, _______,KC_MS_BTN1, KC_MS_BTN2, _______, _______
                                       //`--------------------------'  `--------------------------'
@@ -154,7 +158,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
       ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, _______, _______,   ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, TD(TD_DEL_LIN),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      _______, ACCENT_A_GRAVE, _______, _______, _______, _______,              KC_LEFT, KC_DOWN, KC_UP,  KC_RIGHT, _______, ACCENT_TREMA,
+      _______, ACCENT_A_GRAVE, _______, _______, _______, _______,              TD(TD_LEFT_LIN), KC_DOWN, KC_UP,  TD(TD_RIGHT_LIN), _______, ACCENT_TREMA,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, _______, _______, _______, _______, _______,                     KC_MS_LEFT,KC_MS_DOWN,KC_MS_UP, KC_MS_RIGHT, _______,  _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
@@ -377,6 +381,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case TD(TD_BSPC_LIN):
     case TD(TD_DEL):
     case TD(TD_DEL_LIN):
+    case TD(TD_LEFT):
+    case TD(TD_LEFT_LIN):
+    case TD(TD_RIGHT):
+    case TD(TD_RIGHT_LIN):
       if ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_LINUX)) && !record->event.pressed) {
           layer_off(_ESC);
           layer_off(_ESC_LINUX);
@@ -681,6 +689,12 @@ tap_dance_action_t tap_dance_actions[] = {
 
     [TD_DEL] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_DEL, LALT(KC_DEL)),
     [TD_DEL_LIN] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_DEL, LCTL(KC_DEL)),
+
+    [TD_LEFT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_LEFT, LALT(KC_LEFT)),
+    [TD_LEFT_LIN] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_LEFT, LCTL(KC_LEFT)),
+
+    [TD_RIGHT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LALT(KC_RIGHT)),
+    [TD_RIGHT_LIN] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LCTL(KC_RIGHT)),
 
     [TD_RALT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_finished, td_ralt_reset),
     [TD_RALT_LIN] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_lin_finished, td_ralt_lin_reset)
