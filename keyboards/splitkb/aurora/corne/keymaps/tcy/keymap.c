@@ -65,6 +65,7 @@ enum {
     TD_O,
     TD_P,
     TD_L,
+    TD_ENT,
     TD_SCLN,
     TD_LGUI,
     TD_RALT,
@@ -94,7 +95,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       TD(TD_ESC_LINUX),KC_A,KC_S,KC_D,  KC_F,     KC_G,                          KC_H,    KC_J,    KC_K,TD(TD_L),TD(TD_SCLN), KC_QUOT,
   //|--------+---- ----+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LSFT,     KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, KC_ENT,
+      KC_LSFT,     KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, TD(TD_ENT),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                         KC_LCTL,TD(TD_LALT),LOWER,    KC_SPC,   RAISE, TD(TD_RALT_LIN)
                                       //`--------------------------'  `--------------------------'
@@ -106,7 +107,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       TD(TD_ESC),  KC_A,   KC_S,    KC_D,  KC_F,     KC_G,                          KC_H,    KC_J,    KC_K,TD(TD_L),TD(TD_SCLN), KC_QUOT,
   //|--------+---- ----+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LSFT,     KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, KC_ENT,
+      KC_LSFT,     KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, TD(TD_ENT),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                         KC_LCTL,TD(TD_LGUI),LOWER,    KC_SPC,   RAISE, TD(TD_RALT)
                                       //`--------------------------'  `--------------------------'
@@ -370,6 +371,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case TD(TD_TAB):
     case TD(TD_P):
     case TD(TD_L):
+    case TD(TD_ENT):
     case TD(TD_SCLN):
     case TD(TD_BSPC):
     case TD(TD_BSPC_LIN):
@@ -532,11 +534,6 @@ void td_ralt_lin_finished (tap_dance_state_t *state, void *user_data) {
       case DOUBLE_HOLD:
           register_code(KC_LCTL);
           break;
-
-      case TRIPLE_SINGLE_TAP:
-      case TRIPLE_HOLD:
-          register_code(KC_LSFT);
-          break;
   }
 }
 
@@ -554,11 +551,6 @@ void td_ralt_lin_reset (tap_dance_state_t *state, void *user_data) {
         case DOUBLE_HOLD:
             unregister_code(KC_LCTL);
             break;
-
-      case TRIPLE_SINGLE_TAP:
-      case TRIPLE_HOLD:
-          unregister_code(KC_LSFT);
-          break;
     }
     xtap_state.state = 0;
 }
@@ -578,11 +570,6 @@ void td_ralt_finished (tap_dance_state_t *state, void *user_data) {
       case DOUBLE_HOLD:
           register_code(KC_LGUI);
           break;
-
-      case TRIPLE_SINGLE_TAP:
-      case TRIPLE_HOLD:
-          register_code(KC_LSFT);
-          break;
   }
 }
 
@@ -599,11 +586,6 @@ void td_ralt_reset (tap_dance_state_t *state, void *user_data) {
         case DOUBLE_SINGLE_TAP:
         case DOUBLE_HOLD:
             unregister_code(KC_LGUI);
-            break;
-
-        case TRIPLE_SINGLE_TAP:
-        case TRIPLE_HOLD:
-            unregister_code(KC_LSFT);
             break;
     }
     xtap_state.state = 0;
@@ -687,6 +669,7 @@ tap_dance_action_t tap_dance_actions[] = {
     [TD_P] = ACTION_TAP_DANCE_TAP_HOLD(KC_P, KC_RPRN),
     [TD_L] = ACTION_TAP_DANCE_TAP_HOLD(KC_L, KC_LCBR),
     [TD_SCLN] = ACTION_TAP_DANCE_TAP_HOLD(KC_SCLN, KC_RCBR),
+    [TD_ENT] = ACTION_TAP_DANCE_TAP_HOLD(KC_ENT, KC_LSFT),
 
     // same tap-dance
     // enable it for osx and linux
