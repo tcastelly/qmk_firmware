@@ -30,7 +30,11 @@ enum custom_keycodes {
   ACCENT_O_CIRC_RALT,
   ACCENT_U_AIGU_RALT,
   ACCENT_C_RALT,
-  ACCENT_A_GRAVE_RALT
+  ACCENT_A_GRAVE_RALT,
+
+  // Jetbrains macro
+  JET_FIND,
+  JET_RNM,
 };
 
 typedef struct {
@@ -156,9 +160,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_ESC_LINUX] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, _______, _______,   ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, TD(TD_DEL_LIN),
+      ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, JET_RNM, _______,   ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, TD(TD_DEL_LIN),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      _______, ACCENT_A_GRAVE, _______, _______, _______, _______,              TD(TD_LEFT_LIN), KC_DOWN, KC_UP,  TD(TD_RIGHT_LIN), _______, ACCENT_TREMA,
+      _______, ACCENT_A_GRAVE, _______, _______, JET_FIND, _______,              TD(TD_LEFT_LIN), KC_DOWN, KC_UP,  TD(TD_RIGHT_LIN), _______, ACCENT_TREMA,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, _______, _______, _______, _______, _______,                     KC_MS_LEFT,KC_MS_DOWN,KC_MS_UP, KC_MS_RIGHT, _______,  _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
@@ -367,6 +371,29 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            register_code(KC_A);
            unregister_code(KC_A);
        }
+       break;
+
+     case JET_RNM:
+       if (record->event.pressed) {
+           register_code(KC_LSFT);
+           register_code(KC_F6);
+
+           unregister_code(KC_LSFT);
+           unregister_code(KC_F6);
+       }
+       return false;
+       break;
+
+     case JET_FIND:
+       if (record->event.pressed) {
+           register_code(KC_LALT);
+           register_code(KC_F1);
+
+           unregister_code(KC_F1);
+           unregister_code(KC_LALT);
+           tap_code(KC_1);
+       }
+       return false;
        break;
 
     case TD(TD_O):  // list all tap dance keycodes with tap-hold configurations
