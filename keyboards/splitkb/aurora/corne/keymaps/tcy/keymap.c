@@ -2,19 +2,19 @@
 
 enum layer_names {
     _QWERTY,
-    _QWERTY_LINUX,
+    _QWERTY_OSX,
     _LOWER,
     _RAISE,
     _ADJUST,
     _ESC,
-    _ESC_LINUX,
+    _ESC_OSX,
     _NUM_PADS,
     _ACCENTS_RALT
 };
 
 enum custom_keycodes {
   QWERTY = SAFE_RANGE,
-  QWERTY_LINUX,
+  QWERTY_OSX,
   LOWER,
   RAISE,
   ADJUST,
@@ -31,6 +31,10 @@ enum custom_keycodes {
   ACCENT_U_AIGU_RALT,
   ACCENT_C_RALT,
   ACCENT_A_GRAVE_RALT,
+
+  // in funciton of active layout (QWERTY or LINUX)
+  // apply left click
+  DYN_L_CLICK,
 
   // Jetbrains macro
   JET_FIND,
@@ -64,7 +68,7 @@ typedef struct {
 // custom tap dance
 enum {
     TD_ESC,
-    TD_ESC_LINUX,
+    TD_ESC_OSX,
     TD_TAB,
     TD_O,
     TD_P,
@@ -74,15 +78,15 @@ enum {
     TD_LGUI,
     TD_RALT,
     TD_LALT,
-    TD_RALT_LIN,
+    TD_RALT_OSX,
     TD_BSPC,
-    TD_BSPC_LIN,
+    TD_BSPC_OSX,
     TD_DEL,
-    TD_DEL_LIN,
+    TD_DEL_OSX,
     TD_LEFT,
-    TD_LEFT_LIN,
+    TD_LEFT_OSX,
     TD_RIGHT,
-    TD_RIGHT_LIN
+    TD_RIGHT_OSX
 };
 
 bool is_hold_tapdance_disabled = false;
@@ -97,27 +101,27 @@ void keyboard_pre_init_user(void) {
 }
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-  [_QWERTY_LINUX] = LAYOUT_split_3x6_3(
-  //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      TD(TD_TAB),  KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,TD(TD_O),TD(TD_P), TD(TD_BSPC_LIN),
-  //|--------+--------+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      TD(TD_ESC_LINUX),KC_A,KC_S,KC_D,  KC_F,     KC_G,                          KC_H,    KC_J,    KC_K,TD(TD_L),TD(TD_SCLN), KC_QUOT,
-  //|--------+---- ----+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LSFT,     KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, TD(TD_ENT),
-  //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                        KC_LCTL,TD(TD_LALT),LOWER,    KC_SPC,   RAISE, TD(TD_RALT_LIN)
-                                      //`--------------------------'  `--------------------------'
-  ),
-
   [_QWERTY] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
       TD(TD_TAB),  KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,TD(TD_O),TD(TD_P), TD(TD_BSPC),
   //|--------+--------+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      TD(TD_ESC),  KC_A,   KC_S,    KC_D,  KC_F,     KC_G,                          KC_H,    KC_J,    KC_K,TD(TD_L),TD(TD_SCLN), KC_QUOT,
+      TD(TD_ESC),  KC_A,   KC_S,    KC_D,    KC_F,    KC_G,                         KC_H,    KC_J,    KC_K,TD(TD_L),TD(TD_SCLN), KC_QUOT,
   //|--------+---- ----+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       KC_LSFT,     KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, TD(TD_ENT),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                        KC_LCTL,TD(TD_LGUI),LOWER,    KC_SPC,   RAISE, TD(TD_RALT)
+                                        KC_LCTL,TD(TD_LALT),LOWER,    KC_SPC,   RAISE, TD(TD_RALT)
+                                      //`--------------------------'  `--------------------------'
+  ),
+
+  [_QWERTY_OSX] = LAYOUT_split_3x6_3(
+  //,-----------------------------------------------------.                    ,-----------------------------------------------------.
+      TD(TD_TAB),  KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,TD(TD_O),TD(TD_P), TD(TD_BSPC_OSX),
+  //|--------+--------+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
+      TD(TD_ESC_OSX),  KC_A,   KC_S,    KC_D,  KC_F,     KC_G,                          KC_H,    KC_J,    KC_K,TD(TD_L),TD(TD_SCLN), KC_QUOT,
+  //|--------+---- ----+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
+      KC_LSFT,     KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, TD(TD_ENT),
+  //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
+                                        KC_LCTL,TD(TD_LGUI),LOWER,    KC_SPC,   RAISE, TD(TD_RALT_OSX)
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -130,7 +134,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
     _______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,                        KC_F12,  S(KC_NUHS), KC_HOME, KC_END, _______, _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                          _______, _______, _______,    _______, _______, _______
+                                          _______, _______, _______,    DYN_L_CLICK, _______, _______
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -146,11 +150,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                       //`--------------------------'  `--------------------------'
   ),
 
-  [_ESC] = LAYOUT_split_3x6_3(
+  [_ESC_OSX] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, JET_RNM, _______,    ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, TD(TD_DEL),
+      ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, JET_RNM, _______,    ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, TD(TD_DEL_OSX),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      _______, ACCENT_A_GRAVE, _______, _______, JET_FIND, _______,              TD(TD_LEFT), KC_DOWN, KC_UP,  TD(TD_RIGHT), _______, ACCENT_TREMA,
+      _______, ACCENT_A_GRAVE, _______, _______, JET_FIND, _______,              TD(TD_LEFT_OSX), KC_DOWN, KC_UP,  TD(TD_RIGHT_OSX), _______, ACCENT_TREMA,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, _______, _______, _______, _______, _______,                     KC_MS_LEFT,KC_MS_DOWN,KC_MS_UP, KC_MS_RIGHT, _______,  _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
@@ -158,11 +162,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                       //`--------------------------'  `--------------------------'
   ),
 
-  [_ESC_LINUX] = LAYOUT_split_3x6_3(
+  [_ESC] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, JET_RNM, _______,   ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, TD(TD_DEL_LIN),
+      ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, JET_RNM, _______,   ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, TD(TD_DEL),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      _______, ACCENT_A_GRAVE, _______, _______, JET_FIND, _______,              TD(TD_LEFT_LIN), KC_DOWN, KC_UP,  TD(TD_RIGHT_LIN), _______, ACCENT_TREMA,
+      _______, ACCENT_A_GRAVE, _______, _______, JET_FIND, _______,              TD(TD_LEFT), KC_DOWN, KC_UP,  TD(TD_RIGHT), _______, ACCENT_TREMA,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, _______, _______, _______, _______, _______,                     KC_MS_LEFT,KC_MS_DOWN,KC_MS_UP, KC_MS_RIGHT, _______,  _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
@@ -196,7 +200,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_ADJUST] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      _______, DF(QWERTY), DF(QWERTY_LINUX) , _______, _______, _______,                 _______, _______, _______, _______, _______, QK_BOOT,
+      _______, QWERTY , QWERTY_OSX  , _______, _______, _______,                 _______, _______, _______, _______, _______, QK_BOOT,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, _______,      _______, _______, _______, _______,                _______,  _______, _______,  _______, _______, _______,
   //|--------+--------+-     -------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
@@ -207,10 +211,30 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   )
 };
 
+uint16_t dyn_l_click = KC_MS_BTN1;
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  if (layer_state_is(_QWERTY_OSX)) {
+      dyn_l_click = KC_MS_BTN2;
+  }
+
   tap_dance_action_t *action;
 
   switch (keycode) {
+    case QWERTY:
+        if (record->event.pressed) {
+            layer_move(_QWERTY);
+        }
+        return false;
+        break;
+
+    case QWERTY_OSX:
+        if (record->event.pressed) {
+            layer_move(_QWERTY_OSX);
+        }
+        return false;
+        break;
+
     case LOWER:
       if (record->event.pressed) {
         is_hold_tapdance_disabled = true;
@@ -396,25 +420,34 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
        return false;
        break;
 
+     case DYN_L_CLICK:
+       if (record->event.pressed) {
+           register_code(dyn_l_click);
+       } else {
+           unregister_code(dyn_l_click);
+       }
+       return false;
+       break;
+
     case TD(TD_O):  // list all tap dance keycodes with tap-hold configurations
     case TD(TD_ESC):
-    case TD(TD_ESC_LINUX):
+    case TD(TD_ESC_OSX):
     case TD(TD_TAB):
     case TD(TD_P):
     case TD(TD_L):
     case TD(TD_ENT):
     case TD(TD_SCLN):
     case TD(TD_BSPC):
-    case TD(TD_BSPC_LIN):
+    case TD(TD_BSPC_OSX):
     case TD(TD_DEL):
-    case TD(TD_DEL_LIN):
+    case TD(TD_DEL_OSX):
     case TD(TD_LEFT):
-    case TD(TD_LEFT_LIN):
+    case TD(TD_LEFT_OSX):
     case TD(TD_RIGHT):
-    case TD(TD_RIGHT_LIN):
-      if ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_LINUX)) && !record->event.pressed) {
+    case TD(TD_RIGHT_OSX):
+      if ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && !record->event.pressed) {
           layer_off(_ESC);
-          layer_off(_ESC_LINUX);
+          layer_off(_ESC_OSX);
           is_hold_tapdance_disabled = false;
       }
 
@@ -457,7 +490,7 @@ void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
 }
 
 // allow call multiple tap dance simultaneously
-// e.g: TD_DEL/TD_DEL_LIN
+// e.g: TD_DEL/TD_DEL_OSX
 void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
@@ -495,7 +528,7 @@ void tap_dance_tap_hold_reset_layout(tap_dance_state_t *state, void *user_data) 
     { .fn = {NULL, tap_dance_tap_hold_finished, tap_dance_tap_hold_reset}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
 
 // allow call multiple tap dance simultaneously
-// e.g: TD_DEL/TD_DEL_LIN
+// e.g: TD_DEL/TD_DEL_OSX
 #define ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(tap, hold) \
     { .fn = {NULL, tap_dance_tap_hold_finished_unprotected, tap_dance_tap_hold_reset}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
 
@@ -554,7 +587,7 @@ static tap xtap_state = {
   .state = 0
 };
 
-void td_ralt_lin_finished (tap_dance_state_t *state, void *user_data) {
+void td_ralt_finished (tap_dance_state_t *state, void *user_data) {
   xtap_state.state = cur_dance(state);
   is_hold_tapdance_disabled = false;
 
@@ -572,7 +605,7 @@ void td_ralt_lin_finished (tap_dance_state_t *state, void *user_data) {
   }
 }
 
-void td_ralt_lin_reset (tap_dance_state_t *state, void *user_data) {
+void td_ralt_reset (tap_dance_state_t *state, void *user_data) {
     is_hold_tapdance_disabled = false;
 
     switch (xtap_state.state) {
@@ -590,7 +623,7 @@ void td_ralt_lin_reset (tap_dance_state_t *state, void *user_data) {
     xtap_state.state = 0;
 }
 
-void td_ralt_finished (tap_dance_state_t *state, void *user_data) {
+void td_ralt_osx_finished (tap_dance_state_t *state, void *user_data) {
   xtap_state.state = cur_dance(state);
   is_hold_tapdance_disabled = false;
 
@@ -608,7 +641,7 @@ void td_ralt_finished (tap_dance_state_t *state, void *user_data) {
   }
 }
 
-void td_ralt_reset (tap_dance_state_t *state, void *user_data) {
+void td_ralt_osx_reset (tap_dance_state_t *state, void *user_data) {
     is_hold_tapdance_disabled = false;
 
     switch (xtap_state.state) {
@@ -698,7 +731,7 @@ void td_lgui_reset (tap_dance_state_t *state, void *user_data) {
 // Associate our tap dance key with its functionality
 tap_dance_action_t tap_dance_actions[] = {
     [TD_ESC] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC),
-    [TD_ESC_LINUX] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC_LINUX),
+    [TD_ESC_OSX] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC_OSX),
     [TD_TAB] = ACTION_TAP_DANCE_TAP_HOLD(KC_TAB, KC_TILD),
     [TD_O] = ACTION_TAP_DANCE_TAP_HOLD(KC_O, KC_LPRN),
     [TD_P] = ACTION_TAP_DANCE_TAP_HOLD(KC_P, KC_RPRN),
@@ -712,19 +745,19 @@ tap_dance_action_t tap_dance_actions[] = {
     [TD_LGUI] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lgui_finished, td_lgui_reset),
 
     [TD_BSPC] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LALT(KC_BSPC)),
-    [TD_BSPC_LIN] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LCTL(KC_BSPC)),
+    [TD_BSPC_OSX] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LCTL(KC_BSPC)),
 
     [TD_DEL] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_DEL, LALT(KC_DEL)),
-    [TD_DEL_LIN] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_DEL, LCTL(KC_DEL)),
+    [TD_DEL_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_DEL, LCTL(KC_DEL)),
 
     [TD_LEFT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_LEFT, LALT(KC_LEFT)),
-    [TD_LEFT_LIN] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_LEFT, LCTL(KC_LEFT)),
+    [TD_LEFT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_LEFT, LCTL(KC_LEFT)),
 
     [TD_RIGHT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LALT(KC_RIGHT)),
-    [TD_RIGHT_LIN] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LCTL(KC_RIGHT)),
+    [TD_RIGHT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LCTL(KC_RIGHT)),
 
     [TD_RALT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_finished, td_ralt_reset),
-    [TD_RALT_LIN] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_lin_finished, td_ralt_lin_reset)
+    [TD_RALT_OSX] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_osx_finished, td_ralt_osx_reset)
 };
 
 // Set a long-ish tapping term for tap-dance keys
