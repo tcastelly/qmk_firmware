@@ -705,6 +705,11 @@ void td_lgui_finished (tap_dance_state_t *state, void *user_data) {
 
       case DOUBLE_SINGLE_TAP:
       case DOUBLE_HOLD:
+          register_code(KC_RALT);
+          break;
+
+      case TRIPLE_SINGLE_TAP:
+      case TRIPLE_HOLD:
           layer_on(_NUM_PADS);
           break;
   }
@@ -721,6 +726,11 @@ void td_lgui_reset (tap_dance_state_t *state, void *user_data) {
 
         case DOUBLE_SINGLE_TAP:
         case DOUBLE_HOLD:
+            unregister_code(KC_RALT);
+            break;
+
+        case TRIPLE_SINGLE_TAP:
+        case TRIPLE_HOLD:
             layer_off(_NUM_PADS);
             break;
     }
