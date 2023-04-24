@@ -73,8 +73,8 @@ enum {
     TD_SCLN,
     TD_LCTL,
     TD_LGUI,
-    TD_RALT,
     TD_LALT,
+    TD_RALT,
     TD_RALT_OSX,
     TD_BSPC,
     TD_BSPC_OSX,
@@ -775,6 +775,9 @@ tap_dance_action_t tap_dance_actions[] = {
 
     [TD_RIGHT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LALT(KC_RIGHT)),
     [TD_RIGHT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LCTL(KC_RIGHT)),
+
+    [TD_RALT_OSX] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_osx_finished, td_ralt_osx_reset),
+    [TD_RALT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_finished, td_ralt_reset)
 };
 
 // Set a long-ish tapping term for tap-dance keys
