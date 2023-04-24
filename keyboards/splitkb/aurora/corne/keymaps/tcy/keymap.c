@@ -721,7 +721,7 @@ void td_lctl_finished (tap_dance_state_t *state, void *user_data) {
 
       case DOUBLE_SINGLE_TAP:
       case DOUBLE_HOLD:
-          register_code(KC_RALT);
+          register_code(KC_LALT);
           break;
   }
 }
@@ -737,7 +737,7 @@ void td_lctl_reset (tap_dance_state_t *state, void *user_data) {
 
         case DOUBLE_SINGLE_TAP:
         case DOUBLE_HOLD:
-            unregister_code(KC_RALT);
+            unregister_code(KC_LALT);
             break;
     }
     xtap_state.state = 0;
