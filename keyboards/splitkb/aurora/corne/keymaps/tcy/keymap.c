@@ -32,10 +32,6 @@ enum custom_keycodes {
   ACCENT_C_RALT,
   ACCENT_A_GRAVE_RALT,
 
-  // in funciton of active layout (QWERTY or LINUX)
-  // apply left click
-  DYN_L_CLICK,
-
   // Jetbrains macro
   JET_FIND,
   JET_RNM,
@@ -75,6 +71,7 @@ enum {
     TD_L,
     TD_ENT,
     TD_SCLN,
+    TD_LCTL,
     TD_LGUI,
     TD_RALT,
     TD_LALT,
@@ -121,7 +118,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+---- ----+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       KC_LSFT,     KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, TD(TD_ENT),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                        KC_LCTL,TD(TD_LGUI),LOWER,    KC_SPC,   RAISE, TD(TD_RALT_OSX)
+                                        TD(TD_LCTL),TD(TD_LGUI),LOWER,    KC_SPC,   RAISE, TD(TD_RALT_OSX)
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -134,7 +131,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
     _______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,                        KC_F12,  S(KC_NUHS), KC_HOME, KC_END, _______, _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                          _______, _______, _______,    DYN_L_CLICK, _______, _______
+                                          _______, _______, _______,    KC_MS_BTN1, _______, _______
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -158,7 +155,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, _______, _______, _______, _______, _______,                     KC_MS_LEFT,KC_MS_DOWN,KC_MS_UP, KC_MS_RIGHT, _______,  _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                          _______, _______,KC_MS_BTN1, KC_MS_BTN2, _______, _______
+                                          _______, _______,KC_MS_BTN2, KC_MS_BTN1, _______, _______
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -211,13 +208,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   )
 };
 
-uint16_t dyn_l_click = KC_MS_BTN1;
-
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  if (layer_state_is(_QWERTY_OSX)) {
-      dyn_l_click = KC_MS_BTN2;
-  }
-
   tap_dance_action_t *action;
 
   switch (keycode) {
@@ -416,15 +407,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            unregister_code(KC_F1);
            unregister_code(KC_LALT);
            tap_code(KC_1);
-       }
-       return false;
-       break;
-
-     case DYN_L_CLICK:
-       if (record->event.pressed) {
-           register_code(dyn_l_click);
-       } else {
-           unregister_code(dyn_l_click);
        }
        return false;
        break;
@@ -705,11 +687,6 @@ void td_lgui_finished (tap_dance_state_t *state, void *user_data) {
 
       case DOUBLE_SINGLE_TAP:
       case DOUBLE_HOLD:
-          register_code(KC_RALT);
-          break;
-
-      case TRIPLE_SINGLE_TAP:
-      case TRIPLE_HOLD:
           layer_on(_NUM_PADS);
           break;
   }
@@ -726,12 +703,41 @@ void td_lgui_reset (tap_dance_state_t *state, void *user_data) {
 
         case DOUBLE_SINGLE_TAP:
         case DOUBLE_HOLD:
-            unregister_code(KC_RALT);
+            layer_off(_NUM_PADS);
+            break;
+    }
+    xtap_state.state = 0;
+}
+
+void td_lctl_finished (tap_dance_state_t *state, void *user_data) {
+  xtap_state.state = cur_dance(state);
+  is_hold_tapdance_disabled = false;
+
+  switch (xtap_state.state) {
+      case SINGLE_TAP:
+      case SINGLE_HOLD:
+          register_code(KC_LCTL);
+          break;
+
+      case DOUBLE_SINGLE_TAP:
+      case DOUBLE_HOLD:
+          register_code(KC_RALT);
+          break;
+  }
+}
+
+void td_lctl_reset (tap_dance_state_t *state, void *user_data) {
+    is_hold_tapdance_disabled = false;
+
+    switch (xtap_state.state) {
+        case SINGLE_TAP:
+        case SINGLE_HOLD:
+            unregister_code(KC_LCTL);
             break;
 
-        case TRIPLE_SINGLE_TAP:
-        case TRIPLE_HOLD:
-            layer_off(_NUM_PADS);
+        case DOUBLE_SINGLE_TAP:
+        case DOUBLE_HOLD:
+            unregister_code(KC_RALT);
             break;
     }
     xtap_state.state = 0;
@@ -751,6 +757,7 @@ tap_dance_action_t tap_dance_actions[] = {
 
     // same tap-dance
     // enable it for osx and linux
+    [TD_LCTL] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lctl_finished, td_lctl_reset),
     [TD_LALT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lalt_finished, td_lalt_reset),
     [TD_LGUI] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lgui_finished, td_lgui_reset),
 
