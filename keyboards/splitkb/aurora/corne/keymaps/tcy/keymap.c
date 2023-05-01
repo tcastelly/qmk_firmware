@@ -1,4 +1,14 @@
 #include QMK_KEYBOARD_H
+#include "bongo.h"
+
+enum oled_modes {
+  OLED_BONGO,
+  OLED_BONGO_MIN,
+  OLED_DEFAULT,
+  OLED_TIME,
+  OLED_OFF,
+  _NUM_OLED_MODES
+};
 
 enum layer_names {
     _QWERTY,
@@ -85,6 +95,8 @@ enum {
     TD_RIGHT,
     TD_RIGHT_OSX
 };
+
+int8_t oled_mode;
 
 bool is_hold_tapdance_disabled = false;
 
@@ -800,7 +812,20 @@ static void render_logo(void) {
     oled_write_P(qmk_logo, false);
 }
 
-bool oled_task_user(void) {
-    render_logo();
+bool oled_task_kb(void) {
+    if (!oled_task_user()) { return false; }
+    oled_clear();
+    switch (oled_mode) {
+        default:
+        case OLED_DEFAULT:
+            render_logo();
+            break;
+        case OLED_BONGO:
+            draw_bongo(false);
+            break;
+        case OLED_BONGO_MIN:
+            draw_bongo(true);
+            break;
+    }
     return false;
 }
