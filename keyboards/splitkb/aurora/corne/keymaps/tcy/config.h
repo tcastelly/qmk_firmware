@@ -23,3 +23,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // to display the cap lock light
 #define LED_CAPS_LOCK_PIN 24
 #define LED_PIN_ON_STATE 0
+
+#define SPLIT_WPM_ENABLE
+#define SPLIT_OLED_ENABLE
+
+#define POINTING_DEVICE_ROTATION_90
+#define SPLIT_POINTING_ENABLE
+#define POINTING_DEVICE_RIGHT
+#define POINTING_DEVICE_TASK_THROTTLE_MS 8
