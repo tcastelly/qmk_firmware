@@ -1,4 +1,5 @@
 #include QMK_KEYBOARD_H
+#include "tapdance.c"
 #include "bongo.h"
 #include "lib/lib8tion/lib8tion.h"
 
@@ -10,95 +11,7 @@ enum oled_modes {
   _NUM_OLED_MODES
 };
 
-enum layer_names {
-    _QWERTY,
-    _QWERTY_OSX,
-    _LOWER,
-    _RAISE,
-    _ADJUST,
-    _ESC,
-    _ESC_OSX,
-    _NUM_PADS,
-    _ACCENTS_RALT
-};
-
-enum custom_keycodes {
-  QWERTY = SAFE_RANGE,
-  QWERTY_OSX,
-  LOWER,
-  RAISE,
-  ADJUST,
-  ESC,
-  ACCENT_GRAVE,
-  ACCENT_CIRCUM,
-  ACCENT_TREMA,
-  ACCENT_E_GRAVE,
-  ACCENT_A_GRAVE,
-
-  // to be used with RALT already pressed
-  ACCENT_I_CIRC_RALT,
-  ACCENT_O_CIRC_RALT,
-  ACCENT_U_AIGU_RALT,
-  ACCENT_C_RALT,
-  ACCENT_A_GRAVE_RALT,
-
-  // Jetbrains macro
-  JET_FIND,
-  JET_RNM,
-};
-
-typedef struct {
-  bool is_press_action;
-  int state;
-} tap;
-
-// default tap dance
-enum {
-  SINGLE_TAP = 1,
-  SINGLE_HOLD = 2, // should use tap_dance_tap_hold_t instead
-  DOUBLE_TAP = 3,
-  DOUBLE_HOLD = 4,
-  DOUBLE_SINGLE_TAP = 5, //send two single taps
-  TRIPLE_TAP = 6,
-  TRIPLE_HOLD = 7,
-  TRIPLE_SINGLE_TAP = 8
-};
-
-// "tap-hold"
-typedef struct {
-    uint16_t tap;
-    uint16_t hold;
-    uint16_t held;
-} tap_dance_tap_hold_t;
-
-// custom tap dance
-enum {
-    TD_ESC,
-    TD_ESC_OSX,
-    TD_TAB,
-    TD_O,
-    TD_P,
-    TD_L,
-    TD_ENT,
-    TD_SCLN,
-    TD_LCTL,
-    TD_LGUI,
-    TD_LALT,
-    TD_RALT,
-    TD_RALT_OSX,
-    TD_BSPC,
-    TD_BSPC_OSX,
-    TD_DEL,
-    TD_DEL_OSX,
-    TD_LEFT,
-    TD_LEFT_OSX,
-    TD_RIGHT,
-    TD_RIGHT_OSX
-};
-
 int8_t oled_mode;
-
-bool is_hold_tapdance_disabled = false;
 
 // switch off the power light of the liatris controller
 void keyboard_pre_init_user(void) {
@@ -219,6 +132,118 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                       //`--------------------------'  `--------------------------'
   )
 };
+
+static void render_logo(void) {
+    static const char PROGMEM qmk_logo[] = {
+        0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94,
+        0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4,
+        0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF, 0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0x00
+    };
+
+    oled_write_P(qmk_logo, false);
+}
+
+bool oled_task_kb(void) {
+    if (!oled_task_user()) { return false; }
+    oled_clear();
+    switch (oled_mode) {
+        default:
+        case OLED_DEFAULT:
+            render_logo();
+            break;
+        case OLED_BONGO:
+            draw_bongo(false);
+            break;
+        case OLED_BONGO_MIN:
+            draw_bongo(true);
+            break;
+    }
+    return false;
+}
+
+static uint32_t       last_mouse_activity = 0;
+static report_mouse_t last_mouse_report   = {0};
+static bool           is_scrolling        = false;
+
+report_mouse_t smooth_mouse_movement(report_mouse_t mouse_report) {
+    // Linear interpolation and ease-in-out
+    static fract8 fract = 0.5;
+    int8_t        x     = 0;
+    int8_t        y     = 0;
+    int8_t        h     = 0;
+    int8_t        v     = 0;
+
+    if (!is_scrolling) {
+        x = ease8InOutApprox(lerp8by8(last_mouse_report.x, mouse_report.x, fract));
+        y = ease8InOutApprox(lerp8by8(last_mouse_report.y, mouse_report.y, fract));
+    } else {
+        h = ease8InOutApprox(lerp8by8(last_mouse_report.x, mouse_report.x, fract));
+        v = ease8InOutApprox(lerp8by8(last_mouse_report.y, mouse_report.y, fract));
+    }
+
+    // update the new smoothed report
+    mouse_report.x = x;
+    mouse_report.y = y;
+    mouse_report.h = h;
+    mouse_report.v = v;
+
+    return mouse_report;
+}
+
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    if (has_mouse_report_changed(&last_mouse_report, &mouse_report)) {
+        last_mouse_activity = timer_read32();
+        memcpy(&last_mouse_report, &mouse_report, sizeof(mouse_report));
+    }
+
+    return smooth_mouse_movement(mouse_report);
+}
+
+// Associate our tap dance key with its functionality
+tap_dance_action_t tap_dance_actions[] = {
+    [TD_ESC] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC),
+    [TD_ESC_OSX] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC_OSX),
+    [TD_TAB] = ACTION_TAP_DANCE_TAP_HOLD(KC_TAB, KC_TILD),
+    [TD_O] = ACTION_TAP_DANCE_TAP_HOLD(KC_O, KC_LPRN),
+    [TD_P] = ACTION_TAP_DANCE_TAP_HOLD(KC_P, KC_RPRN),
+    [TD_L] = ACTION_TAP_DANCE_TAP_HOLD(KC_L, KC_LCBR),
+    [TD_SCLN] = ACTION_TAP_DANCE_TAP_HOLD(KC_SCLN, KC_RCBR),
+    [TD_ENT] = ACTION_TAP_DANCE_TAP_HOLD(KC_ENT, KC_LSFT),
+
+    // same tap-dance
+    // enable it for osx and linux
+    [TD_LCTL] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lctl_finished, td_lctl_reset),
+    [TD_LALT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lalt_finished, td_lalt_reset),
+    [TD_LGUI] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lgui_finished, td_lgui_reset),
+
+    [TD_BSPC] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LCTL(KC_BSPC)),
+    [TD_BSPC_OSX] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LALT(KC_BSPC)),
+
+    [TD_DEL] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_DEL, LCTL(KC_DEL)),
+    [TD_DEL_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_DEL, LALT(KC_DEL)),
+
+    [TD_LEFT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_LEFT, LCTL(KC_LEFT)),
+    [TD_LEFT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_LEFT, LALT(KC_LEFT)),
+
+    [TD_RIGHT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LALT(KC_RIGHT)),
+    [TD_RIGHT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LCTL(KC_RIGHT)),
+
+    [TD_RIGHT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LALT(KC_RIGHT)),
+    [TD_RIGHT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LCTL(KC_RIGHT)),
+
+    [TD_RALT_OSX] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_osx_finished, td_ralt_osx_reset),
+    [TD_RALT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_finished, td_ralt_reset)
+};
+
+// Set a long-ish tapping term for tap-dance keys
+uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case QK_TAP_DANCE ... QK_TAP_DANCE_MAX:
+            return 275;
+        default:
+            return TAPPING_TERM;
+    }
+}
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   tap_dance_action_t *action;
@@ -453,418 +478,4 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       break;
   }
   return true;
-}
-
-void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data) {
-    tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
-
-    if (tap_hold->held) {
-        unregister_code16(tap_hold->held);
-        tap_hold->held = 0;
-    }
-}
-
-void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
-    tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
-
-    if (state->pressed) {
-        if (state->count == 1
-            && !is_hold_tapdance_disabled
-#ifndef PERMISSIVE_HOLD
-            && !state->interrupted
-#endif
-        ) {
-            register_code16(tap_hold->hold);
-            tap_hold->held = tap_hold->hold;
-        } else {
-            register_code16(tap_hold->tap);
-            tap_hold->held = tap_hold->tap;
-        }
-    }
-}
-
-// allow call multiple tap dance simultaneously
-// e.g: TD_DEL/TD_DEL_OSX
-void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *user_data) {
-    tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
-
-    if (state->pressed) {
-        if (state->count == 1
-#ifndef PERMISSIVE_HOLD
-            && !state->interrupted
-#endif
-        ) {
-            register_code16(tap_hold->hold);
-            tap_hold->held = tap_hold->hold;
-        } else {
-            register_code16(tap_hold->tap);
-            tap_hold->held = tap_hold->tap;
-        }
-    }
-}
-
-// START tap-hold
-void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_data) {
-    tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
-
-    is_hold_tapdance_disabled = true;
-
-    if (state->pressed) {
-        layer_on(tap_hold->hold);
-    }
-}
-
-void tap_dance_tap_hold_reset_layout(tap_dance_state_t *state, void *user_data) {
-    is_hold_tapdance_disabled = false;
-}
-
-#define ACTION_TAP_DANCE_TAP_HOLD(tap, hold) \
-    { .fn = {NULL, tap_dance_tap_hold_finished, tap_dance_tap_hold_reset}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
-
-// allow call multiple tap dance simultaneously
-// e.g: TD_DEL/TD_DEL_OSX
-#define ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(tap, hold) \
-    { .fn = {NULL, tap_dance_tap_hold_finished_unprotected, tap_dance_tap_hold_reset}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
-
-#define ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(tap, hold) \
-    { .fn = {NULL, tap_dance_tap_hold_finished_layout, tap_dance_tap_hold_reset_layout}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
-// END tap-hold
-
-
-// START default tap-dance
-int cur_dance (tap_dance_state_t *state) {
-    if (state->count == 1) {
-        //key has not been interrupted, but they key is still held. Means you want to send a 'HOLD'.
-        if (state->interrupted || !state->pressed) {
-            return SINGLE_TAP;
-        }
-        //key has not been interrupted, but they key is still held. Means you want to send a 'HOLD'.
-        else {
-            return SINGLE_HOLD;
-        }
-    }
-    else if (state->count == 2) {
-        /*
-         * DOUBLE_SINGLE_TAP is to distinguish between typing "pepper", and actually wanting a double tap
-         * action when hitting 'pp'. Suggested use case for this return value is when you want to send two
-         * keystrokes of the key, and not the 'double tap' action/macro.
-         */
-        if (state->interrupted) {
-            return DOUBLE_SINGLE_TAP;
-        }
-        else if (state->pressed) {
-            return DOUBLE_HOLD;
-        }
-        else {
-            return DOUBLE_TAP;
-        }
-    }
-    else if (state->count == 3) {
-        if (state->interrupted) {
-            return TRIPLE_SINGLE_TAP;
-        }
-        else if (state->pressed) {
-            return TRIPLE_HOLD;
-        }
-        else {
-            return TRIPLE_TAP;
-        }
-    }
-
-    //magic number. At some point this method will expand to work for more presses
-    return 8;
-}
-
-//instanalize an instance of 'tap' for the 'x' tap dance.
-static tap xtap_state = {
-  .is_press_action = true,
-  .state = 0
-};
-
-void td_ralt_finished (tap_dance_state_t *state, void *user_data) {
-  xtap_state.state = cur_dance(state);
-  is_hold_tapdance_disabled = false;
-
-  switch (xtap_state.state) {
-      case SINGLE_TAP:
-      case SINGLE_HOLD:
-          register_code(KC_RALT);
-          layer_on(_ACCENTS_RALT);
-          break;
-
-      case DOUBLE_SINGLE_TAP:
-      case DOUBLE_HOLD:
-          register_code(KC_LCTL);
-          break;
-  }
-}
-
-void td_ralt_reset (tap_dance_state_t *state, void *user_data) {
-    is_hold_tapdance_disabled = false;
-
-    switch (xtap_state.state) {
-        case SINGLE_TAP:
-        case SINGLE_HOLD:
-            unregister_code(KC_RALT);
-            layer_off(_ACCENTS_RALT);
-            break;
-
-        case DOUBLE_SINGLE_TAP:
-        case DOUBLE_HOLD:
-            unregister_code(KC_LCTL);
-            break;
-    }
-    xtap_state.state = 0;
-}
-
-void td_ralt_osx_finished (tap_dance_state_t *state, void *user_data) {
-  xtap_state.state = cur_dance(state);
-  is_hold_tapdance_disabled = false;
-
-  switch (xtap_state.state) {
-      case SINGLE_TAP:
-      case SINGLE_HOLD:
-          register_code(KC_RALT);
-          layer_on(_ACCENTS_RALT);
-          break;
-
-      case DOUBLE_SINGLE_TAP:
-      case DOUBLE_HOLD:
-          register_code(KC_LGUI);
-          break;
-  }
-}
-
-void td_ralt_osx_reset (tap_dance_state_t *state, void *user_data) {
-    is_hold_tapdance_disabled = false;
-
-    switch (xtap_state.state) {
-        case SINGLE_TAP:
-        case SINGLE_HOLD:
-            unregister_code(KC_RALT);
-            layer_off(_ACCENTS_RALT);
-            break;
-
-        case DOUBLE_SINGLE_TAP:
-        case DOUBLE_HOLD:
-            unregister_code(KC_LGUI);
-            break;
-    }
-    xtap_state.state = 0;
-}
-
-void td_lalt_finished (tap_dance_state_t *state, void *user_data) {
-  xtap_state.state = cur_dance(state);
-  is_hold_tapdance_disabled = false;
-
-  switch (xtap_state.state) {
-      case SINGLE_TAP:
-      case SINGLE_HOLD:
-          register_code(KC_LALT);
-          break;
-
-      case DOUBLE_SINGLE_TAP:
-      case DOUBLE_HOLD:
-          layer_on(_NUM_PADS);
-          break;
-  }
-}
-
-void td_lalt_reset (tap_dance_state_t *state, void *user_data) {
-    is_hold_tapdance_disabled = false;
-
-    switch (xtap_state.state) {
-        case SINGLE_TAP:
-        case SINGLE_HOLD:
-            unregister_code(KC_LALT);
-            break;
-
-        case DOUBLE_SINGLE_TAP:
-        case DOUBLE_HOLD:
-            layer_off(_NUM_PADS);
-            break;
-    }
-    xtap_state.state = 0;
-}
-
-void td_lgui_finished (tap_dance_state_t *state, void *user_data) {
-  xtap_state.state = cur_dance(state);
-  is_hold_tapdance_disabled = false;
-
-  switch (xtap_state.state) {
-      case SINGLE_TAP:
-      case SINGLE_HOLD:
-          register_code(KC_LGUI);
-          break;
-
-      case DOUBLE_SINGLE_TAP:
-      case DOUBLE_HOLD:
-          layer_on(_NUM_PADS);
-          break;
-  }
-}
-
-void td_lgui_reset (tap_dance_state_t *state, void *user_data) {
-    is_hold_tapdance_disabled = false;
-
-    switch (xtap_state.state) {
-        case SINGLE_TAP:
-        case SINGLE_HOLD:
-            unregister_code(KC_LGUI);
-            break;
-
-        case DOUBLE_SINGLE_TAP:
-        case DOUBLE_HOLD:
-            layer_off(_NUM_PADS);
-            break;
-    }
-    xtap_state.state = 0;
-}
-
-void td_lctl_finished (tap_dance_state_t *state, void *user_data) {
-  xtap_state.state = cur_dance(state);
-  is_hold_tapdance_disabled = false;
-
-  switch (xtap_state.state) {
-      case SINGLE_TAP:
-      case SINGLE_HOLD:
-          register_code(KC_LCTL);
-          break;
-
-      case DOUBLE_SINGLE_TAP:
-      case DOUBLE_HOLD:
-          register_code(KC_LALT);
-          break;
-  }
-}
-
-void td_lctl_reset (tap_dance_state_t *state, void *user_data) {
-    is_hold_tapdance_disabled = false;
-
-    switch (xtap_state.state) {
-        case SINGLE_TAP:
-        case SINGLE_HOLD:
-            unregister_code(KC_LCTL);
-            break;
-
-        case DOUBLE_SINGLE_TAP:
-        case DOUBLE_HOLD:
-            unregister_code(KC_LALT);
-            break;
-    }
-    xtap_state.state = 0;
-}
-// END default tap-dance
-
-// Associate our tap dance key with its functionality
-tap_dance_action_t tap_dance_actions[] = {
-    [TD_ESC] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC),
-    [TD_ESC_OSX] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC_OSX),
-    [TD_TAB] = ACTION_TAP_DANCE_TAP_HOLD(KC_TAB, KC_TILD),
-    [TD_O] = ACTION_TAP_DANCE_TAP_HOLD(KC_O, KC_LPRN),
-    [TD_P] = ACTION_TAP_DANCE_TAP_HOLD(KC_P, KC_RPRN),
-    [TD_L] = ACTION_TAP_DANCE_TAP_HOLD(KC_L, KC_LCBR),
-    [TD_SCLN] = ACTION_TAP_DANCE_TAP_HOLD(KC_SCLN, KC_RCBR),
-    [TD_ENT] = ACTION_TAP_DANCE_TAP_HOLD(KC_ENT, KC_LSFT),
-
-    // same tap-dance
-    // enable it for osx and linux
-    [TD_LCTL] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lctl_finished, td_lctl_reset),
-    [TD_LALT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lalt_finished, td_lalt_reset),
-    [TD_LGUI] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lgui_finished, td_lgui_reset),
-
-    [TD_BSPC] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LCTL(KC_BSPC)),
-    [TD_BSPC_OSX] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LALT(KC_BSPC)),
-
-    [TD_DEL] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_DEL, LCTL(KC_DEL)),
-    [TD_DEL_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_DEL, LALT(KC_DEL)),
-
-    [TD_LEFT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_LEFT, LCTL(KC_LEFT)),
-    [TD_LEFT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_LEFT, LALT(KC_LEFT)),
-
-    [TD_RIGHT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LALT(KC_RIGHT)),
-    [TD_RIGHT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LCTL(KC_RIGHT)),
-
-    [TD_RIGHT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LALT(KC_RIGHT)),
-    [TD_RIGHT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LCTL(KC_RIGHT)),
-
-    [TD_RALT_OSX] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_osx_finished, td_ralt_osx_reset),
-    [TD_RALT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_finished, td_ralt_reset)
-};
-
-// Set a long-ish tapping term for tap-dance keys
-uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case QK_TAP_DANCE ... QK_TAP_DANCE_MAX:
-            return 275;
-        default:
-            return TAPPING_TERM;
-    }
-}
-
-static void render_logo(void) {
-    static const char PROGMEM qmk_logo[] = {
-        0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94,
-        0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4,
-        0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF, 0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0x00
-    };
-
-    oled_write_P(qmk_logo, false);
-}
-
-bool oled_task_kb(void) {
-    if (!oled_task_user()) { return false; }
-    oled_clear();
-    switch (oled_mode) {
-        default:
-        case OLED_DEFAULT:
-            render_logo();
-            break;
-        case OLED_BONGO:
-            draw_bongo(false);
-            break;
-        case OLED_BONGO_MIN:
-            draw_bongo(true);
-            break;
-    }
-    return false;
-}
-
-static uint32_t       last_mouse_activity = 0;
-static report_mouse_t last_mouse_report   = {0};
-static bool           is_scrolling        = false;
-
-report_mouse_t smooth_mouse_movement(report_mouse_t mouse_report) {
-    // Linear interpolation and ease-in-out
-    static fract8 fract = 0.5;
-    int8_t        x     = 0;
-    int8_t        y     = 0;
-    int8_t        h     = 0;
-    int8_t        v     = 0;
-
-    if (!is_scrolling) {
-        x = ease8InOutApprox(lerp8by8(last_mouse_report.x, mouse_report.x, fract));
-        y = ease8InOutApprox(lerp8by8(last_mouse_report.y, mouse_report.y, fract));
-    } else {
-        h = ease8InOutApprox(lerp8by8(last_mouse_report.x, mouse_report.x, fract));
-        v = ease8InOutApprox(lerp8by8(last_mouse_report.y, mouse_report.y, fract));
-    }
-
-    // update the new smoothed report
-    mouse_report.x = x;
-    mouse_report.y = y;
-    mouse_report.h = h;
-    mouse_report.v = v;
-
-    return mouse_report;
-}
-
-report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
-
-    if (has_mouse_report_changed(&last_mouse_report, &mouse_report)) {
-        last_mouse_activity = timer_read32();
-        memcpy(&last_mouse_report, &mouse_report, sizeof(mouse_report));
-    }
-
-    return smooth_mouse_movement(mouse_report);
 }
