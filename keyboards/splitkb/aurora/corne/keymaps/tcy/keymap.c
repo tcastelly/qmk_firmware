@@ -268,10 +268,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         is_hold_tapdance_disabled = true;
         layer_on(_LOWER);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
+
+        // enable scroll
+        is_scrolling = true;
       } else {
         layer_off(_LOWER);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
         is_hold_tapdance_disabled = false;
+
+        // disable scroll
+        if (is_scrolling) {  // check if we were scrolling before and set disable if so
+            is_scrolling = false;
+        }
       }
       return false;
       break;
