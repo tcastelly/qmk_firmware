@@ -271,6 +271,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         // enable scroll
         is_scrolling = true;
+        pointing_device_set_cpi(TRACK_BALL_MIN_DPI);
       } else {
         layer_off(_LOWER);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
@@ -279,6 +280,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         // disable scroll
         if (is_scrolling) {  // check if we were scrolling before and set disable if so
             is_scrolling = false;
+            pointing_device_set_cpi(TRACK_BALL_DEFAULT_DPI);
         }
       }
       return false;
@@ -301,8 +303,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case KC_LGUI:
     case KC_LSFT:
       if (record->event.pressed) {
+          pointing_device_set_cpi(TRACK_BALL_MAX_DPI);
           is_hold_tapdance_disabled = true;
       } else {
+          pointing_device_set_cpi(TRACK_BALL_DEFAULT_DPI);
           is_hold_tapdance_disabled = false;
       }
       return true;
@@ -476,6 +480,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           layer_off(_ESC);
           layer_off(_ESC_OSX);
           is_hold_tapdance_disabled = false;
+          pointing_device_set_cpi(TRACK_BALL_DEFAULT_DPI);
       }
 
       action = &tap_dance_actions[TD_INDEX(keycode)];

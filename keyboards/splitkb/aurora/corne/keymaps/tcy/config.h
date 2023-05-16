@@ -31,3 +31,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SPLIT_POINTING_ENABLE
 #define POINTING_DEVICE_RIGHT
 #define POINTING_DEVICE_TASK_THROTTLE_MS 8
+
+// TRACK_BALL_MIN_DPI used for scroll only
+#define TRACK_BALL_MIN_DPI 2000
+#define TRACK_BALL_DEFAULT_DPI 16500
+#define TRACK_BALL_MAX_DPI 40000
+
