@@ -26,6 +26,8 @@ enum custom_keycodes {
   ACCENT_E_GRAVE,
   ACCENT_A_GRAVE,
 
+  TOGGLE_OLED,
+
   // to be used with RALT already pressed
   ACCENT_I_CIRC_RALT,
   ACCENT_O_CIRC_RALT,

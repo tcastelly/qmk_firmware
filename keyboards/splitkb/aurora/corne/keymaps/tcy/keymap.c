@@ -8,7 +8,6 @@ enum oled_modes {
   OLED_BONGO_MIN,
   OLED_DEFAULT,
   OLED_OFF,
-  _NUM_OLED_MODES
 };
 
 int8_t oled_mode;
@@ -124,7 +123,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
       _______, QWERTY , QWERTY_OSX  , _______, _______, _______,                 _______, _______, _______, _______, _______, QK_BOOT,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      _______, _______,      _______, _______, _______, _______,                _______,  _______, _______,  _______, _______, _______,
+      TOGGLE_OLED, _______,      _______, _______, _______, _______,                _______,  _______, _______,  _______, _______, _______,
   //|--------+--------+-     -------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, _______,      _______, _______, _______, _______,                _______, _______, _______, _______, _______, _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
@@ -144,7 +143,10 @@ static void render_logo(void) {
 }
 
 bool oled_task_kb(void) {
-    if (!oled_task_user()) { return false; }
+    if (!oled_task_user()) {
+        return false;
+    }
+
     oled_clear();
     switch (oled_mode) {
         default:
@@ -156,6 +158,9 @@ bool oled_task_kb(void) {
             break;
         case OLED_BONGO_MIN:
             draw_bongo(true);
+            break;
+        case OLED_OFF:
+            oled_off();
             break;
     }
     return false;
@@ -456,6 +461,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            unregister_code(KC_F1);
            unregister_code(KC_LALT);
            tap_code(KC_1);
+       }
+       return false;
+       break;
+
+     case TOGGLE_OLED:
+       if (record->event.pressed) {
+           if (oled_mode != OLED_OFF) {
+               oled_mode = OLED_OFF;
+           } else {
+               oled_mode = OLED_BONGO;
+           }
        }
        return false;
        break;
