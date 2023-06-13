@@ -8,7 +8,6 @@ enum oled_modes {
   OLED_BONGO_MIN,
   OLED_DEFAULT,
   OLED_OFF,
-  _NUM_OLED_MODES
 };
 
 int8_t oled_mode;
@@ -124,7 +123,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
       _______, QWERTY , QWERTY_OSX  , _______, _______, _______,                 _______, _______, _______, _______, _______, QK_BOOT,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      _______, _______,      _______, _______, _______, _______,                _______,  _______, _______,  _______, _______, _______,
+      TOGGLE_OLED, _______,      _______, _______, _______, _______,                _______,  _______, _______,  _______, _______, _______,
   //|--------+--------+-     -------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, _______,      _______, _______, _______, _______,                _______, _______, _______, _______, _______, _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
@@ -144,7 +143,10 @@ static void render_logo(void) {
 }
 
 bool oled_task_kb(void) {
-    if (!oled_task_user()) { return false; }
+    if (!oled_task_user()) {
+        return false;
+    }
+
     oled_clear();
     switch (oled_mode) {
         default:
@@ -156,6 +158,9 @@ bool oled_task_kb(void) {
             break;
         case OLED_BONGO_MIN:
             draw_bongo(true);
+            break;
+        case OLED_OFF:
+            oled_off();
             break;
     }
     return false;
@@ -271,6 +276,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         // enable scroll
         is_scrolling = true;
+        pointing_device_set_cpi(TRACK_BALL_MIN_DPI);
       } else {
         layer_off(_LOWER);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
@@ -279,6 +285,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         // disable scroll
         if (is_scrolling) {  // check if we were scrolling before and set disable if so
             is_scrolling = false;
+            pointing_device_set_cpi(TRACK_BALL_DEFAULT_DPI);
         }
       }
       return false;
@@ -301,8 +308,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case KC_LGUI:
     case KC_LSFT:
       if (record->event.pressed) {
+          pointing_device_set_cpi(TRACK_BALL_MAX_DPI);
           is_hold_tapdance_disabled = true;
       } else {
+          pointing_device_set_cpi(TRACK_BALL_DEFAULT_DPI);
           is_hold_tapdance_disabled = false;
       }
       return true;
@@ -456,6 +465,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
        return false;
        break;
 
+     case TOGGLE_OLED:
+       if (record->event.pressed) {
+           if (oled_mode != OLED_OFF) {
+               oled_mode = OLED_OFF;
+           } else {
+               oled_mode = OLED_BONGO;
+           }
+       }
+       return false;
+       break;
+
     case TD(TD_O):  // list all tap dance keycodes with tap-hold configurations
     case TD(TD_ESC):
     case TD(TD_ESC_OSX):
@@ -476,6 +496,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           layer_off(_ESC);
           layer_off(_ESC_OSX);
           is_hold_tapdance_disabled = false;
+          pointing_device_set_cpi(TRACK_BALL_DEFAULT_DPI);
       }
 
       action = &tap_dance_actions[TD_INDEX(keycode)];
