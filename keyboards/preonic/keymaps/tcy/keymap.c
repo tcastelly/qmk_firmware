@@ -213,7 +213,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ACCENT_GRAVE, ACCENT_GRAVE,   _______, ACCENT_E_GRAVE, JET_RNM,    _______,    ACCENT_CIRCUM, KC_WH_D,        KC_WH_U,      _______,      _______, TD(TD_DEL),
   _______,      ACCENT_A_GRAVE, _______, _______,        JET_FIND,   _______,    TD(TD_LEFT),   KC_DOWN,        KC_UP,        TD(TD_RIGHT), _______, ACCENT_TREMA,
   _______,      _______,        _______, _______,        _______,    _______,    KC_MS_LEFT,    KC_MS_DOWN,     KC_MS_UP,     KC_MS_RIGHT,  _______, _______,
-  _______,      _______,        _______, _______,        KC_MS_BTN2, KC_MS_BTN1, _______,       _______,        _______,      _______,      _______, _______
+  _______,      _______,        _______, _______,        KC_MS_BTN2, _______,    _______,       KC_MS_BTN1,     _______,      _______,      _______, _______
 ),
 
 [_ESC_OSX] = LAYOUT_preonic_grid(
@@ -221,7 +221,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ACCENT_GRAVE, ACCENT_GRAVE,   _______, ACCENT_E_GRAVE, JET_RNM,    _______,    ACCENT_CIRCUM,   KC_WH_D,        KC_WH_U,      _______,          _______, TD(TD_DEL_OSX),
   _______,      ACCENT_A_GRAVE, _______, _______,        JET_FIND,   _______,    TD(TD_LEFT_OSX), KC_DOWN,        KC_UP,        TD(TD_RIGHT_OSX), _______, ACCENT_TREMA,
   _______,      _______,        _______, _______,        _______,    _______,    KC_MS_LEFT,      KC_MS_DOWN,     KC_MS_UP,     KC_MS_RIGHT,      _______, _______,
-  _______,      _______,        _______, _______,        KC_MS_BTN2, KC_MS_BTN1, _______,         _______,        _______,      _______,          _______, _______
+  _______,      _______,        _______, _______,        KC_MS_BTN2, _______,    _______,         KC_MS_BTN1,     _______,      _______,          _______, _______
 ),
 
 /* NumPads
