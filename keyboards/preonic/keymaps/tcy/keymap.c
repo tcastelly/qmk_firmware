@@ -19,19 +19,19 @@
 
 enum layer_names {
   _QWERTY,
-  _QWERTY_LINUX,
+  _QWERTY_OSX,
   _LOWER,
   _RAISE,
   _ADJUST,
   _ESC,
-  _ESC_LINUX,
+  _ESC_OSX,
   _NUM_PADS,
   _ACCENTS_RALT
 };
 
 enum custom_keycodes {
   QWERTY = SAFE_RANGE,
-  QWERTY_LINUX,
+  QWERTY_OSX,
   LOWER,
   RAISE,
   BACKLIT,
@@ -82,26 +82,22 @@ typedef struct {
 
 // custom tap dance
 enum {
-    TD_ESC,
-    TD_ESC_LINUX,
     TD_TAB,
     TD_O,
     TD_P,
     TD_L,
-    TD_ENT,
     TD_SCLN,
-    TD_LGUI,
-    TD_RALT,
-    TD_LALT,
-    TD_RALT_LIN,
+    TD_ENT,
     TD_BSPC,
-    TD_BSPC_LIN,
+    TD_BSPC_OSX,
     TD_DEL,
-    TD_DEL_LIN,
+    TD_DEL_OSX,
+    TD_ESC,
+    TD_ESC_OSX,
+    TD_LEFT_OSX,
     TD_LEFT,
-    TD_LEFT_LIN,
+    TD_RIGHT_OSX,
     TD_RIGHT,
-    TD_RIGHT_LIN,
     TD_LEFT_RALT,
 };
 
@@ -126,15 +122,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   TD(TD_TAB),    KC_Q,     KC_W,         KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,             TD(TD_O),TD(TD_P),    TD(TD_BSPC),
   TD(TD_ESC),    KC_A,     KC_S,         KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,             TD(TD_L),TD(TD_SCLN), KC_QUOT,
   KC_LSFT,       KC_Z,     KC_X,         KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM,          KC_DOT,  KC_SLSH,     TD(TD_ENT),
-  KC_LCTL,       NUM_PADS, ACCENTS_RALT, KC_LGUI, LOWER,   KC_SPC,  KC_SPC,  RAISE,   TD(TD_LEFT_RALT), KC_DOWN, KC_UP,       KC_RGHT
+  KC_LCTL,       NUM_PADS, KC_LCTL,      KC_LALT, LOWER,   KC_SPC,  KC_SPC,  RAISE,   TD(TD_LEFT_RALT), KC_DOWN, KC_UP,       KC_RGHT
 ),
 
-[_QWERTY_LINUX] = LAYOUT_preonic_grid(
-  KC_GRV,            KC_1,     KC_2,         KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,             KC_9,    KC_0,        TD(TD_BSPC_LIN),
-  TD(TD_TAB),        KC_Q,     KC_W,         KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,             TD(TD_O),TD(TD_P),    TD(TD_BSPC_LIN),
-  TD(TD_ESC_LINUX),  KC_A,     KC_S,         KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,             TD(TD_L),TD(TD_SCLN), KC_QUOT,
-  KC_LSFT,           KC_Z,     KC_X,         KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM,          KC_DOT,  KC_SLSH,     TD(TD_ENT),
-  KC_LCTL,           NUM_PADS, ACCENTS_RALT, KC_LALT, LOWER,   KC_SPC,  KC_SPC,  RAISE,   TD(TD_LEFT_RALT), KC_DOWN, KC_UP,       KC_RGHT
+[_QWERTY_OSX] = LAYOUT_preonic_grid(
+  KC_GRV,        KC_1,     KC_2,         KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,             KC_9,    KC_0,        TD(TD_BSPC_OSX),
+  TD(TD_TAB),    KC_Q,     KC_W,         KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,             TD(TD_O),TD(TD_P),    TD(TD_BSPC_OSX),
+  TD(TD_ESC_OSX),KC_A,     KC_S,         KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,             TD(TD_L),TD(TD_SCLN), KC_QUOT,
+  KC_LSFT,       KC_Z,     KC_X,         KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM,          KC_DOT,  KC_SLSH,     TD(TD_ENT),
+  KC_LCTL,       NUM_PADS, KC_LCTL,      KC_LGUI, LOWER,   KC_SPC,  KC_SPC,  RAISE,   TD(TD_LEFT_RALT), KC_DOWN, KC_UP,       KC_RGHT
 ),
 
 /* Lower
@@ -194,7 +190,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
 [_ADJUST] = LAYOUT_preonic_grid(
   _______, _______,    _______,          _______, _______, _______, _______, _______, _______, _______, _______, QK_BOOT,
-  _______, DF(QWERTY), DF(QWERTY_LINUX), _______, _______, _______, _______, _______, _______, _______, _______, _______,
+  _______, DF(QWERTY_OSX), DF(QWERTY), _______, _______, _______, _______, _______, _______, _______, _______, _______,
   _______, _______,    _______,          _______, _______, _______, _______, _______, _______, _______, _______, _______,
   _______, _______,    _______,          _______, _______, _______, _______, _______, _______, _______, _______, _______,
   _______, _______,    _______,          _______, _______, _______, _______, _______, _______, _______, _______, _______
@@ -217,15 +213,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ACCENT_GRAVE, ACCENT_GRAVE,   _______, ACCENT_E_GRAVE, JET_RNM,    _______,    ACCENT_CIRCUM, KC_WH_D,        KC_WH_U,      _______,      _______, TD(TD_DEL),
   _______,      ACCENT_A_GRAVE, _______, _______,        JET_FIND,   _______,    TD(TD_LEFT),   KC_DOWN,        KC_UP,        TD(TD_RIGHT), _______, ACCENT_TREMA,
   _______,      _______,        _______, _______,        _______,    _______,    KC_MS_LEFT,    KC_MS_DOWN,     KC_MS_UP,     KC_MS_RIGHT,  _______, _______,
-  _______,      _______,        _______, _______,        KC_MS_BTN2, KC_MS_BTN2, _______,       _______,        _______,      _______,      _______, _______
+  _______,      _______,        _______, _______,        KC_MS_BTN2, KC_MS_BTN1, _______,       _______,        _______,      _______,      _______, _______
 ),
 
-[_ESC_LINUX] = LAYOUT_preonic_grid(
-  _______,      _______,        _______, _______,        _______,    _______,    _______,         _______,        _______,      _______,          _______, TD(TD_DEL_LIN),
-  ACCENT_GRAVE, ACCENT_GRAVE,   _______, ACCENT_E_GRAVE, JET_RNM,    _______,    ACCENT_CIRCUM,   KC_WH_D,        KC_WH_U,      _______,          _______, TD(TD_DEL_LIN),
-  _______,      ACCENT_A_GRAVE, _______, _______,        JET_FIND,   _______,    TD(TD_LEFT_LIN), KC_DOWN,        KC_UP,        TD(TD_RIGHT_LIN), _______, ACCENT_TREMA,
+[_ESC_OSX] = LAYOUT_preonic_grid(
+  _______,      _______,        _______, _______,        _______,    _______,    _______,         _______,        _______,      _______,          _______, TD(TD_DEL_OSX),
+  ACCENT_GRAVE, ACCENT_GRAVE,   _______, ACCENT_E_GRAVE, JET_RNM,    _______,    ACCENT_CIRCUM,   KC_WH_D,        KC_WH_U,      _______,          _______, TD(TD_DEL_OSX),
+  _______,      ACCENT_A_GRAVE, _______, _______,        JET_FIND,   _______,    TD(TD_LEFT_OSX), KC_DOWN,        KC_UP,        TD(TD_RIGHT_OSX), _______, ACCENT_TREMA,
   _______,      _______,        _______, _______,        _______,    _______,    KC_MS_LEFT,      KC_MS_DOWN,     KC_MS_UP,     KC_MS_RIGHT,      _______, _______,
-  _______,      _______,        _______, _______,        KC_MS_BTN2, KC_MS_BTN2, _______,         _______,        _______,      _______,          _______, _______
+  _______,      _______,        _______, _______,        KC_MS_BTN2, KC_MS_BTN1, _______,         _______,        _______,      _______,          _______, _______
 ),
 
 /* NumPads
@@ -262,13 +258,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   tap_dance_action_t *action;
 
   switch (keycode) {
-        case QWERTY:
-          if (record->event.pressed) {
-            set_single_persistent_default_layer(_QWERTY);
-          }
-          return false;
-          break;
-
         case LOWER:
           if (record->event.pressed) {
             is_hold_tapdance_disabled = true;
@@ -499,23 +488,23 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         case TD(TD_O):  // list all tap dance keycodes with tap-hold configurations
         case TD(TD_ESC):
-        case TD(TD_ESC_LINUX):
+        case TD(TD_ESC_OSX):
         case TD(TD_TAB):
         case TD(TD_P):
         case TD(TD_L):
         case TD(TD_ENT):
         case TD(TD_SCLN):
         case TD(TD_BSPC):
-        case TD(TD_BSPC_LIN):
+        case TD(TD_BSPC_OSX):
         case TD(TD_DEL):
-        case TD(TD_DEL_LIN):
+        case TD(TD_DEL_OSX):
         case TD(TD_LEFT):
-        case TD(TD_LEFT_LIN):
+        case TD(TD_LEFT_OSX):
         case TD(TD_RIGHT):
-        case TD(TD_RIGHT_LIN):
+        case TD(TD_RIGHT_OSX):
         case TD(TD_LEFT_RALT):
           // specific behavior for tap-hold layout
-          if ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_LINUX)) && !record->event.pressed) {
+          if ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && !record->event.pressed) {
               layer_off(_ESC);
               is_hold_tapdance_disabled = false;
           }
@@ -649,7 +638,7 @@ void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
 }
 
 // allow call multiple tap dance simultaneously
-// e.g: TD_DEL/TD_DEL_LIN
+// e.g: TD_DEL/TD_DEL_OSX
 void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
@@ -695,7 +684,7 @@ void tap_dance_tap_hold_finished_layout_with_ralt(tap_dance_state_t *state, void
     { .fn = {NULL, tap_dance_tap_hold_finished, tap_dance_tap_hold_reset}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
 
 // allow call multiple tap dance simultaneously
-// e.g: TD_DEL/TD_DEL_LIN
+// e.g: TD_DEL/TD_DEL_OSX
 #define ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(tap, hold) \
     { .fn = {NULL, tap_dance_tap_hold_finished_unprotected, tap_dance_tap_hold_reset}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
 
@@ -709,7 +698,7 @@ void tap_dance_tap_hold_finished_layout_with_ralt(tap_dance_state_t *state, void
 // Associate our tap dance key with its functionality
 tap_dance_action_t tap_dance_actions[] = {
     [TD_ESC] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC),
-    [TD_ESC_LINUX] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC_LINUX),
+    [TD_ESC_OSX] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC_OSX),
     [TD_LEFT_RALT] = ACTION_TAP_DANCE_TAP_HOLD_LEFT_RALT(KC_LEFT, _ACCENTS_RALT),
     [TD_TAB] = ACTION_TAP_DANCE_TAP_HOLD(KC_TAB, KC_TILD),
     [TD_O] = ACTION_TAP_DANCE_TAP_HOLD(KC_O, KC_LPRN),
@@ -720,16 +709,16 @@ tap_dance_action_t tap_dance_actions[] = {
 
     // same tap-dance
     // enable it for osx and linux
-    [TD_BSPC] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LALT(KC_BSPC)),
-    [TD_BSPC_LIN] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LCTL(KC_BSPC)),
+    [TD_BSPC_OSX] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LALT(KC_BSPC)),
+    [TD_BSPC] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LCTL(KC_BSPC)),
 
-    [TD_DEL] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_DEL, LALT(KC_DEL)),
-    [TD_DEL_LIN] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_DEL, LCTL(KC_DEL)),
+    [TD_DEL_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_DEL, LALT(KC_DEL)),
+    [TD_DEL] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_DEL, LCTL(KC_DEL)),
 
-    [TD_LEFT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_LEFT, LALT(KC_LEFT)),
-    [TD_LEFT_LIN] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_LEFT, LCTL(KC_LEFT)),
+    [TD_LEFT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_LEFT, LALT(KC_LEFT)),
+    [TD_LEFT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_LEFT, LCTL(KC_LEFT)),
 
-    [TD_RIGHT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LALT(KC_RIGHT)),
-    [TD_RIGHT_LIN] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LCTL(KC_RIGHT)),
+    [TD_RIGHT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LALT(KC_RIGHT)),
+    [TD_RIGHT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LCTL(KC_RIGHT)),
 };
 
