@@ -506,6 +506,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           // specific behavior for tap-hold layout
           if ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && !record->event.pressed) {
               layer_off(_ESC);
+              layer_off(_ESC_OSX);
               is_hold_tapdance_disabled = false;
           }
 
