@@ -526,6 +526,9 @@ layer_state_t layer_state_set_user(layer_state_t state) {
         case _QWERTY_OSX:
             strcpy(layout_str, "Q-OSX");
             break;
+        case _QWERTY_GAMING:
+            strcpy(layout_str, "Q-Games");
+            break;
         case _ESC:
             strcpy(layout_str, "ESC");
             break;
