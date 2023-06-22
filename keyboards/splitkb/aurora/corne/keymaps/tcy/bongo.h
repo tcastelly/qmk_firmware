@@ -456,7 +456,7 @@ void eval_anim_state(void)
     }
 }
 
-static void draw_bongo(bool minimal)
+static void draw_bongo(bool draw_wpm, bool draw_layout)
 {
     eval_anim_state();
 
@@ -465,7 +465,7 @@ static void draw_bongo(bool minimal)
     switch (anim_state)
     {
         case Idle:
-            if (minimal) {
+            if (!draw_wpm && !draw_layout) {
                 oled_write_raw_P(idle_minimal[abs((IDLE_FRAMES - 1) - current_idle_frame)], ANIM_SIZE);
             }
             else {
@@ -478,7 +478,7 @@ static void draw_bongo(bool minimal)
             break;
 
         case Prep:
-            if (minimal) {
+            if (!draw_wpm && !draw_layout) {
                 oled_write_raw_P(prep_minimal[0], ANIM_SIZE);
             }
             else {
@@ -487,7 +487,7 @@ static void draw_bongo(bool minimal)
             break;
 
         case Tap:
-            if (minimal) {
+            if (!draw_wpm && !draw_layout) {
                 oled_write_raw_P(tap_minimal[abs((TAP_FRAMES - 1) - current_tap_frame)], ANIM_SIZE);
             }
             else {
@@ -500,15 +500,20 @@ static void draw_bongo(bool minimal)
             break;
     }
 
-    if (!minimal)
+    uint8_t line_i = 0;
+    if (draw_wpm)
     {
         // print wpm
-        oled_set_cursor(0, 0);
+        oled_set_cursor(0, line_i);
         sprintf(wpm, "WPM:%03d", get_current_wpm());
         oled_write(wpm, false);
 
+        line_i += 2;
+    }
+
+    if (draw_layout) {
         // print layout
-        oled_set_cursor(0, 2);
+        oled_set_cursor(0, line_i);
         oled_write(layout_str, false);
     }
 }

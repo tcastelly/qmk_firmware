@@ -5,12 +5,14 @@
 
 enum oled_modes {
   OLED_BONGO,
-  OLED_BONGO_MIN,
+  OLED_BONGO_WPM,
+  OLED_BONGO_WPM_LAYOUT,
+  OLED_BONGO_LAYOUT,
   OLED_DEFAULT,
   OLED_OFF,
 };
 
-int8_t oled_mode;
+int8_t oled_mode = OLED_BONGO_LAYOUT;
 
 // switch off the power light of the liatris controller
 void keyboard_pre_init_user(void) {
@@ -123,7 +125,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
       _______, QWERTY , QWERTY_OSX  , _______, _______, _______,                 _______, _______, _______, _______, _______, QK_BOOT,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      TOGGLE_OLED, _______,      _______, _______, _______, _______,                _______,  _______, _______,  _______, _______, _______,
+      TOGGLE_OLED, TOGGLE_OLED_WPM,      TOGGLE_OLED_LAYOUT, TOGGLE_OLED_DEFAULT, _______, _______,                _______,  _______, _______,  _______, _______, _______,
   //|--------+--------+-     -------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, _______,      _______, _______, _______, _______,                _______, _______, _______, _______, _______, _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
@@ -154,10 +156,16 @@ bool oled_task_kb(void) {
             render_logo();
             break;
         case OLED_BONGO:
-            draw_bongo(false);
+            draw_bongo(false, false);
             break;
-        case OLED_BONGO_MIN:
-            draw_bongo(true);
+        case OLED_BONGO_WPM:
+            draw_bongo(true, false);
+            break;
+        case OLED_BONGO_LAYOUT:
+            draw_bongo(false, true);
+            break;
+        case OLED_BONGO_WPM_LAYOUT:
+            draw_bongo(true, true);
             break;
         case OLED_OFF:
             oled_off();
@@ -470,7 +478,58 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            if (oled_mode != OLED_OFF) {
                oled_mode = OLED_OFF;
            } else {
+               oled_mode = OLED_BONGO_LAYOUT;
+           }
+       }
+       return false;
+       break;
+
+     case TOGGLE_OLED_DEFAULT:
+       if (record->event.pressed) {
+           if (oled_mode != OLED_DEFAULT) {
+               oled_mode = OLED_DEFAULT;
+           } else {
+               oled_mode = OLED_BONGO_LAYOUT;
+           }
+       }
+       return false;
+       break;
+
+     case TOGGLE_OLED_WPM:
+       if (record->event.pressed) {
+           if (oled_mode == OLED_BONGO) {
+               // add wpm
+               oled_mode = OLED_BONGO_WPM;
+           } else if (oled_mode == OLED_BONGO_WPM) {
+               // remove wpm
                oled_mode = OLED_BONGO;
+
+           } else if (oled_mode == OLED_BONGO_LAYOUT) {
+               // add wpm
+               oled_mode = OLED_BONGO_WPM_LAYOUT;
+           } else if (oled_mode == OLED_BONGO_WPM_LAYOUT) {
+               // remove wpm
+               oled_mode = OLED_BONGO_LAYOUT;
+           }
+       }
+       return false;
+       break;
+
+     case TOGGLE_OLED_LAYOUT:
+       if (record->event.pressed) {
+           if (oled_mode == OLED_BONGO) {
+               // add layout
+               oled_mode = OLED_BONGO_LAYOUT;
+           } else if (oled_mode == OLED_BONGO_LAYOUT) {
+               // remove layout
+               oled_mode = OLED_BONGO;
+
+           } else if (oled_mode == OLED_BONGO_WPM) {
+               // add layout
+               oled_mode = OLED_BONGO_WPM_LAYOUT;
+           } else if (oled_mode == OLED_BONGO_WPM_LAYOUT) {
+               // remove layout
+               oled_mode = OLED_BONGO_WPM;
            }
        }
        return false;
