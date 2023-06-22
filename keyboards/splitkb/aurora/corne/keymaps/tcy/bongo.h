@@ -31,6 +31,7 @@ uint8_t pressed_keys_index = 0;
 
 bool key_down = 0;
 char wpm[42];
+char layout_str[10];
 
 static const char PROGMEM idle[IDLE_FRAMES][ANIM_SIZE] =
 {
@@ -505,5 +506,41 @@ static void draw_bongo(bool minimal)
         oled_set_cursor(0, 0);
         sprintf(wpm, "WPM:%03d", get_current_wpm());
         oled_write(wpm, false);
+
+        // print layout
+        oled_set_cursor(0, 2);
+        oled_write(layout_str, false);
     }
 }
+
+layer_state_t layer_state_set_user(layer_state_t state) {
+    switch (get_highest_layer(state)) {
+        case _QWERTY:
+            strcpy(layout_str, "Q");
+            break;
+        case _QWERTY_OSX:
+            strcpy(layout_str, "Q-OSX");
+            break;
+        case _ESC:
+            strcpy(layout_str, "ESC");
+            break;
+        case _ESC_OSX:
+            strcpy(layout_str, "ESC-OSX");
+            break;
+        case _LOWER:
+            strcpy(layout_str, "Lower");
+            break;
+        case _RAISE:
+            strcpy(layout_str, "Raise");
+            break;
+        case _ADJUST:
+            strcpy(layout_str, "Adjust");
+            break;
+        default:
+            strcpy(layout_str, "");
+            break;
+    }
+
+    return state;
+}
+
