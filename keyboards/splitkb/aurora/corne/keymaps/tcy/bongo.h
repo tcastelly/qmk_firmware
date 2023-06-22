@@ -536,6 +536,9 @@ layer_state_t layer_state_set_user(layer_state_t state) {
         case _ADJUST:
             strcpy(layout_str, "Adjust");
             break;
+        case _ACCENTS_RALT:
+            strcpy(layout_str, "Accents");
+            break;
         default:
             strcpy(layout_str, "");
             break;
