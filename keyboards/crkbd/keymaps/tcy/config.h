@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //#define TAPPING_TERM 100
 //
 #define USB_MAX_POWER_CONSUMPTION 500
-#define RGB_MATRIX_MAXIMUM_BRIGHTNESS 140
+#define RGB_MATRIX_MAXIMUM_BRIGHTNESS 100
 
 #ifdef RGBLIGHT_ENABLE
     #define RGBLIGHT_EFFECT_BREATHING
