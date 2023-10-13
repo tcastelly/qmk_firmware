@@ -30,6 +30,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //#define QUICK_TAP_TERM 0
 //#define TAPPING_TERM 100
+//
+#define USB_MAX_POWER_CONSUMPTION 500
+#define RGB_MATRIX_MAXIMUM_BRIGHTNESS 140
 
 #ifdef RGBLIGHT_ENABLE
     #define RGBLIGHT_EFFECT_BREATHING
