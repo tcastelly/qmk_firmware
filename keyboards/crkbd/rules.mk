@@ -6,6 +6,7 @@ DEFAULT_FOLDER = crkbd/rev1
 
 # reduce bundle size
 LTO_ENABLE = yes
+EXTRAFLAGS += -flto
 
 VIA_ENABLE = no
 TAP_DANCE_ENABLE = yes
