@@ -155,11 +155,7 @@ static void render_logo(void) {
     oled_write_P(qmk_logo, false);
 }
 
-bool oled_task_kb(void) {
-    if (!oled_task_user()) {
-        return false;
-    }
-
+bool oled_task_user(void) {
     oled_clear();
     switch (oled_mode) {
         default:
@@ -584,4 +580,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       break;
   }
   return true;
+}
+
+oled_rotation_t oled_init_user(oled_rotation_t rotation) {
+    if (!is_keyboard_master()) {
+        return OLED_ROTATION_180;  // flips the display 180 degrees if offhand
+    }
+
+    return rotation;
 }

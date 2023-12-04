@@ -26,6 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define SPLIT_WPM_ENABLE
 #define SPLIT_OLED_ENABLE
+#define SPLIT_ACTIVITY_ENABLE
+#define SPLIT_TRANSPORT_MIRROR
 
 #define POINTING_DEVICE_ROTATION_90
 #define SPLIT_POINTING_ENABLE
