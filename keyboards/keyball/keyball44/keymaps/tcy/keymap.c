@@ -28,11 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "lib/lib8tion/lib8tion.h"
 
 enum oled_modes {
-  OLED_BONGO,
-  OLED_BONGO_WPM,
-  OLED_BONGO_WPM_LAYOUT,
   OLED_BONGO_LAYOUT,
-  OLED_DEFAULT,
   OLED_OFF,
 };
 
@@ -71,54 +67,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 // clang-format on
 
-/*
-layer_state_t layer_state_set_user(layer_state_t state) {
-    // Auto enable scroll mode when the highest layer is 3
-    keyball_set_scroll_mode(get_highest_layer(state) == 3);
-    return state;
-}
-
 #ifdef OLED_ENABLE
-
-#    include "lib/oledkit/oledkit.h"
-
-void oledkit_render_info_user(void) {
-    keyball_oled_render_keyinfo();
-    keyball_oled_render_ballinfo();
-    keyball_oled_render_layerinfo();
-}
-#endif
-*/
-
-#ifdef OLED_ENABLE
-static void render_logo(void) {
-    static const char PROGMEM qmk_logo[] = {
-        0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94,
-        0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4,
-        0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF, 0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0x00
-    };
-
-    oled_write_P(qmk_logo, false);
-}
-
 bool oled_task_user(void) {
     oled_clear();
     switch (oled_mode) {
         default:
-        case OLED_DEFAULT:
-            render_logo();
-            break;
-        case OLED_BONGO:
-            draw_bongo(false, false);
-            break;
-        case OLED_BONGO_WPM:
-            draw_bongo(true, false);
-            break;
         case OLED_BONGO_LAYOUT:
-            draw_bongo(false, true);
-            break;
-        case OLED_BONGO_WPM_LAYOUT:
-            draw_bongo(true, true);
+            draw_bongo();
             break;
         case OLED_OFF:
             oled_off();
@@ -452,57 +407,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
        return false;
        break;
 
-     case TOGGLE_OLED_DEFAULT:
-       if (record->event.pressed) {
-           if (oled_mode != OLED_DEFAULT) {
-               oled_mode = OLED_DEFAULT;
-           } else {
-               oled_mode = OLED_BONGO_LAYOUT;
-           }
-       }
-       return false;
-       break;
-
-     case TOGGLE_OLED_WPM:
-       if (record->event.pressed) {
-           if (oled_mode == OLED_BONGO) {
-               // add wpm
-               oled_mode = OLED_BONGO_WPM;
-           } else if (oled_mode == OLED_BONGO_WPM) {
-               // remove wpm
-               oled_mode = OLED_BONGO;
-
-           } else if (oled_mode == OLED_BONGO_LAYOUT) {
-               // add wpm
-               oled_mode = OLED_BONGO_WPM_LAYOUT;
-           } else if (oled_mode == OLED_BONGO_WPM_LAYOUT) {
-               // remove wpm
-               oled_mode = OLED_BONGO_LAYOUT;
-           }
-       }
-       return false;
-       break;
-
-     case TOGGLE_OLED_LAYOUT:
-       if (record->event.pressed) {
-           if (oled_mode == OLED_BONGO) {
-               // add layout
-               oled_mode = OLED_BONGO_LAYOUT;
-           } else if (oled_mode == OLED_BONGO_LAYOUT) {
-               // remove layout
-               oled_mode = OLED_BONGO;
-
-           } else if (oled_mode == OLED_BONGO_WPM) {
-               // add layout
-               oled_mode = OLED_BONGO_WPM_LAYOUT;
-           } else if (oled_mode == OLED_BONGO_WPM_LAYOUT) {
-               // remove layout
-               oled_mode = OLED_BONGO_WPM;
-           }
-       }
-       return false;
-       break;
-
     case TD(TD_O):  // list all tap dance keycodes with tap-hold configurations
     case TD(TD_ESC):
     case TD(TD_ESC_OSX):
@@ -548,3 +452,10 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
     return rotation;
 }
 #endif
+
+uint16_t keycode_config(uint16_t keycode) {
+    return keycode;
+}
+uint8_t mod_config(uint8_t mod) {
+    return mod;
+}

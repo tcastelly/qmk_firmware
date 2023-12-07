@@ -10,7 +10,7 @@ enum layer_names {
     _ADJUST,
     _ESC,
     _ESC_OSX,
-    _ACCENTS_RALT,
+    _ACCENTS_RALT
 };
 
 enum custom_keycodes {
@@ -28,6 +28,9 @@ enum custom_keycodes {
   ACCENT_A_GRAVE,
 
   TOGGLE_OLED,
+  TOGGLE_OLED_WPM,
+  TOGGLE_OLED_LAYOUT,
+  TOGGLE_OLED_DEFAULT,
 
   // to be used with RALT already pressed
   ACCENT_I_CIRC_RALT,
