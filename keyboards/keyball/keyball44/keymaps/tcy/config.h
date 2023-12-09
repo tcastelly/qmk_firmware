@@ -43,9 +43,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SPLIT_ACTIVITY_ENABLE
 #define SPLIT_TRANSPORT_MIRROR
 
-#define POINTING_DEVICE_ROTATION_90
+// #define POINTING_DEVICE_ROTATION_90
 #define SPLIT_POINTING_ENABLE
-#define POINTING_DEVICE_RIGHT
+#define POINTING_DEVICE_LEFT
 #define POINTING_DEVICE_TASK_THROTTLE_MS 8
 
 // TRACK_BALL_MIN_DPI used for scroll only
