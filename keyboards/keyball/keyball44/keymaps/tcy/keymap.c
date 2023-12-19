@@ -18,14 +18,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include QMK_KEYBOARD_H
 
+#include "tapdance.c"
 #include "quantum.h"
 
-#include "tapdance.c"
 #ifdef OLED_ENABLE
   #include "bongo.h"
 #endif
-
-#include "lib/lib8tion/lib8tion.h"
 
 enum oled_modes {
   OLED_BONGO_LAYOUT,
@@ -138,45 +136,6 @@ bool oled_task_user(void) {
 }
 #endif
 
-#ifdef POINTING_DEVICE_ENABLE
-static uint32_t       last_mouse_activity = 0;
-static report_mouse_t last_mouse_report   = {0};
-static bool           is_scrolling        = false;
-report_mouse_t smooth_mouse_movement(report_mouse_t mouse_report) {
-    // Linear interpolation and ease-in-out
-    static fract8 fract = 0.5;
-    int8_t        x     = 0;
-    int8_t        y     = 0;
-    int8_t        h     = 0;
-    int8_t        v     = 0;
-
-    if (!is_scrolling) {
-        x = ease8InOutApprox(lerp8by8(last_mouse_report.x, mouse_report.x, fract));
-        y = ease8InOutApprox(lerp8by8(last_mouse_report.y, mouse_report.y, fract));
-    } else {
-        h = ease8InOutApprox(lerp8by8(last_mouse_report.x, mouse_report.x, fract));
-        v = ease8InOutApprox(lerp8by8(last_mouse_report.y, mouse_report.y, fract));
-    }
-
-    // update the new smoothed report
-    mouse_report.x = x;
-    mouse_report.y = y;
-    mouse_report.h = h;
-    mouse_report.v = v;
-
-    return mouse_report;
-}
-
-report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
-    if (has_mouse_report_changed(&last_mouse_report, &mouse_report)) {
-        last_mouse_activity = timer_read32();
-        memcpy(&last_mouse_report, &mouse_report, sizeof(mouse_report));
-    }
-
-    return smooth_mouse_movement(mouse_report);
-}
-#endif
-
 // Associate our tap dance key with its functionality
 tap_dance_action_t tap_dance_actions[] = {
     [TD_ESC] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC),
@@ -253,24 +212,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         is_hold_tapdance_disabled = true;
         layer_on(_LOWER);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
-
-        // enable scroll
-        #ifdef POINTING_DEVICE_ENABLE
-          is_scrolling = true;
-          pointing_device_set_cpi(TRACK_BALL_MIN_DPI);
-        #endif
       } else {
         layer_off(_LOWER);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
         is_hold_tapdance_disabled = false;
-
-        #ifdef POINTING_DEVICE_ENABLE
-          // disable scroll
-          if (is_scrolling) {  // check if we were scrolling before and set disable if so
-              is_scrolling = false;
-              pointing_device_set_cpi(TRACK_BALL_DEFAULT_DPI);
-          }
-        #endif
       }
       return false;
       break;
@@ -291,15 +236,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case KC_LALT:
     case KC_LGUI:
     case KC_LSFT:
-      #ifdef POINTING_DEVICE_ENABLE
-        if (record->event.pressed) {
-            pointing_device_set_cpi(TRACK_BALL_MAX_DPI);
-            is_hold_tapdance_disabled = true;
-        } else {
-            pointing_device_set_cpi(TRACK_BALL_DEFAULT_DPI);
-            is_hold_tapdance_disabled = false;
-        }
-      #endif
       return true;
       break;
 
@@ -482,10 +418,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           layer_off(_ESC);
           layer_off(_ESC_OSX);
           is_hold_tapdance_disabled = false;
-
-          #ifdef POINTING_DEVICE_ENABLE
-            pointing_device_set_cpi(TRACK_BALL_DEFAULT_DPI);
-          #endif
       }
 
       action = &tap_dance_actions[TD_INDEX(keycode)];
@@ -500,8 +432,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 #ifdef OLED_ENABLE
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-    if (!is_keyboard_master()) {
-        return OLED_ROTATION_180;  // flips the display 180 degrees if offhand
+    if (is_keyboard_master()) {
+        return OLED_ROTATION_180;
     }
 
     return rotation;

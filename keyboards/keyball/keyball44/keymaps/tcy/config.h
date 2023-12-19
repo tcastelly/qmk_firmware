@@ -34,28 +34,3 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #define TAP_CODE_DELAY 5
-
-#define TAPPING_TERM 175
-#define TAPPING_TERM_PER_KEY
-
-#define SPLIT_WPM_ENABLE
-#define SPLIT_OLED_ENABLE
-#define SPLIT_ACTIVITY_ENABLE
-#define SPLIT_TRANSPORT_MIRROR
-
-// #define POINTING_DEVICE_ROTATION_90
-#define SPLIT_POINTING_ENABLE
-#define POINTING_DEVICE_LEFT
-#define POINTING_DEVICE_TASK_THROTTLE_MS 8
-
-// TRACK_BALL_MIN_DPI used for scroll only
-#define TRACK_BALL_MIN_DPI 2000
-#define TRACK_BALL_DEFAULT_DPI 16500
-#define TRACK_BALL_MAX_DPI 40000
-
-#undef LOCKING_SUPPORT_ENABLE
-#undef LOCKING_RESYNC_ENABLE
-#define NO_ACTION_ONESHOT
-#define NO_ACTION_TAPPING
-#define NO_MUSIC_MODE
-#define LAYER_STATE_8BIT

@@ -59,10 +59,6 @@ void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_dat
 
     if (state->pressed) {
         layer_on(tap_hold->hold);
-
-        #ifdef POINTING_DEVICE_ENABLE
-          pointing_device_set_cpi(TRACK_BALL_DEFAULT_DPI / 2);
-        #endif
     }
 }
 

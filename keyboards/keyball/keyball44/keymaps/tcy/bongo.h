@@ -208,7 +208,11 @@ static void draw_bongo(void)
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    switch (get_highest_layer(state)) {
+    uint8_t current_layer = get_highest_layer(state);
+
+    keyball_set_scroll_mode(current_layer == _LOWER);
+
+    switch (current_layer) {
         case _QWERTY:
             strcpy(layout_str, "Q");
             break;
