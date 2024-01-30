@@ -42,7 +42,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+---- ----+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       KC_LSFT,     KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, TD(TD_ENT),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-           KC_MS_BTN1, TD(TD_RALT),  KC_LCTL,TD(TD_LALT),LOWER ,                   KC_SPC,   RAISE , _______, _______  , TD(TD_RALT)
+           KC_MS_BTN1, TD(TD_RALT),  KC_LCTL,TD(TD_LALT),LOWER ,                    RAISE, KC_SPC, _______, _______  , TD(TD_RALT)
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -50,11 +50,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
       TD(TD_TAB),  KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,TD(TD_O),TD(TD_P), TD(TD_BSPC_OSX),
   //|--------+--------+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      TD(TD_ESC_OSX),  KC_A,   KC_S,    KC_D,  KC_F,     KC_G,                          KC_H,    KC_J,    KC_K,TD(TD_L),TD(TD_SCLN), KC_QUOT,
+      TD(TD_ESC_OSX),  KC_A,   KC_S,    KC_D,  KC_F,     KC_G,                      KC_H,    KC_J,    KC_K,TD(TD_L),TD(TD_SCLN), KC_QUOT,
   //|--------+---- ----+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       KC_LSFT,     KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, TD(TD_ENT),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-            KC_MS_BTN1, TD(TD_RALT_OSX), TD(TD_LCTL),TD(TD_LGUI),LOWER,                KC_SPC,   RAISE, _______, _______, TD(TD_RALT_OSX)
+            KC_MS_BTN1, TD(TD_RALT_OSX), TD(TD_LCTL),TD(TD_LGUI),LOWER,             RAISE,   KC_SPC, _______, _______, TD(TD_RALT_OSX)
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -66,7 +66,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
     _______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,                        KC_F12,  S(KC_NUHS), KC_HOME, KC_END, _______, _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                        _______, _______, _______, _______, _______,             KC_MS_BTN1, _______, _______, _______, _______
+                        _______, _______, _______, _______, _______,             KC_MS_BTN1, KC_MS_BTN1, _______, _______, _______
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -90,7 +90,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, _______, _______, _______, _______, _______,                     KC_MS_LEFT,KC_MS_DOWN,KC_MS_UP, KC_MS_RIGHT, _______,  _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                       _______, _______, _______, _______,KC_MS_BTN2,          KC_MS_BTN1, _______, _______, _______, _______
+                       _______, _______, _______, _______,KC_MS_BTN2,          KC_MS_BTN1, KC_MS_BTN1, _______, _______, _______
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -140,6 +140,7 @@ bool oled_task_user(void) {
 tap_dance_action_t tap_dance_actions[] = {
     [TD_ESC] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC),
     [TD_ESC_OSX] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC_OSX),
+    [TD_SPC] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_SPC, _RAISE),
     [TD_TAB] = ACTION_TAP_DANCE_TAP_HOLD(KC_TAB, KC_TILD),
     [TD_O] = ACTION_TAP_DANCE_TAP_HOLD(KC_O, KC_LPRN),
     [TD_P] = ACTION_TAP_DANCE_TAP_HOLD(KC_P, KC_RPRN),
@@ -406,6 +407,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
        break;
 
     case TD(TD_O):  // list all tap dance keycodes with tap-hold configurations
+    case TD(TD_SPC):
     case TD(TD_ESC):
     case TD(TD_ESC_OSX):
     case TD(TD_TAB):
@@ -424,6 +426,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       if ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && !record->event.pressed) {
           layer_off(_ESC);
           layer_off(_ESC_OSX);
+          is_hold_tapdance_disabled = false;
+      } else if (keycode == TD(TD_SPC) && !record->event.pressed) {
+          layer_off(_RAISE);
           is_hold_tapdance_disabled = false;
       }
 

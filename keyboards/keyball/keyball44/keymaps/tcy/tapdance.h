@@ -61,6 +61,7 @@ enum {
     TD_O,
     TD_P,
     TD_L,
+    TD_SPC,
     TD_ENT,
     TD_SCLN,
     TD_LCTL,
