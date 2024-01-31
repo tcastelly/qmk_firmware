@@ -62,6 +62,20 @@ void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_dat
     }
 }
 
+void tap_dance_tap_hold_finished_permisive_layout(tap_dance_state_t *state, void *user_data) {
+    tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
+
+    is_hold_tapdance_disabled = true;
+
+    if (state->pressed) {
+        if (state->interrupted) {
+            tap_code16(tap_hold->tap);
+        } else {
+            layer_on(tap_hold->hold);
+        }
+    }
+}
+
 void tap_dance_tap_hold_reset_layout(tap_dance_state_t *state, void *user_data) {
     is_hold_tapdance_disabled = false;
 }
