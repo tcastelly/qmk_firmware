@@ -1,11 +1,5 @@
-# MCU name
-MCU = atmega32u4
-
-# Bootloader selection
-BOOTLOADER = caterina
-
 # Link Time Optimization required for size.
-LTO_ENABLE = yes
+# LTO_ENABLE = yes
 
 # Build Options
 BOOTMAGIC_ENABLE = no       # Enable Bootmagic Lite
@@ -17,7 +11,7 @@ BACKLIGHT_ENABLE = no       # Enable keyboard backlight functionality
 AUDIO_ENABLE = no           # Audio output
 
 # Keyball39 is split keyboard.
-SPLIT_KEYBOARD = yes
+SERIAL_DRIVER = vendor
 
 # Optical sensor driver for trackball.
 POINTING_DEVICE_ENABLE = yes

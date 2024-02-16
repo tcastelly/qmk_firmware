@@ -1,4 +1,6 @@
 {
+   "processor": "RP2040",
+   "bootloader": "rp2040",
     "usb": {
         "vid": "0x5957",
         "pid": "0x0400",
@@ -8,6 +10,12 @@
     "keyboard_name": "Keyball44",
     "rgblight": {
         "driver": "ws2812"
+    },
+    "ws2812": {
+      "driver": "vendor"
+    },
+    "split": {
+      "enabled": true
     },
     "layouts": {
       "LAYOUT_no_ball": {
