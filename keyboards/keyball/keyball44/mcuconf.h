@@ -1,4 +1,5 @@
-/* Copyright 2021 DZTECH <moyi4681@Live.cn>
+/**
+ * Copyright 2022 Charly Delay <charly@codesink.dev> (@0xcharly)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,8 +17,7 @@
 
 #pragma once
 
-#define USB_SUSPEND_WAKEUP_DELAY 5000
-#define VIA_EEPROM_LAYOUT_OPTIONS_SIZE 2
+#include_next <mcuconf.h>
 
-// global time for tap dance
-#define TAPPING_TERM 200
+#undef RP_SPI_USE_SPI0
+#define RP_SPI_USE_SPI0 TRUE
