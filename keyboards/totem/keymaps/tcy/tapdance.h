@@ -8,8 +8,8 @@ enum layer_names {
     _LOWER,
     _RAISE,
     _ADJUST,
-    _ESC,
-    _ESC_OSX,
+    _MOD,
+    _MOD_OSX,
     _ACCENTS_RALT,
 };
 
@@ -20,7 +20,6 @@ enum custom_keycodes {
   LOWER,
   RAISE,
   ADJUST,
-  ESC,
   ACCENT_GRAVE,
   ACCENT_CIRCUM,
   ACCENT_TREMA,
@@ -53,12 +52,14 @@ enum {
 
 // custom tap dance
 enum {
-    TD_ESC,
-    TD_ESC_OSX,
+    TD_A,
+    TD_A_OSX,
     TD_TAB,
+    TD_SPC,
     TD_O,
     TD_P,
     TD_L,
+    TD_LSFT,
     TD_ENT,
     TD_SCLN,
     TD_LCTL,
@@ -92,27 +93,7 @@ typedef struct {
 
 extern bool is_hold_tapdance_disabled;
 
-extern void td_ralt_reset (tap_dance_state_t *state, void *user_data);
-
-extern void td_ralt_finished (tap_dance_state_t *state, void *user_data);
-
-extern void td_ralt_osx_reset (tap_dance_state_t *state, void *user_data);
-
-extern void td_ralt_osx_finished (tap_dance_state_t *state, void *user_data);
-
 extern void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *user_data);
-
-extern void td_lgui_reset (tap_dance_state_t *state, void *user_data);
-
-extern void td_lgui_finished (tap_dance_state_t *state, void *user_data);
-
-extern void td_lalt_reset (tap_dance_state_t *state, void *user_data);
-
-extern void td_lalt_finished (tap_dance_state_t *state, void *user_data);
-
-extern void td_lctl_reset (tap_dance_state_t *state, void *user_data);
-
-extern void td_lctl_finished (tap_dance_state_t *state, void *user_data);
 
 extern void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data);
 
@@ -132,5 +113,6 @@ extern void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *u
 
 #define ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(tap, hold) \
     { .fn = {NULL, tap_dance_tap_hold_finished_layout, tap_dance_tap_hold_reset_layout}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
+
 #define ACTION_TAP_DANCE_TAP_HOLD_PERMISIVE_LAYOUT(tap, hold) \
     { .fn = {NULL, tap_dance_tap_hold_finished_permisive_layout, tap_dance_tap_hold_reset_layout}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }

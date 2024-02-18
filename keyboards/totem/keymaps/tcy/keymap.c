@@ -17,52 +17,6 @@
 #include "tapdance.c"
 
 // ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-// │ D E F I N I T I O N S                                                                                                  │
-// └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-// ▝▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▘
-
-// ┌─────────────────────────────────────────────────┐
-// │ d e f i n e   m a c r o n a m e s               │
-// └─────────────────────────────────────────────────┘
-
-// LEFT HAND HOME ROW MODS QWERTY ├──────────────────┐
-
-#define GUI_A MT(MOD_LGUI, KC_A)
-#define ALT_S MT(MOD_LALT, KC_S)
-#define CTL_D MT(MOD_LCTL, KC_D)
-#define SHT_F MT(MOD_LSFT, KC_F)
-
-// RIGHT HAND HOME ROW MODS QWERTY ├─────────────────┐
-
-#define SHT_J MT(MOD_RSFT, KC_J)
-#define CTL_K MT(MOD_LCTL, KC_K)
-#define ALT_L MT(MOD_LALT, KC_L)
-#define GUI_S MT(MOD_LGUI, KC_SCLN)
-
-
-// LEFT HAND HOME ROW MODS COLEMAK ├─────────────────┐
-
-#define GUI_A MT(MOD_LGUI, KC_A)
-#define ALT_R MT(MOD_LALT, KC_R)
-#define CTL_S MT(MOD_LCTL, KC_S)
-#define SHT_T MT(MOD_LSFT, KC_T)
-
-// RIGHT HAND HOME ROW MODS COLEMAK ├────────────────┐
-
-#define SHT_N MT(MOD_RSFT, KC_N)
-#define CTL_E MT(MOD_LCTL, KC_E)
-#define ALT_I MT(MOD_LALT, KC_I)
-#define GUI_O MT(MOD_LGUI, KC_O)
-
-
-
-
-#define LOWER LT(_LOWER, KC_TAB)
-#define RAISE LT(_RAISE, KC_ESC)
-#define ADJUST MO(_ADJUST)
-
-
-// ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 // │ K E Y M A P S                                                                                                          │
 // └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 // ▝▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▘
@@ -74,26 +28,24 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    │ q w e r t y                                     │      ╭╮╭╮╭╮╭╮
    └─────────────────────────────────────────────────┘      │╰╯╰╯╰╯│
              ┌─────────┬─────────┬─────────┬─────────┬──────╨──┐┌──╨──────┬─────────┬─────────┬─────────┬─────────┐
-     ╌┄┈┈───═╡    Q    │    W    │    E    │    R    │    T    ││    Y    │    U    │    I    │    O    │    P    │
+     ╌┄┈┈───═╡    Q    │    W    │    E    │    R    │    T    ││    Y    │    U    │    I    │   O/(   │   P/)   │
              ├─────────┼─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┼─────────┤
-             │    A    │    S    │    D    │    F    │    G    ││    H    │    J    │    K    │    L    │    ;    │
+             │  A/MOD  │    S    │    D    │    F    │    G    ││    H    │    J    │    K    │   L/{   │  ;/}    │
    ┌─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┐
-   │    Q    │    Z    │    X    │    C    │    V    │    B    ││    N    │    M    │    ,    │    .    │    /    │    P    │
+   │ SFT/ESC │    Z    │    X    │    C    │    V    │    B    ││    N    │    M    │    ,    │    .    │    /    │ENTR/RSFT│
    └─────────┴─────────┴─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┴─────────┴─────────┘
-                                 │  CTRL   │  LOWER  │  SPACE  ││  ENTER  │  RAISE  │  BSPC   │
+                                 │CTRL/~   │LALT/TAB │  LOWER  ││SPC/RAISE│  BSPC   │ RALT/'  │
                                  └─────────┴─────────┴─────────┘└─────────┴─────────┴─────────┘*/
 
    [_QWERTY] = LAYOUT(
- //╷         ╷         ╷         ╷         ╷         ╷         ╷╷         ╷         ╷         ╷         ╷         ╷         ╷
-              KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,      KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,
-              GUI_A,    ALT_S,    CTL_D,    SHT_F,    KC_G,      KC_H,     SHT_J,    CTL_K,    ALT_L,    GUI_S,
-    KC_Q,     KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,      KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,  KC_P,
-                                  KC_DEL,   LOWER,    KC_SPC,    KC_ENT,   RAISE,    KC_BSPC
+ //╷         ╷         ╷         ╷              ╷             ╷         ╷╷             ╷             ╷         ╷         ╷         ╷         ╷
+              KC_Q,     KC_W,     KC_E,          KC_R,         KC_T,      KC_Y,         KC_U,         KC_I,     TD(TD_O), TD(TD_P),
+              TD(TD_A), KC_S,     KC_D,          KC_F,         KC_G,      KC_H,         KC_J,         KC_K,     TD(TD_L), TD(TD_SCLN),
+TD(TD_LSFT),  KC_Z,     KC_X,     KC_C,          KC_V,         KC_B,      KC_N,         KC_M,         KC_COMM,  KC_DOT,   KC_SLSH,  TD(TD_ENT),
+                                  TD(TD_LCTL),   TD(TD_LALT),  LOWER,     TD(TD_SPC),   TD(TD_BSPC),  TD(TD_RALT)
  ),
 
 /*
-
-   ╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
 
    ╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
 
@@ -101,21 +53,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    │ l o w e r                                       │      ╭╮╭╮╭╮╭╮
    └─────────────────────────────────────────────────┘      │╰╯╰╯╰╯│
              ┌─────────┬─────────┬─────────┬─────────┬──────╨──┐┌──╨──────┬─────────┬─────────┬─────────┬─────────┐
-     ╌┄┈┈───═╡ CAPSLCK │ NUMLCK  │    ↑    │    =    │    {    ││    }    │    7    │    8    │    9    │    +    │
+     ╌┄┈┈───═╡    !    │    @    │    #    │    $    │    %    ││    ^    │    &    │    *    │    (    │    )    │
              ├─────────┼─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┼─────────┤
-             │  HOME   │    ←    │    ↓    │    →    │    [    ││    ]    │    4    │    5    │    6    │    -    │
+             │    F1   │    F2   │    F3   │    F4   │    F5   ││   F6    │    -    │    +    │    {    │    }    │
    ┌─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┐
-   │         │   END   │   PG↑   │  SAVE   │   PG↓   │    (    ││    )    │    1    │    2    │    3    │    *    │    ▼    │
+   │         │    F7   │   F8    │   F9    │   F10   │   F11   ││   F1    │    ~    │ HOME    │   END   │         │    ▼    │
    └─────────┴─────────┴─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┴─────────┴─────────┘
-                                 │    ▼    │    ▼    │    ▼    ││    ▼    │ ADJUST  │    0    │
+                                 │    ▼    │    ▼    │    ▼    ││  BTN1   │         │    0    │
                                  └─────────┴─────────┴─────────┘└─────────┴─────────┴─────────┘ */
 
    [_LOWER] = LAYOUT(
- //╷         ╷         ╷         ╷         ╷         ╷         ╷╷         ╷         ╷         ╷         ╷         ╷         ╷
-              KC_CAPS,  KC_NUM,   KC_UP,    KC_EQL,   KC_LCBR,   KC_RCBR,  KC_P7,    KC_P8,    KC_P9,    KC_PPLS,
-              KC_QUOT,  KC_LEFT,  KC_DOWN,  KC_RGHT,  KC_LBRC,   KC_RBRC,  KC_P4,    KC_P5,    KC_P6,    KC_MINS,
-    _______,     KC_END,   KC_PGUP,  C(KC_S),  KC_PGDN,  KC_LPRN,   KC_RPRN,  KC_P1,    KC_P2,    KC_P3,    KC_PAST,  _______,
-                                  _______,  _______,  _______,   _______,  ADJUST,   KC_P0
+ //╷         ╷         ╷         ╷         ╷         ╷         ╷╷            ╷           ╷         ╷         ╷         ╷         ╷
+              KC_EXLM,  KC_AT,    KC_HASH,  KC_DLR,   KC_PERC,   KC_CIRC,     KC_AMPR,    KC_ASTR,  KC_LPRN,  KC_PPLS,
+              KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,     KC_F6,       KC_MINS,    KC_PLUS,  KC_LCBR,  KC_RCBR,
+    _______,  KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,    KC_F12,      S(KC_NUHS), KC_HOME,  KC_END,   _______,  KC_PIPE,
+                                  _______,  _______,  _______,   KC_MS_BTN1,  _______,   _______
  ),
  /*
    ╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
@@ -124,21 +76,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    │ r a i s e                                       │      ╭╮╭╮╭╮╭╮
    └─────────────────────────────────────────────────┘      │╰╯╰╯╰╯│
              ┌─────────┬─────────┬─────────┬─────────┬──────╨──┐┌──╨──────┬─────────┬─────────┬─────────┬─────────┐
-     ╌┄┈┈───═╡    !    │    @    │    #    │    $    │    %    ││    ^    │    &    │    Ü    │    °    │    /    │
+     ╌┄┈┈───═╡    1    │    2    │    3    │    4    │    5    ││    6    │    7    │    8    │    9    │    0    │
              ├─────────┼─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┼─────────┤
-             │    Ä    │    è    │    SZ   │    é    │         ││         │    ¥    │    €    │    £    │    Ö    │
+             │         │         │         │         │         ││         │    _    │    =    │    [    │    ]    │
    ┌─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┐
-   │         │    `    │    ~    │   CUE   │         │         ││         │         │         │ DM REC1 │ DM STOP │ DM PLY1 │
+   │         │         │         │         │         │         ││         │         │         │         │         │         │
    └─────────┴─────────┴─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┴─────────┴─────────┘
-                                 │  GIPHY  │ ADJUST  │    ▼    ││    ▼    │    ▼    │    ▼    │
+                                 │         │         │    ▼    ││    ▼    │    ▼    │    ▼    │
                                  └─────────┴─────────┴─────────┘└─────────┴─────────┴─────────┘ */
 
    [_RAISE] = LAYOUT(
- //╷         ╷         ╷         ╷         ╷         ╷         ╷╷         ╷         ╷         ╷         ╷         ╷         ╷
-              KC_EXLM,  KC_AT,    KC_HASH,  KC_DLR,   KC_PERC,   KC_CIRC,  KC_AMPR,  RALT(KC_U),RALT(KC_3),KC_BSLS,
-            RALT(KC_A),RALT(KC_F),RALT(KC_S),RALT(KC_G),XXXXXXX, XXXXXXX,LSFT(RALT(KC_4)),RALT(KC_5), RALT(KC_4),  RALT(KC_O),
-    XXXXXXX, LSFT(KC_GRV),KC_TILD, RALT(KC_C),XXXXXXX,  XXXXXXX,   XXXXXXX,  XXXXXXX,  XXXXXXX,  DM_REC1,  DM_RSTP,  DM_PLY1,
-                                  _______,   ADJUST,   _______,   _______,  _______,  _______
+ //╷         ╷         ╷         ╷         ╷         ╷         ╷╷          ╷         ╷         ╷         ╷         ╷         ╷
+              KC_1,     KC_2,     KC_3,      KC_4,     KC_5,      KC_6,     KC_7,     KC_8,     KC_9,     KC_0,
+              _______,  _______,  _______,   _______,  _______,   _______,  KC_UNDS,  KC_EQL,  KC_LBRC,  KC_RBRC,
+    _______,  _______,  _______,  _______,   _______,  _______,   _______,  _______,  _______, _______,  _______,  KC_BSLS,
+                                  _______,   _______,  _______,   _______,  _______,  _______
  ),
  /*
    ╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
@@ -147,21 +99,44 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    │ a d j u s t                                     │      ╭╮╭╮╭╮╭╮
    └─────────────────────────────────────────────────┘      │╰╯╰╯╰╯│
              ┌─────────┬─────────┬─────────┬─────────┬──────╨──┐┌──╨──────┬─────────┬─────────┬─────────┬─────────┐
-     ╌┄┈┈───═╡  RESET  │         │         │         │         ││         │   F7    │   F8    │   F9    │   F12   │
+     ╌┄┈┈───═╡ QWERTY  │QWER_OSX │         │         │         ││         │         │         │         │  RESET  │
              ├─────────┼─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┼─────────┤
-             │ DEBUG   │ QWERTY  │         │         │         ││         │   F4    │   F5    │   F6    │   F11   │
+             │ DEBUG   │         │         │         │         ││         │         │         │         │         │
    ┌─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┐
-   │         │         │         │         │         │         ││         │   F1    │   F2    │   F3    │   F10   │   F13   │
+   │         │         │         │         │         │         ││         │         │         │         │         │         │
    └─────────┴─────────┴─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┴─────────┴─────────┘
                                  │    ▼    │    ▼    │    ▼    ││    ▼    │    ▼    │    ▼    │
                                  └─────────┴─────────┴─────────┘└─────────┴─────────┴─────────┘ */
 
    [_ADJUST] = LAYOUT(
- //╷         ╷         ╷         ╷         ╷         ╷         ╷╷         ╷         ╷         ╷         ╷         ╷         ╷
-              QK_BOOT,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,   XXXXXXX,  KC_F7,    KC_F8,    KC_F9,    KC_F12,
-              DB_TOGG,  QWERTY,   XXXXXXX,  XXXXXXX,  XXXXXXX,   XXXXXXX,  KC_F4,    KC_F5,    KC_F6,    KC_F11,
-    XXXXXXX,   XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,   XXXXXXX,  KC_F1,    KC_F2,    KC_F3,    KC_F10,   KC_F13,
+ //╷         ╷         ╷         ╷         ╷         ╷         ╷╷         ╷         ╷         ╷        ╷         ╷         ╷
+              QWERTY,  QWERTY_OSX,_______,  _______,  _______,   _______,  _______,  _______, _______,  QK_BOOT,
+              _______,  _______,  _______,  _______,  _______,   _______,  _______,  _______, _______,  _______,
+    _______,  _______,  _______,  _______,  _______,  _______,   _______,  _______,  _______, _______,  _______,  _______,
                                   _______,  _______,  _______,   _______,  _______,  _______
+ ),
+/*
+   ╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
+
+   ┌─────────────────────────────────────────────────┐
+   │ MOD                                             │      ╭╮╭╮╭╮╭╮
+   └─────────────────────────────────────────────────┘      │╰╯╰╯╰╯│
+             ┌─────────┬─────────┬─────────┬─────────┬──────╨──┐┌──╨──────┬─────────┬─────────┬─────────┬─────────┐
+     ╌┄┈┈───═╡    `    │         │    è    │JET_RNM  │         ││    ^    │KC_WH_D  │KC_WH_D  │KC_WH_U  │         │
+             ├─────────┼─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┼─────────┤
+             │         │         │         │JET_FND  │         ││  LEFT   │  DOWN   │  UP     │ RIGHT   │         │
+   ┌─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┐
+   │         │         │         │         │         │         ││         │         │         │         │         │         │
+   └─────────┴─────────┴─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┴─────────┴─────────┘
+                                 │         │         │ BTN2    ││  BTN1   │  DEL    │ TREMA   │
+                                 └─────────┴─────────┴─────────┘└─────────┴─────────┴─────────┘ */
+
+   [_MOD] = LAYOUT(
+ //╷         ╷               ╷         ╷                 ╷            ╷            ╷╷              ╷          ╷         ╷              ╷         ╷        ╷
+              ACCENT_GRAVE,   _______,  ACCENT_E_GRAVE,   JET_RNM,     _______,      ACCENT_CIRCUM,  KC_WH_D,  KC_WH_U,  _______,       _______,
+              ACCENT_A_GRAVE, _______,  _______,          JET_FIND,    _______,      TD(TD_LEFT),    KC_DOWN,  KC_UP,    TD(TD_RIGHT),  _______,
+    _______,  _______,        _______,  _______,          _______,     _______,      _______,        _______,  _______,  _______,       _______,   KC_QUOT,
+                              _______,  _______,          KC_MS_BTN2,  KC_MS_BTN1,   TD(TD_DEL),     ACCENT_TREMA
  )
 /*
    ╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
@@ -184,28 +159,29 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
               _______,  _______,  _______,  _______,   _______,  _______,  _______,  _______,  _______,   _______,
               _______,  _______,  _______,  _______,   _______,  _______,  _______,  _______,  _______,   _______,
     _______,  _______,  _______,  _______,  _______,   _______,  _______,  _______,  _______,  _______,   _______, _______,
-                                  _______,  _______,   _______,  _______,  _______,  _______,
+                                  _______,  _______,   _______,  _______,  _______,  _______
  ),
 */
 };
 
 // Associate our tap dance key with its functionality
 tap_dance_action_t tap_dance_actions[] = {
-    [TD_ESC] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC),
-    [TD_ESC_OSX] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC_OSX),
+    [TD_A] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_A, _MOD),
+    [TD_A_OSX] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_A, _MOD_OSX),
+    [TD_SPC] = ACTION_TAP_DANCE_TAP_HOLD_PERMISIVE_LAYOUT(KC_SPC, _RAISE),
     [TD_TAB] = ACTION_TAP_DANCE_TAP_HOLD(KC_TAB, KC_TILD),
     [TD_O] = ACTION_TAP_DANCE_TAP_HOLD(KC_O, KC_LPRN),
     [TD_P] = ACTION_TAP_DANCE_TAP_HOLD(KC_P, KC_RPRN),
     [TD_L] = ACTION_TAP_DANCE_TAP_HOLD(KC_L, KC_LCBR),
     [TD_SCLN] = ACTION_TAP_DANCE_TAP_HOLD(KC_SCLN, KC_RCBR),
     [TD_ENT] = ACTION_TAP_DANCE_TAP_HOLD(KC_ENT, KC_LSFT),
+    [TD_LSFT] = ACTION_TAP_DANCE_TAP_HOLD(KC_ESC, KC_LSFT),
+    [TD_LCTL] = ACTION_TAP_DANCE_TAP_HOLD(KC_TILD, KC_LCTL),
+    [TD_LALT] = ACTION_TAP_DANCE_TAP_HOLD(KC_TAB, KC_LALT),
+    [TD_RALT] = ACTION_TAP_DANCE_TAP_HOLD(KC_QUOT, KC_RALT),
 
     // same tap-dance
     // enable it for osx and linux
-    [TD_LCTL] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lctl_finished, td_lctl_reset),
-    [TD_LALT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lalt_finished, td_lalt_reset),
-    [TD_LGUI] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lgui_finished, td_lgui_reset),
-
     [TD_BSPC] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LCTL(KC_BSPC)),
     [TD_BSPC_OSX] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LALT(KC_BSPC)),
 
@@ -220,16 +196,13 @@ tap_dance_action_t tap_dance_actions[] = {
 
     [TD_RIGHT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LALT(KC_RIGHT)),
     [TD_RIGHT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LCTL(KC_RIGHT)),
-
-    [TD_RALT_OSX] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_osx_finished, td_ralt_osx_reset),
-    [TD_RALT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_finished, td_ralt_reset)
 };
 
 // Set a long-ish tapping term for tap-dance keys
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case QK_TAP_DANCE ... QK_TAP_DANCE_MAX:
-            return 275;
+        case TD(TD_SPC):
+            return TAPPING_TERM - 25;
         default:
             return TAPPING_TERM;
     }
@@ -441,9 +414,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
        break;
 
     case TD(TD_O):  // list all tap dance keycodes with tap-hold configurations
-    case TD(TD_ESC):
-    case TD(TD_ESC_OSX):
+    case TD(TD_A):
+    case TD(TD_A_OSX):
+    case TD(TD_SPC):
     case TD(TD_TAB):
+    case TD(TD_LCTL):
+    case TD(TD_LSFT):
+    case TD(TD_LALT):
+    case TD(TD_RALT):
     case TD(TD_P):
     case TD(TD_L):
     case TD(TD_ENT):
@@ -456,9 +434,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case TD(TD_LEFT_OSX):
     case TD(TD_RIGHT):
     case TD(TD_RIGHT_OSX):
-      if ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && !record->event.pressed) {
-          layer_off(_ESC);
-          layer_off(_ESC_OSX);
+       if ((keycode == TD(TD_A) || keycode == TD(TD_A_OSX)) && !record->event.pressed) {
+          layer_off(_MOD);
+          layer_off(_MOD_OSX);
+          is_hold_tapdance_disabled = false;
+      } else if (keycode == TD(TD_SPC) && !record->event.pressed) {
+          layer_off(_RAISE);
           is_hold_tapdance_disabled = false;
       }
 
