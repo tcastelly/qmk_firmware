@@ -3,6 +3,12 @@
 
 bool is_hold_tapdance_disabled = false;
 
+//instanalize an instance of 'tap' for the 'x' tap dance.
+static tap xtap_state = {
+  .is_press_action = true,
+  .state = 0
+};
+
 void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
@@ -124,4 +130,48 @@ int cur_dance (tap_dance_state_t *state) {
 
     //magic number. At some point this method will expand to work for more presses
     return 8;
+}
+
+void td_lgui_finished (tap_dance_state_t *state, void *user_data) {
+  xtap_state.state = cur_dance(state);
+  is_hold_tapdance_disabled = false;
+
+  switch (xtap_state.state) {
+      case SINGLE_TAP:
+          register_code(KC_TAB);
+          break;
+
+      case SINGLE_HOLD:
+          register_code(KC_LGUI);
+          break;
+
+      case DOUBLE_SINGLE_TAP:
+      case DOUBLE_HOLD:
+          register_code(KC_LGUI);
+          register_code(KC_TAB);
+          unregister_code(KC_TAB);
+          layer_on(_MOD_OSX);
+          break;
+  }
+}
+
+void td_lgui_reset (tap_dance_state_t *state, void *user_data) {
+    is_hold_tapdance_disabled = false;
+
+    switch (xtap_state.state) {
+        case SINGLE_TAP:
+            unregister_code(KC_TAB);
+            break;
+
+        case SINGLE_HOLD:
+            unregister_code(KC_LGUI);
+            break;
+
+        case DOUBLE_SINGLE_TAP:
+        case DOUBLE_HOLD:
+            unregister_code(KC_LGUI);
+            layer_off(_MOD_OSX);
+            break;
+    }
+    xtap_state.state = 0;
 }

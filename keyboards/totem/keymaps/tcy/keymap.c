@@ -41,10 +41,29 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  //╷         ╷         ╷         ╷              ╷             ╷         ╷╷             ╷             ╷         ╷         ╷         ╷         ╷
               KC_Q,     KC_W,     KC_E,          KC_R,         KC_T,      KC_Y,         KC_U,         KC_I,     TD(TD_O), TD(TD_P),
               TD(TD_A), KC_S,     KC_D,          KC_F,         KC_G,      KC_H,         KC_J,         KC_K,     TD(TD_L), TD(TD_SCLN),
-TD(TD_LSFT),  KC_Z,     KC_X,     KC_C,          KC_V,         KC_B,      KC_N,         KC_M,         KC_COMM,  KC_DOT,   KC_SLSH,  TD(TD_ENT),
+TD(TD_LSFT),  KC_Z,     KC_X,     KC_C,          KC_V,         KC_B,      KC_N,         KC_M,         KC_COMM,  KC_DOT,   KC_SLSH,             TD(TD_ENT),
                                   TD(TD_LCTL),   TD(TD_LALT),  LOWER,     TD(TD_SPC),   TD(TD_BSPC),  TD(TD_RALT)
  ),
-
+ /*
+   ┌─────────────────────────────────────────────────┐
+   │ q w e r t y OSX                                 │      ╭╮╭╮╭╮╭╮
+   └─────────────────────────────────────────────────┘      │╰╯╰╯╰╯│
+             ┌─────────┬─────────┬─────────┬─────────┬──────╨──┐┌──╨──────┬─────────┬─────────┬─────────┬─────────┐
+     ╌┄┈┈───═╡    Q    │    W    │    E    │    R    │    T    ││    Y    │    U    │    I    │   O/(   │   P/)   │
+             ├─────────┼─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┼─────────┤
+             │  A/MOD  │    S    │    D    │    F    │    G    ││    H    │    J    │    K    │   L/{   │  ;/}    │
+   ┌─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┐
+   │ SFT/ESC │    Z    │    X    │    C    │    V    │    B    ││    N    │    M    │    ,    │    .    │    /    │ENTR/RSFT│
+   └─────────┴─────────┴─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┴─────────┴─────────┘
+                                 │CTRL/~   │LALT/TAB │  LOWER  ││SPC/RAISE│  BSPC   │ RALT/'  │
+                                 └─────────┴─────────┴─────────┘└─────────┴─────────┴─────────┘*/
+   [_QWERTY_OSX] = LAYOUT(
+ //╷         ╷              ╷         ╷            ╷             ╷         ╷╷            ╷                ╷         ╷        ╷         ╷         ╷
+              KC_Q,          KC_W,     KC_E,        KC_R,         KC_T,      KC_Y,        KC_U,            KC_I,    TD(TD_O), TD(TD_P),
+              TD(TD_A_OSX),  KC_S,     KC_D,        KC_F,         KC_G,      KC_H,        KC_J,            KC_K,    TD(TD_L), TD(TD_SCLN),
+TD(TD_LSFT),  KC_Z,          KC_X,     KC_C,        KC_V,         KC_B,      KC_N,        KC_M,            KC_COMM, KC_DOT,   KC_SLSH,            TD(TD_ENT),
+                                       TD(TD_LCTL), TD(TD_LGUI),  LOWER,     TD(TD_SPC),  TD(TD_BSPC),     TD(TD_RALT)
+ ),
 /*
 
    ╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
@@ -114,6 +133,29 @@ TD(TD_LSFT),  KC_Z,     KC_X,     KC_C,          KC_V,         KC_B,      KC_N, 
     _______,  _______,        A_X,      A_C,              A_V,         A_B,          A_N,            A_M,          A_K,      A_L,           KC_QUOT,  _______,
                                         _______,          _______,     KC_MS_BTN2,   KC_MS_BTN1,     TD(TD_DEL),   ACCENT_TREMA
  ),
+/*
+   ╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
+
+   ┌─────────────────────────────────────────────────┐
+   │ MOD OSX                                         │      ╭╮╭╮╭╮╭╮
+   └─────────────────────────────────────────────────┘      │╰╯╰╯╰╯│
+             ┌─────────┬─────────┬─────────┬─────────┬──────╨──┐┌──╨──────┬─────────┬─────────┬─────────┬─────────┐
+     ╌┄┈┈───═╡    `    │         │    è    │JET_RNM  │         ││    ^    │KC_WH_D  │KC_WH_D  │KC_WH_U  │         │
+             ├─────────┼─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┼─────────┤
+             │         │         │         │JET_FND  │         ││  LEFT   │  DOWN   │  UP     │ RIGHT   │         │
+   ┌─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┐
+   │         │         │         │         │         │         ││         │         │         │         │         │         │
+   └─────────┴─────────┴─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┴─────────┴─────────┘
+                                 │         │         │ BTN2    ││  BTN1   │  DEL    │ TREMA   │
+                                 └─────────┴─────────┴─────────┘└─────────┴─────────┴─────────┘ */
+
+   [_MOD_OSX] = LAYOUT(
+ //╷         ╷               ╷         ╷                  ╷            ╷         ╷╷                    ╷              ╷                ╷                  ╷         ╷         ╷
+              ACCENT_GRAVE,   A_W,      ACCENT_E_GRAVE,   JET_RNM,     A_T,          ACCENT_CIRCUM,    KC_WH_D,        KC_WH_U,         A_O,               A_P,
+              _______,        A_S,      A_D,              JET_FIND,    A_H,          TD(TD_LEFT_OSX),  KC_DOWN,        KC_UP,           TD(TD_RIGHT_OSX),  _______,
+    _______,  _______,        A_X,      A_C,              A_V,         A_B,          A_N,              A_M,            A_K,             A_L,               KC_QUOT,  _______,
+                                        _______,          _______,     KC_MS_BTN2,   KC_MS_BTN1,       TD(TD_DEL_OSX), ACCENT_TREMA
+ ),
  /*
    ╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
 
@@ -178,6 +220,7 @@ tap_dance_action_t tap_dance_actions[] = {
     [TD_LCTL] = ACTION_TAP_DANCE_TAP_HOLD(KC_TILD, KC_LCTL),
     [TD_LALT] = ACTION_TAP_DANCE_TAP_HOLD(KC_TAB, KC_LALT),
     [TD_RALT] = ACTION_TAP_DANCE_TAP_HOLD(KC_QUOT, KC_RALT),
+    [TD_LGUI] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lgui_finished, td_lgui_reset),
 
     // same tap-dance
     // enable it for osx and linux
@@ -190,20 +233,22 @@ tap_dance_action_t tap_dance_actions[] = {
     [TD_LEFT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_LEFT, LCTL(KC_LEFT)),
     [TD_LEFT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_LEFT, LALT(KC_LEFT)),
 
-    [TD_RIGHT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LALT(KC_RIGHT)),
-    [TD_RIGHT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LCTL(KC_RIGHT)),
-
-    [TD_RIGHT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LALT(KC_RIGHT)),
     [TD_RIGHT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LCTL(KC_RIGHT)),
+    [TD_RIGHT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LALT(KC_RIGHT)),
 };
 
 // Set a long-ish tapping term for tap-dance keys
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
+        case TD(TD_LSFT):
+            return TAPPING_TERM - 20;
         case TD(TD_SPC):
             return TAPPING_TERM - 20;
         case TD(TD_A):
+        case TD(TD_A_OSX):
             return TAPPING_TERM - 25;
+        case TD(TD_LGUI):
+            return TAPPING_TERM + 150;
         default:
             return TAPPING_TERM;
     }
