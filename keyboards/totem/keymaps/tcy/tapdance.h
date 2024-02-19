@@ -40,11 +40,11 @@ enum custom_keycodes {
 
   // a + ..
   A_W,
+  A_T,
   A_O,
   A_P,
   A_S,
   A_D,
-  A_F,
   A_H,
   A_X,
   A_C,

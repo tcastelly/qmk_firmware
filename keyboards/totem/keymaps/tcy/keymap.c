@@ -110,8 +110,8 @@ TD(TD_LSFT),  KC_Z,     KC_X,     KC_C,          KC_V,         KC_B,      KC_N, 
 
    [_MOD] = LAYOUT(
  //╷         ╷               ╷         ╷                 ╷            ╷            ╷╷              ╷              ╷         ╷              ╷         ╷        ╷
-              ACCENT_GRAVE,   A_W,      ACCENT_E_GRAVE,   JET_RNM,     _______,      ACCENT_CIRCUM,  KC_WH_D,      KC_WH_U,  A_O,           A_P,
-              A_S,            A_D,      A_F,              JET_FIND,    A_H,          TD(TD_LEFT),    KC_DOWN,      KC_UP,    TD(TD_RIGHT),  _______,
+              ACCENT_GRAVE,   A_W,      ACCENT_E_GRAVE,   JET_RNM,     A_T,          ACCENT_CIRCUM,  KC_WH_D,      KC_WH_U,  A_O,           A_P,
+              _______,        A_S,      A_D,              JET_FIND,    A_H,          TD(TD_LEFT),    KC_DOWN,      KC_UP,    TD(TD_RIGHT),  _______,
     _______,  _______,        A_X,      A_C,              A_V,         A_B,          A_N,            A_M,          A_K,      A_L,           KC_QUOT,  _______,
                                         _______,          _______,     KC_MS_BTN2,   KC_MS_BTN1,     TD(TD_DEL),   ACCENT_TREMA
  ),
@@ -166,8 +166,8 @@ TD(TD_LSFT),  KC_Z,     KC_X,     KC_C,          KC_V,         KC_B,      KC_N, 
 
 // Associate our tap dance key with its functionality
 tap_dance_action_t tap_dance_actions[] = {
-    [TD_A] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_A, _MOD),
-    [TD_A_OSX] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_A, _MOD_OSX),
+    [TD_A] = ACTION_TAP_DANCE_TAP_HOLD_PERMISIVE_LAYOUT(KC_A, _MOD),
+    [TD_A_OSX] = ACTION_TAP_DANCE_TAP_HOLD_PERMISIVE_LAYOUT(KC_A, _MOD_OSX),
     [TD_SPC] = ACTION_TAP_DANCE_TAP_HOLD_PERMISIVE_LAYOUT(KC_SPC, _RAISE),
     [TD_TAB] = ACTION_TAP_DANCE_TAP_HOLD(KC_TAB, KC_TILD),
     [TD_O] = ACTION_TAP_DANCE_TAP_HOLD(KC_O, KC_LPRN),
@@ -202,6 +202,7 @@ tap_dance_action_t tap_dance_actions[] = {
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case TD(TD_SPC):
+            return TAPPING_TERM - 20;
         case TD(TD_A):
             return TAPPING_TERM - 25;
         default:
@@ -270,6 +271,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
       break;
 
+    case A_T:
+      if (record->event.pressed) {
+          register_code(KC_A);
+          register_code(KC_T);
+          unregister_code(KC_A);
+      } else {
+          unregister_code(KC_T);
+      }
+      break;
+
     case A_O:
       if (record->event.pressed) {
           register_code(KC_A);
@@ -307,16 +318,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           unregister_code(KC_A);
       } else {
           unregister_code(KC_D);
-      }
-      break;
-
-    case A_F:
-      if (record->event.pressed) {
-          register_code(KC_A);
-          register_code(KC_F);
-          unregister_code(KC_A);
-      } else {
-          unregister_code(KC_F);
       }
       break;
 
@@ -529,18 +530,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
      case ACCENT_C_RALT:
        if (record->event.pressed) {
-           register_code(KC_COMM);
-       } else {
-           unregister_code(KC_COMM);
-           unregister_code(KC_RALT);
-
-           // will be unregister by `td_ralt_reset`
-           register_code(KC_RALT);
-       }
-       break;
-
-     case ACCENT_A_GRAVE:
-       if (record->event.pressed) {
            register_code(KC_RALT);
            register_code(KC_GRV);
        } else {
@@ -595,7 +584,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case TD(TD_LEFT_OSX):
     case TD(TD_RIGHT):
     case TD(TD_RIGHT_OSX):
-       if ((keycode == TD(TD_A) || keycode == TD(TD_A_OSX)) && !record->event.pressed) {
+      if ((keycode == TD(TD_A) || keycode == TD(TD_A_OSX)) && !record->event.pressed) {
           layer_off(_MOD);
           layer_off(_MOD_OSX);
           is_hold_tapdance_disabled = false;
