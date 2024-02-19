@@ -23,6 +23,7 @@ enum custom_keycodes {
   ACCENT_GRAVE,
   ACCENT_CIRCUM,
   ACCENT_TREMA,
+  ACCENT_C,
   ACCENT_E_GRAVE,
   ACCENT_A_GRAVE,
 
