@@ -109,10 +109,10 @@ TD(TD_LSFT),  KC_Z,     KC_X,     KC_C,          KC_V,         KC_B,      KC_N, 
                                  └─────────┴─────────┴─────────┘└─────────┴─────────┴─────────┘ */
 
    [_MOD] = LAYOUT(
- //╷         ╷               ╷         ╷                 ╷            ╷            ╷╷              ╷          ╷         ╷              ╷         ╷        ╷
-              ACCENT_GRAVE,   _______,  ACCENT_E_GRAVE,   JET_RNM,     _______,      ACCENT_CIRCUM,  KC_WH_D,  KC_WH_U,  _______,       _______,
-              _______,        _______,  _______,          JET_FIND,    _______,      TD(TD_LEFT),    KC_DOWN,  KC_UP,    TD(TD_RIGHT),  _______,
-    _______,  _______,        _______,  _______,          _______,     _______,      _______,        _______,  _______,  _______,       _______,   KC_QUOT,
+ //╷         ╷               ╷         ╷                 ╷            ╷            ╷╷              ╷              ╷         ╷              ╷         ╷        ╷
+              ACCENT_GRAVE,   A_W,      ACCENT_E_GRAVE,   JET_RNM,     _______,      ACCENT_CIRCUM,  KC_WH_D,      KC_WH_U,  A_O,           A_P,
+              A_S,            A_D,      A_F,              JET_FIND,    A_H,          TD(TD_LEFT),    KC_DOWN,      KC_UP,    TD(TD_RIGHT),  _______,
+    _______,  _______,        A_X,      A_C,              A_V,         A_B,          A_N,            A_J,          A_K,      A_L,           KC_QUOT,
                               _______,  _______,          KC_MS_BTN2,  KC_MS_BTN1,   TD(TD_DEL),     ACCENT_TREMA
  ),
  /*
@@ -258,6 +258,156 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         is_hold_tapdance_disabled = false;
       }
       return false;
+      break;
+
+    case A_W:
+      if (record->event.pressed) {
+          register_code(KC_A);
+          register_code(KC_W);
+          unregister_code(KC_A);
+      } else {
+          unregister_code(KC_W);
+      }
+      break;
+
+    case A_O:
+      if (record->event.pressed) {
+          register_code(KC_A);
+          register_code(KC_O);
+          unregister_code(KC_A);
+      } else {
+          unregister_code(KC_O);
+      }
+      break;
+
+    case A_P:
+      if (record->event.pressed) {
+          register_code(KC_A);
+          register_code(KC_P);
+          unregister_code(KC_A);
+      } else {
+          unregister_code(KC_P);
+      }
+      break;
+
+    case A_S:
+      if (record->event.pressed) {
+          register_code(KC_A);
+          register_code(KC_S);
+          unregister_code(KC_A);
+      } else {
+          unregister_code(KC_S);
+      }
+      break;
+
+    case A_D:
+      if (record->event.pressed) {
+          register_code(KC_A);
+          register_code(KC_D);
+          unregister_code(KC_A);
+      } else {
+          unregister_code(KC_D);
+      }
+      break;
+
+    case A_F:
+      if (record->event.pressed) {
+          register_code(KC_A);
+          register_code(KC_F);
+          unregister_code(KC_A);
+      } else {
+          unregister_code(KC_F);
+      }
+      break;
+
+    case A_H:
+      if (record->event.pressed) {
+          register_code(KC_A);
+          register_code(KC_H);
+          unregister_code(KC_A);
+      } else {
+          unregister_code(KC_H);
+      }
+      break;
+
+    case A_X:
+      if (record->event.pressed) {
+          register_code(KC_A);
+          register_code(KC_X);
+          unregister_code(KC_A);
+      } else {
+          unregister_code(KC_X);
+      }
+      break;
+
+    case A_C:
+      if (record->event.pressed) {
+          register_code(KC_A);
+          register_code(KC_C);
+          unregister_code(KC_A);
+      } else {
+          unregister_code(KC_C);
+      }
+      break;
+
+    case A_V:
+      if (record->event.pressed) {
+          register_code(KC_A);
+          register_code(KC_V);
+          unregister_code(KC_A);
+      } else {
+          unregister_code(KC_V);
+      }
+      break;
+
+    case A_B:
+      if (record->event.pressed) {
+          register_code(KC_A);
+          register_code(KC_B);
+          unregister_code(KC_A);
+      } else {
+          unregister_code(KC_B);
+      }
+      break;
+
+    case A_N:
+      if (record->event.pressed) {
+          register_code(KC_A);
+          register_code(KC_N);
+          unregister_code(KC_A);
+      } else {
+          unregister_code(KC_N);
+      }
+      break;
+
+    case A_M:
+      if (record->event.pressed) {
+          register_code(KC_A);
+          register_code(KC_M);
+          unregister_code(KC_A);
+      } else {
+          unregister_code(KC_M);
+      }
+      break;
+
+    case A_K:
+      if (record->event.pressed) {
+          register_code(KC_A);
+          register_code(KC_K);
+          unregister_code(KC_A);
+      } else {
+          unregister_code(KC_K);
+      }
+      break;
+
+    case A_L:
+      if (record->event.pressed) {
+          register_code(KC_A);
+          register_code(KC_L);
+          unregister_code(KC_A);
+      } else {
+          unregister_code(KC_L);
+      }
       break;
 
     case KC_LALT:

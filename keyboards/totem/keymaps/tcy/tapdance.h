@@ -37,6 +37,23 @@ enum custom_keycodes {
   // Jetbrains macro
   JET_FIND,
   JET_RNM,
+
+  // a + ..
+  A_W,
+  A_O,
+  A_P,
+  A_S,
+  A_D,
+  A_F,
+  A_H,
+  A_X,
+  A_C,
+  A_V,
+  A_B,
+  A_N,
+  A_M,
+  A_K,
+  A_L,
 };
 
 // default tap dance
