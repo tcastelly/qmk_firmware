@@ -202,6 +202,7 @@ tap_dance_action_t tap_dance_actions[] = {
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case TD(TD_SPC):
+        case TD(TD_A):
             return TAPPING_TERM - 25;
         default:
             return TAPPING_TERM;
