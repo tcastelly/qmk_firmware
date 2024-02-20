@@ -62,7 +62,7 @@ TD(TD_LSFT),  KC_Z,     KC_X,     KC_C,          KC_V,         KC_B,      KC_N, 
               KC_Q,          KC_W,     KC_E,        KC_R,         KC_T,      KC_Y,        KC_U,            KC_I,    TD(TD_O), TD(TD_P),
               TD(TD_A_OSX),  KC_S,     KC_D,        KC_F,         KC_G,      KC_H,        KC_J,            KC_K,    TD(TD_L), TD(TD_SCLN),
 TD(TD_LSFT),  KC_Z,          KC_X,     KC_C,        KC_V,         KC_B,      KC_N,        KC_M,            KC_COMM, KC_DOT,   KC_SLSH,            TD(TD_ENT),
-                                       TD(TD_LCTL), TD(TD_LGUI),  LOWER,     TD(TD_SPC),  TD(TD_BSPC),     TD(TD_RALT)
+                                       TD(TD_LCTL), TD(TD_LGUI),  LOWER,     TD(TD_SPC),  TD(TD_BSPC_OSX), TD(TD_RALT)
  ),
 /*
 
@@ -225,7 +225,7 @@ tap_dance_action_t tap_dance_actions[] = {
     // same tap-dance
     // enable it for osx and linux
     [TD_BSPC] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LCTL(KC_BSPC)),
-    [TD_BSPC_OSX] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LALT(KC_BSPC)),
+    [TD_BSPC_OSX] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LGUI(KC_BSPC)),
 
     [TD_DEL] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_DEL, LCTL(KC_DEL)),
     [TD_DEL_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_DEL, LALT(KC_DEL)),
