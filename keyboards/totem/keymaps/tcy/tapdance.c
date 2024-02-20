@@ -151,8 +151,51 @@ int cur_dance (tap_dance_state_t *state) {
     return 8;
 }
 
+int cur_dance_permisive (tap_dance_state_t *state) {
+    if (state->count == 1) {
+        //key has not been interrupted, but they key is still held. Means you want to send a 'HOLD'.
+        if (!state->interrupted || !state->pressed) {
+            return SINGLE_TAP;
+        }
+        //key has not been interrupted, but they key is still held. Means you want to send a 'HOLD'.
+        else {
+            return SINGLE_HOLD;
+        }
+    }
+    else if (state->count == 2) {
+        /*
+         * DOUBLE_SINGLE_TAP is to distinguish between typing "pepper", and actually wanting a double tap
+         * action when hitting 'pp'. Suggested use case for this return value is when you want to send two
+         * keystrokes of the key, and not the 'double tap' action/macro.
+         */
+        if (state->interrupted) {
+            return DOUBLE_SINGLE_TAP;
+        }
+        else if (state->pressed) {
+            return DOUBLE_HOLD;
+        }
+        else {
+            return DOUBLE_TAP;
+        }
+    }
+    else if (state->count == 3) {
+        if (state->interrupted) {
+            return TRIPLE_SINGLE_TAP;
+        }
+        else if (state->pressed) {
+            return TRIPLE_HOLD;
+        }
+        else {
+            return TRIPLE_TAP;
+        }
+    }
+
+    //magic number. At some point this method will expand to work for more presses
+    return 8;
+}
+
 void td_lgui_finished (tap_dance_state_t *state, void *user_data) {
-  xtap_state.state = cur_dance(state);
+  xtap_state.state = cur_dance_permisive(state);
   is_hold_tapdance_disabled = false;
 
   switch (xtap_state.state) {
