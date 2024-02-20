@@ -91,15 +91,13 @@ void tap_dance_tap_hold_finished_permisive(tap_dance_state_t *state, void *user_
 
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
-    is_hold_tapdance_disabled = true;
-
     if (state->pressed) {
         if (state->count == 1 || state->interrupted) {
             register_code16(tap_hold->hold);
-            tap_hold->held = tap_hold->hold;
         } else {
-            tap_code16(tap_hold->tap);
+            tap_hold->held = tap_hold->tap;
         }
+        tap_hold->held = tap_hold->hold;
     }
 }
 
