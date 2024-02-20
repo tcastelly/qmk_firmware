@@ -11,6 +11,7 @@ static tap xtap_state = {
   .state = 0
 };
 
+// START tap-hold
 void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
@@ -59,8 +60,7 @@ void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *use
     }
 }
 
-// START tap-hold
-void tap_dance_tap_hold_Finished_layout(tap_dance_state_t *state, void *user_data) {
+void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
     is_hold_tapdance_disabled = true;
@@ -82,6 +82,23 @@ void tap_dance_tap_hold_finished_permisive_layout(tap_dance_state_t *state, void
             tap_code16(tap_hold->tap);
         } else {
             layer_on(tap_hold->hold);
+        }
+    }
+}
+
+void tap_dance_tap_hold_finished_permisive(tap_dance_state_t *state, void *user_data) {
+    touched_td = false;
+
+    tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
+
+    is_hold_tapdance_disabled = true;
+
+    if (state->pressed) {
+        if (state->count == 1 || state->interrupted) {
+            register_code16(tap_hold->hold);
+            tap_hold->held = tap_hold->hold;
+        } else {
+            tap_code16(tap_hold->tap);
         }
     }
 }
