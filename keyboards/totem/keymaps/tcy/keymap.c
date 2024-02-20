@@ -76,7 +76,7 @@ TD(TD_LSFT),  KC_Z,          KC_X,     KC_C,        KC_V,         KC_B,      KC_
              ├─────────┼─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┼─────────┤
              │    F1   │    F2   │    F3   │    F4   │    F5   ││   F6    │    -    │    +    │    {    │    }    │
    ┌─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┐
-   │         │    F7   │   F8    │   F9    │   F10   │   F11   ││   F1    │    ~    │ HOME    │   END   │         │    |    │
+   │  LSFT   │    F7   │   F8    │   F9    │   F10   │   F11   ││   F1    │    ~    │ HOME    │   END   │         │    |    │
    └─────────┴─────────┴─────────┼─────────┼─────────┼─────────┤├─────────┼─────────┼─────────┼─────────┴─────────┴─────────┘
                                  │    ▼    │    ▼    │    ▼    ││  BTN1   │         │    0    │
                                  └─────────┴─────────┴─────────┘└─────────┴─────────┴─────────┘ */
@@ -85,7 +85,7 @@ TD(TD_LSFT),  KC_Z,          KC_X,     KC_C,        KC_V,         KC_B,      KC_
  //╷         ╷         ╷         ╷         ╷         ╷         ╷╷            ╷           ╷         ╷         ╷         ╷         ╷
               KC_EXLM,  KC_AT,    KC_HASH,  KC_DLR,   KC_PERC,   KC_CIRC,     KC_AMPR,    KC_ASTR,  KC_LPRN,  KC_PPLS,
               KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,     KC_F6,       KC_MINS,    KC_PLUS,  KC_LCBR,  KC_RCBR,
-    _______,  KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,    KC_F12,      S(KC_NUHS), KC_HOME,  KC_END,   _______,  KC_PIPE,
+    KC_LSFT,  KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,    KC_F12,      S(KC_NUHS), KC_HOME,  KC_END,   _______,  KC_PIPE,
                                   _______,  _______,  _______,   KC_MS_BTN1,  _______,   _______
  ),
  /*
@@ -313,6 +313,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
           unregister_code(KC_W);
       }
+      touched_td = true;
       break;
 
     case A_T:
@@ -323,6 +324,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
           unregister_code(KC_T);
       }
+      touched_td = true;
       break;
 
     case A_O:
@@ -333,6 +335,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
           unregister_code(KC_O);
       }
+      touched_td = true;
       break;
 
     case A_P:
@@ -343,6 +346,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
           unregister_code(KC_P);
       }
+      touched_td = true;
       break;
 
     case A_S:
@@ -353,6 +357,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
           unregister_code(KC_S);
       }
+      touched_td = true;
       break;
 
     case A_D:
@@ -363,6 +368,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
           unregister_code(KC_D);
       }
+      touched_td = true;
       break;
 
     case A_H:
@@ -373,6 +379,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
           unregister_code(KC_H);
       }
+      touched_td = true;
       break;
 
     case A_X:
@@ -383,6 +390,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
           unregister_code(KC_X);
       }
+      touched_td = true;
       break;
 
     case A_C:
@@ -393,6 +401,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
           unregister_code(KC_C);
       }
+      touched_td = true;
       break;
 
     case A_V:
@@ -403,6 +412,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
           unregister_code(KC_V);
       }
+      touched_td = true;
       break;
 
     case A_B:
@@ -413,6 +423,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
           unregister_code(KC_B);
       }
+      touched_td = true;
       break;
 
     case A_N:
@@ -423,6 +434,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
           unregister_code(KC_N);
       }
+      touched_td = true;
       break;
 
     case A_M:
@@ -433,6 +445,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
           unregister_code(KC_M);
       }
+      touched_td = true;
       break;
 
     case A_K:
@@ -443,6 +456,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
           unregister_code(KC_K);
       }
+      touched_td = true;
       break;
 
     case A_L:
@@ -453,6 +467,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
           unregister_code(KC_L);
       }
+      touched_td = true;
       break;
 
     case KC_LALT:
@@ -469,6 +484,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           unregister_code(KC_6);
           unregister_code(KC_RALT);
       }
+      touched_td = true;
       break;
 
     case ACCENT_TREMA:
@@ -481,6 +497,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           unregister_code(KC_LSFT);
           unregister_code(KC_RALT);
       }
+      touched_td = true;
       break;
 
     case ACCENT_C:
@@ -491,6 +508,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           unregister_code(KC_COMM);
           unregister_code(KC_RALT);
       }
+      touched_td = true;
       break;
 
     case ACCENT_GRAVE:
@@ -501,6 +519,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           unregister_code(KC_GRV);
           unregister_code(KC_RALT);
       }
+      touched_td = true;
       break;
 
     case ACCENT_E_GRAVE:
@@ -513,6 +532,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           register_code(KC_E);
           unregister_code(KC_E);
       }
+      touched_td = true;
       break;
 
       // to be used with RALT already pressed
@@ -528,6 +548,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            // will be unregister by `td_ralt_reset`
            register_code(KC_RALT);
        }
+       touched_td = true;
        break;
 
      case ACCENT_I_CIRC_RALT:
@@ -542,6 +563,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            // will be unregister by `td_ralt_reset`
            register_code(KC_RALT);
        }
+       touched_td = true;
        break;
 
      case ACCENT_O_CIRC_RALT:
@@ -556,6 +578,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            // will be unregister by `td_ralt_reset`
            register_code(KC_RALT);
        }
+       touched_td = true;
        break;
 
      case ACCENT_U_AIGU_RALT:
@@ -570,6 +593,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            // will be unregister by `td_ralt_reset`
            register_code(KC_RALT);
        }
+       touched_td = true;
        break;
 
      case ACCENT_C_RALT:
@@ -582,6 +606,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            register_code(KC_A);
            unregister_code(KC_A);
        }
+       touched_td = true;
        break;
 
      case JET_RNM:
@@ -592,6 +617,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            unregister_code(KC_LSFT);
            unregister_code(KC_F6);
        }
+       touched_td = true;
        return false;
        break;
 
@@ -604,6 +630,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            unregister_code(KC_LALT);
            tap_code(KC_1);
        }
+       touched_td = true;
        return false;
        break;
 
@@ -642,8 +669,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
           tap_code16(tap_hold->tap);
       }
+
+      if ((keycode == TD(TD_A) || keycode == TD(TD_A_OSX) || keycode == TD(TD_SPC)) && !touched_td && !record->event.pressed && action->state.finished) {
+          tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
+          tap_code16(tap_hold->tap);
+      }
+      touched_td = true;
       break;
   }
+
+  touched_td = true;
   return true;
 }
 

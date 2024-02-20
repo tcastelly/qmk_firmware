@@ -1,6 +1,8 @@
 #ifndef TAPDANCE_H
 #define TAPDANCE_H
 
+bool touched_td;
+
 enum layer_names {
     _QWERTY,
     _QWERTY_OSX,
