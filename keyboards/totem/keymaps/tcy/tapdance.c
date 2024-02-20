@@ -153,13 +153,10 @@ int cur_dance (tap_dance_state_t *state) {
 
 int cur_dance_permisive (tap_dance_state_t *state) {
     if (state->count == 1) {
-        //key has not been interrupted, but they key is still held. Means you want to send a 'HOLD'.
-        if (!state->interrupted || !state->pressed) {
-            return SINGLE_TAP;
-        }
-        //key has not been interrupted, but they key is still held. Means you want to send a 'HOLD'.
-        else {
+        if (state->interrupted || state->pressed) {
             return SINGLE_HOLD;
+        } else {
+            return SINGLE_TAP;
         }
     }
     else if (state->count == 2) {
