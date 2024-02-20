@@ -500,6 +500,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       touched_td = true;
       break;
 
+    case ACCENT_A_GRAVE:
+      if (record->event.pressed) {
+          register_code(KC_RALT);
+          tap_code16(KC_GRV);
+          unregister_code(KC_RALT);
+          register_code(KC_A);
+      } else {
+          unregister_code(KC_A);
+      }
+      touched_td = true;
+      break;
+
     case ACCENT_C:
       if (record->event.pressed) {
           register_code(KC_RALT);
@@ -525,11 +537,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case ACCENT_E_GRAVE:
       if (record->event.pressed) {
           register_code(KC_RALT);
-          register_code(KC_GRV);
-      } else {
-          unregister_code(KC_GRV);
+          tap_code16(KC_GRV);
           unregister_code(KC_RALT);
           register_code(KC_E);
+      } else {
           unregister_code(KC_E);
       }
       touched_td = true;
