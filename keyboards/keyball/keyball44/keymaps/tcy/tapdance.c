@@ -3,6 +3,8 @@
 
 bool is_hold_tapdance_disabled = false;
 
+bool touched_td = false;
+
 void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
@@ -62,7 +64,9 @@ void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_dat
     }
 }
 
-void tap_dance_tap_hold_finished_permisive_layout(tap_dance_state_t *state, void *user_data) {
+void tap_dance_tap_hold_finished_permissive_layout(tap_dance_state_t *state, void *user_data) {
+    touched_td = false;
+
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
     is_hold_tapdance_disabled = true;

@@ -1,6 +1,8 @@
 #ifndef TAPDANCE_H
 #define TAPDANCE_H
 
+bool touched_td;
+
 enum layer_names {
     _QWERTY,
     _QWERTY_OSX,
@@ -136,5 +138,5 @@ extern void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *u
 #define ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(tap, hold) \
     { .fn = {NULL, tap_dance_tap_hold_finished_layout, tap_dance_tap_hold_reset_layout}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
 
-#define ACTION_TAP_DANCE_TAP_HOLD_PERMISIVE_LAYOUT(tap, hold) \
-    { .fn = {NULL, tap_dance_tap_hold_finished_permisive_layout, tap_dance_tap_hold_reset_layout}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
+#define ACTION_TAP_DANCE_TAP_HOLD_PERMISSIVE_LAYOUT(tap, hold) \
+    { .fn = {NULL, tap_dance_tap_hold_finished_permissive_layout, tap_dance_tap_hold_reset_layout}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }

@@ -140,7 +140,7 @@ bool oled_task_user(void) {
 tap_dance_action_t tap_dance_actions[] = {
     [TD_ESC] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC),
     [TD_ESC_OSX] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC_OSX),
-    [TD_SPC] = ACTION_TAP_DANCE_TAP_HOLD_PERMISIVE_LAYOUT(KC_SPC, _RAISE),
+    [TD_SPC] = ACTION_TAP_DANCE_TAP_HOLD_PERMISSIVE_LAYOUT(KC_SPC, _RAISE),
     [TD_TAB] = ACTION_TAP_DANCE_TAP_HOLD(KC_TAB, KC_TILD),
     [TD_O] = ACTION_TAP_DANCE_TAP_HOLD(KC_O, KC_LPRN),
     [TD_P] = ACTION_TAP_DANCE_TAP_HOLD(KC_P, KC_RPRN),
@@ -176,8 +176,8 @@ tap_dance_action_t tap_dance_actions[] = {
 // Set a long-ish tapping term for tap-dance keys
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case QK_TAP_DANCE ... QK_TAP_DANCE_MAX:
-            return 275;
+        case TD(TD_SPC):
+            return TAPPING_TERM - 20;
         default:
             return TAPPING_TERM;
     }
@@ -255,6 +255,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           unregister_code(KC_6);
           unregister_code(KC_RALT);
       }
+      touched_td = true;
       break;
 
     case ACCENT_TREMA:
@@ -267,6 +268,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           unregister_code(KC_LSFT);
           unregister_code(KC_RALT);
       }
+      touched_td = true;
       break;
 
     case ACCENT_GRAVE:
@@ -277,6 +279,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           unregister_code(KC_GRV);
           unregister_code(KC_RALT);
       }
+      touched_td = true;
       break;
 
     case ACCENT_E_GRAVE:
@@ -289,6 +292,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           register_code(KC_E);
           unregister_code(KC_E);
       }
+      touched_td = true;
       break;
 
       // to be used with RALT already pressed
@@ -304,6 +308,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            // will be unregister by `td_ralt_reset`
            register_code(KC_RALT);
        }
+       touched_td = true;
        break;
 
      case ACCENT_I_CIRC_RALT:
@@ -318,6 +323,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            // will be unregister by `td_ralt_reset`
            register_code(KC_RALT);
        }
+       touched_td = true;
        break;
 
      case ACCENT_O_CIRC_RALT:
@@ -332,6 +338,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            // will be unregister by `td_ralt_reset`
            register_code(KC_RALT);
        }
+       touched_td = true;
        break;
 
      case ACCENT_U_AIGU_RALT:
@@ -346,6 +353,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            // will be unregister by `td_ralt_reset`
            register_code(KC_RALT);
        }
+       touched_td = true;
        break;
 
      case ACCENT_C_RALT:
@@ -358,6 +366,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            // will be unregister by `td_ralt_reset`
            register_code(KC_RALT);
        }
+       touched_td = true;
        break;
 
      case ACCENT_A_GRAVE:
@@ -370,6 +379,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            register_code(KC_A);
            unregister_code(KC_A);
        }
+       touched_td = true;
        break;
 
      case JET_RNM:
@@ -380,6 +390,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            unregister_code(KC_LSFT);
            unregister_code(KC_F6);
        }
+       touched_td = true;
        return false;
        break;
 
@@ -392,6 +403,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            unregister_code(KC_LALT);
            tap_code(KC_1);
        }
+       touched_td = true;
        return false;
        break;
 
@@ -403,6 +415,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                oled_mode = OLED_BONGO_LAYOUT;
            }
        }
+       touched_td = true;
        return false;
        break;
 
@@ -437,8 +450,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
           tap_code16(tap_hold->tap);
       }
+
+      if (keycode == TD(TD_SPC) && !touched_td && !record->event.pressed && action->state.finished) {
+          tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
+          tap_code16(tap_hold->tap);
+          touched_td = true;
+      }
       break;
   }
+  touched_td = true;
   return true;
 }
 
