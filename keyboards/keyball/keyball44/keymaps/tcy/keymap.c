@@ -76,7 +76,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
     KC_DEL,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                         KC_F6,   KC_UNDS, KC_EQL,  KC_LBRC, KC_RBRC, KC_BSLS,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-    _______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,                        KC_F12,  KC_NUHS, KC_PGUP, KC_PGDN, _______,  _______,
+    _______, KC_F7,   KC_F8,   ACCENT_C,KC_F10,  KC_F11,                        KC_F12,  KC_NUHS, KC_PGUP, KC_PGDN, _______,  _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                         _______, _______, _______, _______, _______,             _______, _______, _______, _______, _______
                                       //`--------------------------'  `--------------------------'
@@ -266,6 +266,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
           unregister_code(KC_QUOT);
           unregister_code(KC_LSFT);
+          unregister_code(KC_RALT);
+      }
+      touched_td = true;
+      break;
+
+    case ACCENT_C:
+      if (record->event.pressed) {
+          register_code(KC_RALT);
+          register_code(KC_COMM);
+      } else {
+          unregister_code(KC_COMM);
           unregister_code(KC_RALT);
       }
       touched_td = true;
