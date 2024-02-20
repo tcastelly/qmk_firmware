@@ -70,7 +70,7 @@ void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_dat
     }
 }
 
-void tap_dance_tap_hold_finished_permisive_layout(tap_dance_state_t *state, void *user_data) {
+void tap_dance_tap_hold_finished_permissive_layout(tap_dance_state_t *state, void *user_data) {
     touched_td = false;
 
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
@@ -86,7 +86,7 @@ void tap_dance_tap_hold_finished_permisive_layout(tap_dance_state_t *state, void
     }
 }
 
-void tap_dance_tap_hold_finished_permisive(tap_dance_state_t *state, void *user_data) {
+void tap_dance_tap_hold_finished_permissive(tap_dance_state_t *state, void *user_data) {
     touched_td = false;
 
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
@@ -151,7 +151,7 @@ int cur_dance (tap_dance_state_t *state) {
     return 8;
 }
 
-int cur_dance_permisive (tap_dance_state_t *state) {
+int cur_dance_permissive (tap_dance_state_t *state) {
     if (state->count == 1) {
         if (state->interrupted || state->pressed) {
             return SINGLE_HOLD;
@@ -192,7 +192,7 @@ int cur_dance_permisive (tap_dance_state_t *state) {
 }
 
 void td_lgui_finished (tap_dance_state_t *state, void *user_data) {
-  xtap_state.state = cur_dance_permisive(state);
+  xtap_state.state = cur_dance_permissive(state);
   is_hold_tapdance_disabled = false;
 
   switch (xtap_state.state) {

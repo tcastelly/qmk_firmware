@@ -138,8 +138,8 @@ extern void td_lgui_finished (tap_dance_state_t *state, void *user_data);
 #define ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(tap, hold) \
     { .fn = {NULL, tap_dance_tap_hold_finished_layout, tap_dance_tap_hold_reset_layout}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
 
-#define ACTION_TAP_DANCE_TAP_HOLD_PERMISIVE_LAYOUT(tap, hold) \
-    { .fn = {NULL, tap_dance_tap_hold_finished_permisive_layout, tap_dance_tap_hold_reset_layout}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
+#define ACTION_TAP_DANCE_TAP_HOLD_PERMISSIVE_LAYOUT(tap, hold) \
+    { .fn = {NULL, tap_dance_tap_hold_finished_permissive_layout, tap_dance_tap_hold_reset_layout}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
 
-#define ACTION_TAP_DANCE_TAP_HOLD_PERMISIVE(tap, hold) \
-    { .fn = {NULL, tap_dance_tap_hold_finished_permisive, tap_dance_tap_hold_reset}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
+#define ACTION_TAP_DANCE_TAP_HOLD_PERMISSIVE(tap, hold) \
+    { .fn = {NULL, tap_dance_tap_hold_finished_permissive, tap_dance_tap_hold_reset}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
