@@ -234,12 +234,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return false;
       break;
 
+#ifdef OLED_ENABLE
     case KC_CAPS:
         if (record->event.pressed) {
           is_kc_caps = !is_kc_caps;
         }
         return true;
         break;
+#endif
 
     case KC_LALT:
     case KC_LGUI:
