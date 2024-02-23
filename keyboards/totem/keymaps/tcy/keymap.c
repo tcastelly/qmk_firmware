@@ -130,7 +130,7 @@ TD(TD_LSFT),  KC_Z,          KC_X,     KC_C,        KC_V,         KC_B,      KC_
  //╷         ╷               ╷         ╷                 ╷            ╷            ╷╷              ╷              ╷         ╷              ╷         ╷        ╷
               ACCENT_GRAVE,   A_W,      ACCENT_E_GRAVE,   JET_RNM,     A_T,          ACCENT_CIRCUM,  KC_WH_D,      KC_WH_U,  A_O,           A_P,
               _______,        A_S,      A_D,              JET_FIND,    A_H,          TD(TD_LEFT),    KC_DOWN,      KC_UP,    TD(TD_RIGHT),  _______,
-    _______,  _______,        A_X,      A_C,              A_V,         A_B,          A_N,            A_M,          A_K,      A_L,           KC_QUOT,  _______,
+    _______,  _______,        A_X,      A_C,              A_V,         A_B,          KC_MS_LEFT,     KC_MS_DOWN,   KC_MS_UP, KC_MS_RIGHT,   KC_QUOT,  _______,
                                         _______,          _______,     KC_MS_BTN2,   KC_MS_BTN1,     TD(TD_DEL),   ACCENT_TREMA
  ),
 /*
@@ -153,7 +153,7 @@ TD(TD_LSFT),  KC_Z,          KC_X,     KC_C,        KC_V,         KC_B,      KC_
  //╷         ╷               ╷         ╷                  ╷            ╷         ╷╷                    ╷              ╷                ╷                  ╷         ╷         ╷
               ACCENT_GRAVE,   A_W,      ACCENT_E_GRAVE,   JET_RNM,     A_T,          ACCENT_CIRCUM,    KC_WH_D,        KC_WH_U,         A_O,               A_P,
               _______,        A_S,      A_D,              JET_FIND,    A_H,          TD(TD_LEFT_OSX),  KC_DOWN,        KC_UP,           TD(TD_RIGHT_OSX),  _______,
-    _______,  _______,        A_X,      A_C,              A_V,         A_B,          A_N,              A_M,            A_K,             A_L,               KC_QUOT,  _______,
+    _______,  _______,        A_X,      A_C,              A_V,         A_B,          KC_MS_LEFT,       KC_MS_DOWN,     KC_MS_UP,        KC_MS_RIGHT,       KC_QUOT,  _______,
                                         _______,          _______,     KC_MS_BTN2,   KC_MS_BTN1,       TD(TD_DEL_OSX), ACCENT_TREMA
  ),
  /*
