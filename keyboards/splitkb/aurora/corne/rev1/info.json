@@ -72,6 +72,12 @@
         "rows": ["GP6", "GP7", "GP8", "GP9"],
         "cols": ["GP23", "GP21", "GP20", "GP22", "GP26", "GP27"]
     },
+    "encoder": {
+        "enabled": true,
+        "rotary": [
+            {"pin_a": "GP4", "pin_b": "GP5"}
+        ]
+    },
     "split": {
         "bootmagic": {
             "matrix": [4, 5]
@@ -81,6 +87,13 @@
             "right": {
                 "rows": ["GP22", "GP20", "GP23", "GP21"],
                 "cols": ["GP4", "GP5", "GP6", "GP7", "GP8", "GP9"]
+            }
+        },
+        "encoder": {
+            "right": {
+                "rotary": [
+                    {"pin_a": "GP27", "pin_b": "GP26"}
+                ]
             }
         }
     },
