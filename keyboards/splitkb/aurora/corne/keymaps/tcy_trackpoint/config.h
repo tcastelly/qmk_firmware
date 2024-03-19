@@ -25,8 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SPLIT_ACTIVITY_ENABLE
 #define SPLIT_TRANSPORT_MIRROR
 
-#define SERIAL_USART_TX_PIN GP1
-
 // The default streaming mode is flaky and doesn't always work. This setting doesn't seem to affect performance.
 #define PS2_MOUSE_USE_REMOTE_MODE
 

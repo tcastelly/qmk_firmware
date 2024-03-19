@@ -69,31 +69,18 @@
     },
     "diode_direction": "COL2ROW",
     "matrix_pins": {
-        "rows": ["D7", "E6", "B4", "B5"],
-        "cols": ["B2", "B6", "B3", "B1", "F7", "F6"]
-    },
-    "encoder": {
-        "enabled": true,
-        "rotary": [
-            {"pin_a": "D4", "pin_b": "C6"}
-        ]
+        "rows": ["GP6", "GP7", "GP8", "GP9"],
+        "cols": ["GP23", "GP21", "GP20", "GP22", "GP26", "GP27"]
     },
     "split": {
         "bootmagic": {
             "matrix": [4, 5]
         },
-        "soft_serial_pin": "D2",
+        "soft_serial_pin": "GP1",
         "matrix_pins": {
             "right": {
-                "rows": ["B1", "B3", "B2", "B6"],
-                "cols": ["D4", "C6", "D7", "E6", "B4", "B5"]
-            }
-        },
-        "encoder": {
-            "right": {
-                "rotary": [
-                    {"pin_a": "F6", "pin_b": "F7"}
-                ]
+                "rows": ["GP22", "GP20", "GP23", "GP21"],
+                "cols": ["GP4", "GP5", "GP6", "GP7", "GP8", "GP9"]
             }
         }
     },
@@ -104,7 +91,7 @@
         "max_brightness": 128
     },
     "ws2812": {
-        "pin": "D3"
+        "pin": "GP0"
     },
     "rgb_matrix": {
         "driver": "ws2812",
