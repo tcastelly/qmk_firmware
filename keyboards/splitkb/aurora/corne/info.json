@@ -12,5 +12,12 @@
     },
     "build": {
         "lto": true
+    },
+    "ps2": {
+        "clock_pin": "GP1",
+        "data_pin": "GP0",
+        "driver": "vendor",
+        "enabled": true,
+        "mouse_enabled": true
     }
 }
