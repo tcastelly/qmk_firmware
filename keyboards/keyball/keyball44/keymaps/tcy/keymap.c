@@ -42,7 +42,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+---- ----+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       KC_LSFT,     KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, TD(TD_ENT),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-           KC_PAGE_UP, KC_PAGE_DOWN,  KC_LCTL,TD(TD_LALT),LOWER ,                    TD(TD_RALT), TD(TD_SPC), _______, _______  , TD(TD_RALT)
+           KC_PAGE_UP, KC_PAGE_DOWN,  KC_LCTL,TD(TD_LALT),LOWER ,                   KC_SPC,  RAISE, _______, _______  , TD(TD_RALT)
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -54,7 +54,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+---- ----+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       KC_LSFT,     KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, TD(TD_ENT),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-            KC_PAGE_UP, KC_PAGE_DOWN, TD(TD_LCTL),TD(TD_LGUI),LOWER,             TD(TD_RALT_OSX),   TD(TD_SPC), _______, _______, TD(TD_RALT_OSX)
+            KC_PAGE_UP, KC_PAGE_DOWN, TD(TD_LCTL),TD(TD_LGUI),LOWER,             KC_SPC,   RAISE, _______, _______, TD(TD_RALT_OSX)
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -163,11 +163,8 @@ tap_dance_action_t tap_dance_actions[] = {
     [TD_LEFT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_LEFT, LCTL(KC_LEFT)),
     [TD_LEFT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_LEFT, LALT(KC_LEFT)),
 
-    [TD_RIGHT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LALT(KC_RIGHT)),
-    [TD_RIGHT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LCTL(KC_RIGHT)),
-
-    [TD_RIGHT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LALT(KC_RIGHT)),
     [TD_RIGHT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LCTL(KC_RIGHT)),
+    [TD_RIGHT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LALT(KC_RIGHT)),
 
     [TD_RALT_OSX] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_osx_finished, td_ralt_osx_reset),
     [TD_RALT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_finished, td_ralt_reset)
