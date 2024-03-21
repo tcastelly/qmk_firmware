@@ -42,7 +42,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+---- ----+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       KC_LSFT,     KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, TD(TD_ENT),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-           KC_MS_BTN1, TD(TD_RALT),  KC_LCTL,TD(TD_LALT),LOWER ,                   KC_SPC,   RAISE , _______, _______  , TD(TD_RALT)
+           KC_PAGE_UP, KC_PAGE_DOWN,  KC_LCTL,TD(TD_LALT),LOWER ,                    TD(TD_RALT), TD(TD_SPC), _______, _______  , TD(TD_RALT)
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -50,11 +50,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
       TD(TD_TAB),  KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,TD(TD_O),TD(TD_P), TD(TD_BSPC_OSX),
   //|--------+--------+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      TD(TD_ESC_OSX),  KC_A,   KC_S,    KC_D,  KC_F,     KC_G,                          KC_H,    KC_J,    KC_K,TD(TD_L),TD(TD_SCLN), KC_QUOT,
+      TD(TD_ESC_OSX),  KC_A,   KC_S,    KC_D,  KC_F,     KC_G,                      KC_H,    KC_J,    KC_K,TD(TD_L),TD(TD_SCLN), KC_QUOT,
   //|--------+---- ----+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       KC_LSFT,     KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, TD(TD_ENT),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-            KC_MS_BTN1, TD(TD_RALT_OSX), TD(TD_LCTL),TD(TD_LGUI),LOWER,                KC_SPC,   RAISE, _______, _______, TD(TD_RALT_OSX)
+            KC_PAGE_UP, KC_PAGE_DOWN, TD(TD_LCTL),TD(TD_LGUI),LOWER,             TD(TD_RALT_OSX),   TD(TD_SPC), _______, _______, TD(TD_RALT_OSX)
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -66,7 +66,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
     _______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,                        KC_F12,  S(KC_NUHS), KC_HOME, KC_END, _______, _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                        _______, _______, _______, _______, _______,             KC_MS_BTN1, _______, _______, _______, _______
+                        _______, _______, _______, _______, _______,             KC_MS_BTN1, KC_MS_BTN1, _______, _______, _______
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -76,7 +76,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
     KC_DEL,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                         KC_F6,   KC_UNDS, KC_EQL,  KC_LBRC, KC_RBRC, KC_BSLS,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-    _______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,                        KC_F12,  KC_NUHS, KC_PGUP, KC_PGDN, _______,  _______,
+    _______, KC_F7,   KC_F8,   ACCENT_C,KC_F10,  KC_F11,                        KC_F12,  KC_NUHS, KC_PGUP, KC_PGDN, _______,  _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                         _______, _______, _______, _______, _______,             _______, _______, _______, _______, _______
                                       //`--------------------------'  `--------------------------'
@@ -90,7 +90,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, _______, _______, _______, _______, _______,                     KC_MS_LEFT,KC_MS_DOWN,KC_MS_UP, KC_MS_RIGHT, _______,  _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                       _______, _______, _______, _______,KC_MS_BTN2,          KC_MS_BTN1, _______, _______, _______, _______
+                       _______, _______, _______, KC_MS_BTN1,KC_MS_BTN2,          KC_MS_BTN2, KC_MS_BTN1, _______, _______, _______
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -102,7 +102,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, _______, _______, _______, _______, _______,                     KC_MS_LEFT,KC_MS_DOWN,KC_MS_UP, KC_MS_RIGHT, _______,  _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                  _______, _______, _______, _______,KC_MS_BTN2 ,             KC_MS_BTN1, _______, _______, _______, _______
+                  _______, _______, _______, KC_MS_BTN1,KC_MS_BTN2 ,             KC_MS_BTN2, KC_MS_BTN1, _______, _______, _______
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -140,6 +140,7 @@ bool oled_task_user(void) {
 tap_dance_action_t tap_dance_actions[] = {
     [TD_ESC] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC),
     [TD_ESC_OSX] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC_OSX),
+    [TD_SPC] = ACTION_TAP_DANCE_TAP_HOLD_PERMISSIVE_LAYOUT(KC_SPC, _RAISE),
     [TD_TAB] = ACTION_TAP_DANCE_TAP_HOLD(KC_TAB, KC_TILD),
     [TD_O] = ACTION_TAP_DANCE_TAP_HOLD(KC_O, KC_LPRN),
     [TD_P] = ACTION_TAP_DANCE_TAP_HOLD(KC_P, KC_RPRN),
@@ -175,8 +176,8 @@ tap_dance_action_t tap_dance_actions[] = {
 // Set a long-ish tapping term for tap-dance keys
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case QK_TAP_DANCE ... QK_TAP_DANCE_MAX:
-            return 275;
+        case TD(TD_SPC):
+            return TAPPING_TERM - 20;
         default:
             return TAPPING_TERM;
     }
@@ -233,12 +234,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return false;
       break;
 
+#ifdef OLED_ENABLE
     case KC_CAPS:
         if (record->event.pressed) {
           is_kc_caps = !is_kc_caps;
         }
         return true;
         break;
+#endif
 
     case KC_LALT:
     case KC_LGUI:
@@ -254,6 +257,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           unregister_code(KC_6);
           unregister_code(KC_RALT);
       }
+      touched_td = true;
       break;
 
     case ACCENT_TREMA:
@@ -266,6 +270,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           unregister_code(KC_LSFT);
           unregister_code(KC_RALT);
       }
+      touched_td = true;
+      break;
+
+    case ACCENT_C:
+      if (record->event.pressed) {
+          register_code(KC_RALT);
+          register_code(KC_COMM);
+      } else {
+          unregister_code(KC_COMM);
+          unregister_code(KC_RALT);
+      }
+      touched_td = true;
       break;
 
     case ACCENT_GRAVE:
@@ -276,6 +292,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           unregister_code(KC_GRV);
           unregister_code(KC_RALT);
       }
+      touched_td = true;
       break;
 
     case ACCENT_E_GRAVE:
@@ -288,6 +305,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           register_code(KC_E);
           unregister_code(KC_E);
       }
+      touched_td = true;
       break;
 
       // to be used with RALT already pressed
@@ -303,6 +321,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            // will be unregister by `td_ralt_reset`
            register_code(KC_RALT);
        }
+       touched_td = true;
        break;
 
      case ACCENT_I_CIRC_RALT:
@@ -317,6 +336,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            // will be unregister by `td_ralt_reset`
            register_code(KC_RALT);
        }
+       touched_td = true;
        break;
 
      case ACCENT_O_CIRC_RALT:
@@ -331,6 +351,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            // will be unregister by `td_ralt_reset`
            register_code(KC_RALT);
        }
+       touched_td = true;
        break;
 
      case ACCENT_U_AIGU_RALT:
@@ -345,6 +366,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            // will be unregister by `td_ralt_reset`
            register_code(KC_RALT);
        }
+       touched_td = true;
        break;
 
      case ACCENT_C_RALT:
@@ -357,6 +379,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            // will be unregister by `td_ralt_reset`
            register_code(KC_RALT);
        }
+       touched_td = true;
        break;
 
      case ACCENT_A_GRAVE:
@@ -369,6 +392,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            register_code(KC_A);
            unregister_code(KC_A);
        }
+       touched_td = true;
        break;
 
      case JET_RNM:
@@ -379,6 +403,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            unregister_code(KC_LSFT);
            unregister_code(KC_F6);
        }
+       touched_td = true;
        return false;
        break;
 
@@ -391,6 +416,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            unregister_code(KC_LALT);
            tap_code(KC_1);
        }
+       touched_td = true;
        return false;
        break;
 
@@ -402,10 +428,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                oled_mode = OLED_BONGO_LAYOUT;
            }
        }
+       touched_td = true;
        return false;
        break;
 
     case TD(TD_O):  // list all tap dance keycodes with tap-hold configurations
+    case TD(TD_SPC):
     case TD(TD_ESC):
     case TD(TD_ESC_OSX):
     case TD(TD_TAB):
@@ -425,6 +453,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           layer_off(_ESC);
           layer_off(_ESC_OSX);
           is_hold_tapdance_disabled = false;
+      } else if (keycode == TD(TD_SPC) && !record->event.pressed) {
+          layer_off(_RAISE);
+          is_hold_tapdance_disabled = false;
       }
 
       action = &tap_dance_actions[TD_INDEX(keycode)];
@@ -432,8 +463,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
           tap_code16(tap_hold->tap);
       }
+
+      if (keycode == TD(TD_SPC) && !touched_td && !record->event.pressed && action->state.finished) {
+          tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
+          tap_code16(tap_hold->tap);
+          touched_td = true;
+      }
       break;
   }
+  touched_td = true;
   return true;
 }
 
