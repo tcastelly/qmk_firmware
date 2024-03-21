@@ -10,6 +10,7 @@ enum layer_names {
     _ADJUST,
     _ESC,
     _ESC_OSX,
+    _NUM_PADS,
     _ACCENTS_RALT,
 };
 

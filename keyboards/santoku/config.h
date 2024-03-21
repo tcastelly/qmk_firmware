@@ -34,7 +34,7 @@
 #define MATRIX_ROWS 4
 #define MATRIX_COLS 12
 
-#define LAYER_STATE_8BIT  //  Tells QMK that keymap has fewer than 8 layers. Saves about 660 bytes. Remove if using more than 8 layers
+// #define LAYER_STATE_8BIT  //  Tells QMK that keymap has fewer than 8 layers. Saves about 660 bytes. Remove if using more than 8 layers
 
 // Configure the SSD1306OLED display
 //#define USE_I2C
