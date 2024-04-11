@@ -218,13 +218,19 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         {KC_ESC,  KC_A,   KC_S,    KC_D,    KC_F,    KC_G,                         KC_H,    KC_J,    KC_K,KC_L,KC_SCLN, KC_QUOT},
         {KC_LSFT,     KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, KC_ENT},
         {___x___,  ___x___,      ___x___,      KC_LCTL,KC_SPC,RAISE,          KC_SPC,   LOWER, KC_RALT,       ___x___,      ___x___,         ___x___}},
-
+    [_SETTINGS] =
+    {/*SETTINGS*/
+        {___x___, ___x___, ___x___, SETTINGS_UP, ___x___, ___x___, ___x___, ___x___, ___x___, ___x___, ___x___, ___x___},
+        {SETTINGS_EXIT, ___x___, SETTINGS_LEFT, SETTINGS_DOWN, SETTINGS_RIGHT, ___x___, SETTINGS_LEFT, SETTINGS_DOWN, SETTINGS_UP, SETTINGS_RIGHT, ___x___, ___x___},
+        {___x___, ___x___, ___x___, ___x___, ___x___, ___x___, ___x___, ___x___, ___x___, ___x___, QWERTY, ___x___},
+        {___x___, ___x___, ___x___, ___x___, ___x___, ___x___, ___x___, ___x___, SETTINGS_EXIT, ___x___, ___x___, ___x___}
+    },
     [_LOWER] =
     {/*QWERTY Lower*/
         {KC_TILD, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,                       KC_CIRC, KC_AMPR,    KC_ASTR,    KC_LPRN, KC_RPRN, KC_DEL},
         {KC_CAPS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                         KC_F6,   KC_MINS,    KC_PLUS,    KC_LCBR, KC_RCBR, KC_PIPE},
         {_______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,                        KC_F12,  S(KC_NUHS), KC_HOME, KC_END, _______, _______},
-        {___x___,  ___x___,      ___x___,      _______, _______, _______,    KC_MS_BTN1, _______, _______,       ___x___,      ___x___,         ___x___}},
+        {___x___,  ___x___,      ___x___,      _______, _______, _______,    KC_MS_BTN1, TO(_SETTINGS), _______,       ___x___,      ___x___,         ___x___}},
 
     [_RAISE] =
     {/*QWERTY Raise*/
@@ -260,7 +266,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         {_______, ACCENT_A_GRAVE_RALT, _______, _______, _______, _______,         _______,  _______, _______,  _______, _______, _______},
         {_______, _______, _______, ACCENT_C_RALT, _______, _______,               _______, _______, _______, _______, _______, _______},
         {___x___,  ___x___,      ___x___,      _______, _______, _______,    _______, _______, _______,       ___x___,      ___x___,         ___x___}},
-
     [_ADJUST] =
     {/*Adjust*/
         {_______, QWERTY , QWERTY_OSX  , QWERTY_GAMING, _______, _______,                 _______, _______, _______, _______, _______, QK_BOOT},
@@ -281,7 +286,7 @@ enum oled_modes {
 int8_t oled_mode = OLED_DEFAULT;
 
 bool oled_task_user(void) {
-    static bool show_vanity_text = true;
+    static bool show_vanity_text = false;
     led_t led_state = { .raw = host_keyboard_leds() };
 
     if (show_vanity_text) {
@@ -315,6 +320,14 @@ bool oled_task_user(void) {
                 oled_write_ln_P(PSTR("Fn Sp Atb | Nv Sy En"), false);
                 oled_write_ln_P(PSTR(""), false);
                 oled_write_ln_P(PSTR("  Fn+/ for Options"), false);
+                break;
+
+            case _SETTINGS:
+                oled_write_ln_P(PSTR("      Options       "), true);
+                oled_write_ln_P(PSTR(""), false);
+                update_settings_display();
+                oled_write_ln_P(PSTR(""), false);
+                oled_write_ln_P(PSTR("HJKL Select,ESC Save"), false);
                 break;
         }
     }
@@ -395,6 +408,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             layer_clear();
             save_settings_to_eeprom();
             return false;  // needs to be false so qmk doesn't send keystroke. We just want to manually exit the Settings screen.
+                           //
+        case SETTINGS:
+            if (record->event.pressed) {
+                layer_move(_SETTINGS);
+            }
+            return false;
+            break;
 
         case QWERTY:
             if (record->event.pressed) {
@@ -888,6 +908,80 @@ void adjust_setting_uint8(uint8_t *setting, int8_t adjustment, uint8_t min, uint
         }
     }
 }
+
+// Loops through the visible Settings on the Settings screen to display them
+void update_settings_display() {
+    //static char * temp_progress_bars[9] = {"1", "2", "3", "4", "5", "6", "7", "8", "9"};
+    for (uint8_t i = 0; i < NUM_DISPLAY_ROWS; i++) {
+        uint8_t setting_index = settings_scroll_position + i;
+        if (setting_index < NUM_SETTINGS) {
+            oled_write(settings[setting_index].name, settings_selected_setting == setting_index);
+            settings[setting_index].display_func(settings[setting_index].id, settings_selected_setting == setting_index);
+        }
+    }
+}
+
+// Used by update_display_settings to show Progress Bar settings
+void display_progress_x6(setting_id_t id, bool is_current) {
+    int value;
+    switch (id) {
+        case SETTING_TP_ACCELERATION:
+            value = acceleration_setting;
+            break;
+        case SETTING_TP_SPEED:
+            value = linear_reduction_setting;
+            break;
+        case SETTING_TP_SCROLL_SPEED:
+            value = drag_scroll_speed_setting;
+            break;
+        default:
+            value = 1;
+    }
+
+    oled_write_ln(progress_bars_x6[value], is_current);
+}
+
+// Used by update_display_settings to show boolean settings
+void display_bool(setting_id_t id, bool is_current) {
+    bool value;
+    switch (id) {
+        case SETTING_PINKY_SHIFT:
+            value = is_pinky_shift_keys_active;
+            break;
+        default:
+            value = false;
+    }
+    if (value) {
+        oled_write_ln_P(PSTR("Yes"), is_current);
+    } else {
+        oled_write_ln_P(PSTR(" No"), is_current);
+    }
+}
+
+
+// Used by update_display_settings to show integer settings
+void display_int(setting_id_t id, bool is_current) {
+    int value;
+    switch (id) {
+        case SETTING_ROTATION_ANGLE:
+            value = mouse_rotation_angle;
+            break;
+        case SETTING_ALT_TAB_TIMEOUT:
+            value = alt_tab_timeout;
+            break;
+        default:
+            value = 7;
+    }
+
+    oled_write(get_u16_str(value, ' '), is_current);
+    oled_write_ln_P(PSTR(""), false);
+}
+
+// Used by update_display_settings to provide some text for Settings that aren't finished yet.
+void display_placeholder(setting_id_t id, bool is_current) {
+    oled_write_ln_P(PSTR("   (WIP)"), is_current);
+}
+
 
 
 void save_settings_to_eeprom(void) {
