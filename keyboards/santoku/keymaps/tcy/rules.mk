@@ -10,7 +10,7 @@ SPACE_CADET_ENABLE = no
 EXTRAKEY_ENABLE = no
 MAGIC_ENABLE = no       # Is this needed for the Elite-C?
 
-CAPS_WORD_ENABLE = not
+CAPS_WORD_ENABLE = yes
 
 POINTING_DEVICE_ENABLE = yes
 POINTING_DEVICE_DRIVER = custom
