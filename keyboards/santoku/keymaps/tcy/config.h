@@ -27,7 +27,7 @@
 
 // defines to help make home row mods more reliable
 #define TAPPING_TOGGLE 2  /* How many times TT(__layer__) needs to be tapped to stick */
-#define TAPPING_TERM 200
+#define TAPPING_TERM 175
 
 // defines for making the Trackpoint more fluid
 #define PS2_MOUSE_USE_REMOTE_MODE
