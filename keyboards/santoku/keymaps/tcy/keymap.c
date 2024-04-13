@@ -242,7 +242,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         {___x___,  ___x___,      ___x___,      _______, _______, _______,    _______, _______, _______,       ___x___,      ___x___,         ___x___}},
     [_ADJUST] =
     {/*Adjust*/
-        {_______, QWERTY , QWERTY_OSX  , QWERTY_GAMING, _______, _______,                 _______, _______, _______, _______, _______, QK_BOOT},
+        {_______, QWERTY , QWERTY_OSX  , QWERTY_GAMING, _______, SETTINGS,                 _______, _______, _______, _______, _______, QK_BOOT},
         {_______, _______, _______, _______, _______, _______,              _______, _______, _______,  _______, _______, _______},
         {_______, _______, _______, _______, _______, _______,                     KC_MS_LEFT,KC_MS_DOWN,KC_MS_UP, KC_MS_RIGHT, _______,  _______},
         {___x___,  ___x___,      ___x___,      _______, _______,KC_MS_BTN2, KC_MS_BTN1, _______, _______,       ___x___,      ___x___,         ___x___}},
@@ -313,10 +313,19 @@ bool oled_task_user(void) {
             break;
     }
 
-    oled_write_ln_P(PSTR(""), true);
-    oled_write_ln_P(PSTR(""), true);
+    if (get_highest_layer(layer_state) != _SETTINGS) {
+        oled_write_ln_P(PSTR(""), true);
+        oled_write_ln_P(PSTR(""), true);
 
-    oled_write_P(qmk_logo, false);
+        oled_write_P(qmk_logo, false);
+
+        oled_set_cursor(oled_max_chars() - 2, oled_max_lines() - 1);
+        if (is_kc_caps) {
+            oled_write("[]", false);
+        } else {
+            oled_write("  ", false);
+        }
+    }
 
     return false;
 }
