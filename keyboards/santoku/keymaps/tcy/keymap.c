@@ -38,6 +38,7 @@ Trackpoint:
 #endif
 
 #include "tapdance.c"
+#include "lib/lib8tion/lib8tion.h"
 
 #define VANITY_TIMEOUT 5000
 #define ___x___ XXXXXXX
@@ -46,6 +47,12 @@ Trackpoint:
 #define EEPROM_CUSTOM_START 32
 
 #define NUM_DISPLAY_ROWS 4
+
+// Scroll declarations
+// Variables to store accumulated scroll values
+static bool  is_scrolling = false;
+float scroll_accumulated_h = 0;
+float scroll_accumulated_v = 0;
 
 static const char PROGMEM qmk_logo[] = {
     0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94,
@@ -196,8 +203,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     {/*QWERTY Lower*/
         {KC_TILD, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,                       KC_CIRC, KC_AMPR,    KC_ASTR,    KC_LPRN, KC_RPRN, KC_DEL},
         {KC_CAPS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                         KC_F6,   KC_MINS,    KC_PLUS,    KC_LCBR, KC_RCBR, KC_PIPE},
-        {_______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,                        KC_F12,  S(KC_NUHS), KC_HOME, KC_END, _______, _______},
-        {___x___,  ___x___,      ___x___,      _______, _______, _______,    KC_MS_BTN1, _______, _______,       ___x___,      ___x___,         ___x___}},
+        {_______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,                        KC_F12,  S(KC_NUHS), KC_HOME, KC_END, _______, TOGGLE_OLED},
+        {___x___,  ___x___,      ___x___,      _______, _______, _______,    KC_MS_BTN1, _______, _______,       ___x___,      ___x___,        ___x___}},
 
     [_RAISE] =
     {/*QWERTY Raise*/
@@ -254,10 +261,15 @@ int8_t oled_mode = OLED_DEFAULT;
 
 bool oled_task_user(void) {
     // led_t led_state = { .raw = host_keyboard_leds() };
+    if (oled_mode == OLED_OFF) {
+        oled_clear();
+        oled_off();
+        return false;
+    }
 
     switch (get_highest_layer(layer_state)) {
         case _ADJUST:
-            oled_write_ln_P(PSTR("      ADJUST        "), true);
+            oled_write_ln_P(PSTR("       ADJUST       "), true);
             break;
 
         case _LOWER:
@@ -273,15 +285,23 @@ bool oled_task_user(void) {
             break;
 
         case _QWERTY_OSX:
-            oled_write_ln_P(PSTR("   QWERTY OSX       "), true);
+            oled_write_ln_P(PSTR("     QWERTY OSX     "), true);
+            break;
+
+        case _QWERTY_GAMING:
+            oled_write_ln_P(PSTR("    QWERTY Gaming   "), true);
             break;
 
         case _ESC:
-            oled_write_ln_P(PSTR("       ESC          "), true);
+            oled_write_ln_P(PSTR("        ESC         "), true);
             break;
 
         case _ESC_OSX:
-            oled_write_ln_P(PSTR("    ESC OSX         "), true);
+            oled_write_ln_P(PSTR("      ESC OSX       "), true);
+            break;
+
+        case _ACCENTS_RALT:
+            oled_write_ln_P(PSTR("    RALT Accents    "), true);
             break;
 
         case _SETTINGS:
@@ -304,7 +324,6 @@ bool oled_task_user(void) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     tap_dance_action_t *action;
-
     switch (keycode) {
         case SHFT_KEY:
             if (is_pinky_shift_keys_active) {
@@ -408,10 +427,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 is_hold_tapdance_disabled = true;
                 layer_on(_LOWER);
                 update_tri_layer(_LOWER, _RAISE, _ADJUST);
+
+                // enable scroll
+                is_scrolling = true;
             } else {
                 layer_off(_LOWER);
                 update_tri_layer(_LOWER, _RAISE, _ADJUST);
                 is_hold_tapdance_disabled = false;
+
+                // disable scroll
+                if (is_scrolling) {  // check if we were scrolling before and set disable if so
+                    is_scrolling = false;
+                }
             }
             return false;
             break;
@@ -596,6 +623,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed) {
                 if (oled_mode != OLED_OFF) {
                     oled_mode = OLED_OFF;
+                } else {
+                    oled_mode = OLED_DEFAULT;
                 }
             }
             return false;
@@ -648,16 +677,42 @@ void ps2_mouse_moved_user(report_mouse_t *mouse_report) {
     scale_mouse_vector_optimized(mouse_report);
     rotate_mouse_coordinates_optimized(mouse_rotation_angle, mouse_report);
 
-    // Drag scrolling with the Trackpoint is reported so often that it makes the feature unusable without slowing it down.
-    // The below code only reports when the counter is evenly divisible by the chosen integer speed.
-    // Skipping reports is technically, probably, not ideal. I'd like to find a way to send a slower speed without skipping.
-    // As is, however, it works well and is user configurable from the Options screen.
-    // TODO: Break out into dedicated function
-    static uint16_t drag_scroll_counter = 0;
-    drag_scroll_counter == 40320 ? drag_scroll_counter = 0 : drag_scroll_counter++ ; // Because 8!==40320 (allows clean mod divisibility and avoids scrolling surge when resetting to 0)
-    if ((mouse_report->v != 0 || mouse_report->h != 0) && drag_scroll_counter % drag_scroll_speed_values[drag_scroll_speed_setting] != 0) {
-        mouse_report->v = 0;
-        mouse_report->h = 0;
+    if (is_scrolling) {
+        // Calculate and accumulate scroll values based on mouse movement and divisors
+        scroll_accumulated_h += (float)mouse_report->x / PS2_MOUSE_SCROLL_DIVISOR_H;
+        scroll_accumulated_v += (float)mouse_report->y / PS2_MOUSE_SCROLL_DIVISOR_V;
+
+        // Assign integer parts of accumulated scroll values to the mouse report
+        mouse_report->h = (int8_t)scroll_accumulated_h;
+        mouse_report->v = (int8_t)scroll_accumulated_v;
+
+        // Update accumulated scroll values by subtracting the integer parts
+        scroll_accumulated_h -= (int8_t)scroll_accumulated_h;
+        scroll_accumulated_v -= (int8_t)scroll_accumulated_v;
+
+        // Clear the X and Y values of the mouse report
+        mouse_report->x = 0;
+        mouse_report->y = 0;
+
+        // Invert scrolling direction
+        mouse_report->h = -mouse_report->h;
+        mouse_report->v = -mouse_report->v;
+
+        // Send mouse report
+        pointing_device_set_report(*mouse_report);
+        pointing_device_send();
+    } else{
+        // Drag scrolling with the Trackpoint is reported so often that it makes the feature unusable without slowing it down.
+        // The below code only reports when the counter is evenly divisible by the chosen integer speed.
+        // Skipping reports is technically, probably, not ideal. I'd like to find a way to send a slower speed without skipping.
+        // As is, however, it works well and is user configurable from the Options screen.
+        // TODO: Break out into dedicated function
+        static uint16_t drag_scroll_counter = 0;
+        drag_scroll_counter == 40320 ? drag_scroll_counter = 0 : drag_scroll_counter++ ; // Because 8!==40320 (allows clean mod divisibility and avoids scrolling surge when resetting to 0)
+        if ((mouse_report->v != 0 || mouse_report->h != 0) && drag_scroll_counter % drag_scroll_speed_values[drag_scroll_speed_setting] != 0) {
+            mouse_report->v = 0;
+            mouse_report->h = 0;
+        }
     }
 }
 
