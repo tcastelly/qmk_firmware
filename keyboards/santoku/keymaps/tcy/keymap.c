@@ -217,14 +217,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     {/*ESC osx*/
         {ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, JET_RNM, _______,    ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, TD(TD_DEL_OSX)},
         {_______, ACCENT_A_GRAVE, _______, _______, JET_FIND, _______,              TD(TD_LEFT_OSX), KC_DOWN, KC_UP,  TD(TD_RIGHT_OSX), _______, ACCENT_TREMA},
-        {_______, _______, _______, _______, _______, _______,                     KC_MS_LEFT,KC_MS_DOWN,KC_MS_UP, KC_MS_RIGHT, _______,  _______},
-        {___x___,  ___x___,      ___x___,      _______, _______,KC_MS_BTN2, KC_MS_BTN1, _______, _______,       ___x___,      ___x___,         ___x___}},
+        {_______, _______, _______, _______, _______, _______,                     _______,KC_KB_MUTE,_______, _______, _______,  _______},
+        {___x___,  ___x___,      ___x___,      _______, _______,KC_MS_BTN2, KC_MS_BTN1, _______,       ___x___,      ___x___,         ___x___}},
 
     [_ESC] =
     {/*ESC*/
         {ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, JET_RNM, _______,   ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, TD(TD_DEL)},
         {_______, ACCENT_A_GRAVE, _______, _______, JET_FIND, _______,              TD(TD_LEFT), KC_DOWN, KC_UP,  TD(TD_RIGHT), _______, ACCENT_TREMA},
-        {_______, _______, _______, _______, _______, _______,                     KC_MS_LEFT,KC_MS_DOWN,KC_MS_UP, KC_MS_RIGHT, _______,  _______},
+        {_______, _______, _______, _______, _______, _______,                     _______, KC_KB_MUTE, _______, _______, _______,  _______},
         {___x___,  ___x___,      ___x___,      _______, _______,KC_MS_BTN2, KC_MS_BTN1, _______, _______,       ___x___,      ___x___,         ___x___}},
 
     [_NUM_PADS] =
@@ -244,8 +244,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     {/*Adjust*/
         {_______, QWERTY , QWERTY_OSX  , QWERTY_GAMING, _______, SETTINGS,                 _______, _______, _______, _______, _______, QK_BOOT},
         {_______, _______, _______, _______, _______, _______,              _______, _______, _______,  _______, _______, _______},
-        {_______, _______, _______, _______, _______, _______,                     KC_MS_LEFT,KC_MS_DOWN,KC_MS_UP, KC_MS_RIGHT, _______,  _______},
-        {___x___,  ___x___,      ___x___,      _______, _______,KC_MS_BTN2, KC_MS_BTN1, _______, _______,       ___x___,      ___x___,         ___x___}},
+        {_______, _______, _______, _______, _______, _______,                     _______,_______,_______, _______, _______,  _______},
+        {___x___,  ___x___,      ___x___,      _______, _______,_______, _______, _______, _______,       ___x___,      ___x___,         ___x___}},
 
     };
 
@@ -837,7 +837,15 @@ void rotate_mouse_coordinates_optimized(uint16_t angle, report_mouse_t *mouse_re
 bool encoder_update_user(uint8_t index, bool clockwise) {
     //report_mouse_t currentReport     = pointing_device_get_report();
     //currentReport.v = 2 * (clockwise ? 1 : -1);
-    clockwise ? tap_code(KC_MS_WH_UP) : tap_code(KC_MS_WH_DOWN);
+    switch (get_highest_layer(layer_state)) {
+        case _ESC:
+        case _ESC_OSX:
+            clockwise ? tap_code(KC_KB_VOLUME_UP) : tap_code(KC_KB_VOLUME_DOWN);
+            break;
+        default:
+            clockwise ? tap_code(KC_MS_WH_UP) : tap_code(KC_MS_WH_DOWN);
+            break;
+    }
 
     //pointing_device_set_report(currentReport);
     //pointing_device_send();
