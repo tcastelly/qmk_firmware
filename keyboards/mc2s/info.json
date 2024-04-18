@@ -1,0 +1,32 @@
+{
+    "keyboard_name": "a bit keys",
+    "manufacturer": "mc2s lp",
+    "url": "https://abitkeys.com/mc2slp/build.html",
+    "usb": {
+        "vid": "0xFFFE",
+        "pid": "0x0009",
+        "device_version": "0.0.1"
+    },
+    "processor": "atmega32u4",
+    "bootloader": "atmel-dfu",
+    "diode_direction": "COL2ROW",
+    "matrix_pins": {
+        "rows": ["B0", "B1", "B2"],
+        "cols": ["D6", "D5", "D4", "C7", "C6", "B6", "B5" ]
+    },
+    "split": {
+        "soft_serial_pin": "D3",
+        "matrix_pins": {
+            "right": {
+                "rows": ["B0", "B1", "B2"],
+                "cols": ["B5", "B6", "C6", "C7", "D4", "D5", "D6" ]
+            }
+        }
+    },
+    "layouts": {
+        "LAYOUT": {
+            "layout": [
+            ]
+        }
+    }
+}
