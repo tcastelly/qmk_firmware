@@ -30,6 +30,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define POINTING_DEVICE_ROTATION_90
 #define SPLIT_POINTING_ENABLE
 #define POINTING_DEVICE_TASK_THROTTLE_MS 8
+
+// enabable only for right  halve
 #define CIRQUE_PINNACLE_TAP_ENABLE
+
 #define POINTING_DEVICE_GESTURES_SCROLL_ENABLE
 #define POINTING_DEVICE_COMBINED
+
+#define MASTER_RIGHT

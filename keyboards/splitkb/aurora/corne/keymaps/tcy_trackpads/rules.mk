@@ -22,3 +22,6 @@ OLED_ENABLE = no
 
 POINTING_DEVICE_ENABLE = yes
 POINTING_DEVICE_DRIVER = cirque_pinnacle_i2c
+
+# enabable only for left halve
+# CIRQUE_PINNACLE_DIAMETER_MM = 25

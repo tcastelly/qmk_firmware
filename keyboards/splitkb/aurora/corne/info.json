@@ -6,7 +6,8 @@
         "vid": "0x8D1D",
         "device_version": "1.0.0"
     },
-    "development_board": "elite_c",
+    "processor": "RP2040",
+    "bootloader": "rp2040",
     "split": {
         "enabled": true
     },

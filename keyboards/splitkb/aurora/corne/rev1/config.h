@@ -18,7 +18,7 @@
 
 // `SPLIT_HAND_PIN` can currently be defined in `info.json`,
 // but can't yet be given a value
-#define SPLIT_HAND_PIN F4
+#define SPLIT_HAND_PIN GP29
 
 // Not yet available in `info.json`
 #ifdef OLED_ENABLE
@@ -33,3 +33,5 @@
 #    define RGB_MATRIX_SPLIT { 27, 27 }
 #    define SPLIT_TRANSPORT_MIRROR
 #endif
+
+#define NOP_FUDGE 0.4
