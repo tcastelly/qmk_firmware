@@ -5,8 +5,6 @@
 
 int max_timer_elapsed = 10;
 
-#define TD_INDEX(code) ((code)&0xFF)
-
 /* modify this keymap to customize. */
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT(
