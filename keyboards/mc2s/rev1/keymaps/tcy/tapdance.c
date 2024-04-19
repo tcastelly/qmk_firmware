@@ -6,7 +6,7 @@ bool is_hold_tapdance_disabled = false;
 // prevent to escape first timer_elapsed test
 uint16_t last_hold_t = 15;
 
-void tap_dance_tap_hold_reset(qk_tap_dance_state_t *state, void *user_data) {
+void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
     if (tap_hold->held) {
@@ -15,7 +15,7 @@ void tap_dance_tap_hold_reset(qk_tap_dance_state_t *state, void *user_data) {
     }
 }
 
-void tap_dance_tap_hold_finished(qk_tap_dance_state_t *state, void *user_data) {
+void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
     if (state->pressed) {
@@ -36,7 +36,7 @@ void tap_dance_tap_hold_finished(qk_tap_dance_state_t *state, void *user_data) {
 
 // allow call multiple tap dance simultaneously
 // e.g: TD_DEL/TD_DEL_OSX
-void tap_dance_tap_hold_finished_unprotected(qk_tap_dance_state_t *state, void *user_data) {
+void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
     if (state->pressed) {
@@ -55,7 +55,7 @@ void tap_dance_tap_hold_finished_unprotected(qk_tap_dance_state_t *state, void *
 }
 
 // START tap-hold
-void tap_dance_tap_hold_finished_layout(qk_tap_dance_state_t *state, void *user_data) {
+void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_data) {
     last_hold_t = timer_read();
 
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
@@ -67,14 +67,14 @@ void tap_dance_tap_hold_finished_layout(qk_tap_dance_state_t *state, void *user_
     }
 }
 
-void tap_dance_tap_hold_reset_layout(qk_tap_dance_state_t *state, void *user_data) {
+void tap_dance_tap_hold_reset_layout(tap_dance_state_t *state, void *user_data) {
     is_hold_tapdance_disabled = false;
 }
 // END tap-hold
 
 
 // START default tap-dance
-int cur_dance (qk_tap_dance_state_t *state) {
+int cur_dance (tap_dance_state_t *state) {
     if (state->count == 1) {
         //key has not been interrupted, but they key is still held. Means you want to send a 'HOLD'.
         if (state->interrupted || !state->pressed) {
@@ -123,7 +123,7 @@ static tap xtap_state = {
   .state = 0
 };
 
-void td_ralt_finished (qk_tap_dance_state_t *state, void *user_data) {
+void td_ralt_finished (tap_dance_state_t *state, void *user_data) {
   xtap_state.state = cur_dance(state);
   is_hold_tapdance_disabled = false;
 
@@ -141,7 +141,7 @@ void td_ralt_finished (qk_tap_dance_state_t *state, void *user_data) {
   }
 }
 
-void td_ralt_reset (qk_tap_dance_state_t *state, void *user_data) {
+void td_ralt_reset (tap_dance_state_t *state, void *user_data) {
     is_hold_tapdance_disabled = false;
 
     switch (xtap_state.state) {
@@ -159,7 +159,7 @@ void td_ralt_reset (qk_tap_dance_state_t *state, void *user_data) {
     xtap_state.state = 0;
 }
 
-void td_ralt_osx_finished (qk_tap_dance_state_t *state, void *user_data) {
+void td_ralt_osx_finished (tap_dance_state_t *state, void *user_data) {
   xtap_state.state = cur_dance(state);
   is_hold_tapdance_disabled = false;
 
@@ -177,7 +177,7 @@ void td_ralt_osx_finished (qk_tap_dance_state_t *state, void *user_data) {
   }
 }
 
-void td_ralt_osx_reset (qk_tap_dance_state_t *state, void *user_data) {
+void td_ralt_osx_reset (tap_dance_state_t *state, void *user_data) {
     is_hold_tapdance_disabled = false;
 
     switch (xtap_state.state) {
@@ -195,7 +195,7 @@ void td_ralt_osx_reset (qk_tap_dance_state_t *state, void *user_data) {
     xtap_state.state = 0;
 }
 
-void td_lalt_finished (qk_tap_dance_state_t *state, void *user_data) {
+void td_lalt_finished (tap_dance_state_t *state, void *user_data) {
   xtap_state.state = cur_dance(state);
   is_hold_tapdance_disabled = false;
 
@@ -212,7 +212,7 @@ void td_lalt_finished (qk_tap_dance_state_t *state, void *user_data) {
   }
 }
 
-void td_lalt_reset (qk_tap_dance_state_t *state, void *user_data) {
+void td_lalt_reset (tap_dance_state_t *state, void *user_data) {
     is_hold_tapdance_disabled = false;
 
     switch (xtap_state.state) {
@@ -229,7 +229,7 @@ void td_lalt_reset (qk_tap_dance_state_t *state, void *user_data) {
     xtap_state.state = 0;
 }
 
-void td_lgui_finished (qk_tap_dance_state_t *state, void *user_data) {
+void td_lgui_finished (tap_dance_state_t *state, void *user_data) {
   xtap_state.state = cur_dance(state);
   is_hold_tapdance_disabled = false;
 
@@ -246,7 +246,7 @@ void td_lgui_finished (qk_tap_dance_state_t *state, void *user_data) {
   }
 }
 
-void td_lgui_reset (qk_tap_dance_state_t *state, void *user_data) {
+void td_lgui_reset (tap_dance_state_t *state, void *user_data) {
     is_hold_tapdance_disabled = false;
 
     switch (xtap_state.state) {
@@ -263,7 +263,7 @@ void td_lgui_reset (qk_tap_dance_state_t *state, void *user_data) {
     xtap_state.state = 0;
 }
 
-void td_lctl_finished (qk_tap_dance_state_t *state, void *user_data) {
+void td_lctl_finished (tap_dance_state_t *state, void *user_data) {
   xtap_state.state = cur_dance(state);
   is_hold_tapdance_disabled = false;
 
@@ -280,7 +280,7 @@ void td_lctl_finished (qk_tap_dance_state_t *state, void *user_data) {
   }
 }
 
-void td_lctl_reset (qk_tap_dance_state_t *state, void *user_data) {
+void td_lctl_reset (tap_dance_state_t *state, void *user_data) {
     is_hold_tapdance_disabled = false;
 
     switch (xtap_state.state) {

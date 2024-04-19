@@ -95,35 +95,35 @@ extern uint16_t last_hold_t;
 
 extern bool is_hold_tapdance_disabled;
 
-extern void td_ralt_reset (qk_tap_dance_state_t *state, void *user_data);
+extern void td_ralt_reset (tap_dance_state_t *state, void *user_data);
 
-extern void td_ralt_finished (qk_tap_dance_state_t *state, void *user_data);
+extern void td_ralt_finished (tap_dance_state_t *state, void *user_data);
 
-extern void td_ralt_osx_reset (qk_tap_dance_state_t *state, void *user_data);
+extern void td_ralt_osx_reset (tap_dance_state_t *state, void *user_data);
 
-extern void td_ralt_osx_finished (qk_tap_dance_state_t *state, void *user_data);
+extern void td_ralt_osx_finished (tap_dance_state_t *state, void *user_data);
 
-extern void tap_dance_tap_hold_finished_unprotected(qk_tap_dance_state_t *state, void *user_data);
+extern void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *user_data);
 
-extern void td_lgui_reset (qk_tap_dance_state_t *state, void *user_data);
+extern void td_lgui_reset (tap_dance_state_t *state, void *user_data);
 
-extern void td_lgui_finished (qk_tap_dance_state_t *state, void *user_data);
+extern void td_lgui_finished (tap_dance_state_t *state, void *user_data);
 
-extern void td_lalt_reset (qk_tap_dance_state_t *state, void *user_data);
+extern void td_lalt_reset (tap_dance_state_t *state, void *user_data);
 
-extern void td_lalt_finished (qk_tap_dance_state_t *state, void *user_data);
+extern void td_lalt_finished (tap_dance_state_t *state, void *user_data);
 
-extern void td_lctl_reset (qk_tap_dance_state_t *state, void *user_data);
+extern void td_lctl_reset (tap_dance_state_t *state, void *user_data);
 
-extern void td_lctl_finished (qk_tap_dance_state_t *state, void *user_data);
+extern void td_lctl_finished (tap_dance_state_t *state, void *user_data);
 
-extern void tap_dance_tap_hold_reset(qk_tap_dance_state_t *state, void *user_data);
+extern void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data);
 
-extern void tap_dance_tap_hold_finished(qk_tap_dance_state_t *state, void *user_data);
+extern void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data);
 
-extern void tap_dance_tap_hold_reset_layout(qk_tap_dance_state_t *state, void *user_data);
+extern void tap_dance_tap_hold_reset_layout(tap_dance_state_t *state, void *user_data);
 
-extern void tap_dance_tap_hold_finished_layout(qk_tap_dance_state_t *state, void *user_data);
+extern void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_data);
 
 #define ACTION_TAP_DANCE_TAP_HOLD(tap, hold) \
     { .fn = {NULL, tap_dance_tap_hold_finished, tap_dance_tap_hold_reset}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
