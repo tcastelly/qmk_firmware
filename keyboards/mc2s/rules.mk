@@ -1,1 +1,0 @@
-DEFAULT_FOLDER = mc2s/rev1
