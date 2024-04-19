@@ -33,5 +33,3 @@
 #    define RGB_MATRIX_SPLIT { 27, 27 }
 #    define SPLIT_TRANSPORT_MIRROR
 #endif
-
-#define NOP_FUDGE 0.4

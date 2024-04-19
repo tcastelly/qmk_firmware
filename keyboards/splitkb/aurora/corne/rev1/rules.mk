@@ -17,3 +17,5 @@
 # presence of this file is required for QMK to compile it.
 
 SERIAL_DRIVER = vendor
+WS2812_DRIVER = vendor
+
