@@ -2,6 +2,7 @@
 
 qmk compile -kb kbdfans/kbd75rgb -km tcy
 qmk compile -kb preonic/rev3_drop -km tcy
+qmk compile -kb splitkb/aurora/corne -km tcy
 qmk compile -kb splitkb/aurora/corne -km tcy_trackpads
 qmk compile -kb splitkb/aurora/corne -km tcy_pimoroni_trackball_oled
 qmk compile -kb crkbd -km tcy
