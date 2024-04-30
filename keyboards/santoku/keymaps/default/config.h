@@ -1,4 +1,4 @@
-/* Copyright 2022 splitkb.com <support@splitkb.com>
+/* Copyright 2021 Tye (@tyetye)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,20 +16,9 @@
 
 #pragma once
 
-// `SPLIT_HAND_PIN` can currently be defined in `info.json`,
-// but can't yet be given a value
-#define SPLIT_HAND_PIN GP29
+//#define COMBO_TERM  40  /* time limit in milliseconds combos need to be completed */	
+//#define COMBO_COUNT 6
 
-// Not yet available in `info.json`
-#ifdef OLED_ENABLE
-#    define OLED_DISPLAY_128X32
-#    define SPLIT_OLED_ENABLE
-#endif
-
-// Not yet available in `info.json`
-#ifdef RGB_MATRIX_ENABLE
-#    define RGB_MATRIX_MAXIMUM_BRIGHTNESS 128
-#    define RGB_MATRIX_LED_COUNT 54
-#    define RGB_MATRIX_SPLIT { 27, 27 }
-#    define SPLIT_TRANSPORT_MIRROR
-#endif
+#define TAPPING_TOGGLE 2  /* How many times TT(__layer__) needs to be tapped to stick */
+#define IGNORE_MOD_TAP_INTERRUPT
+#define TAPPING_TERM 150

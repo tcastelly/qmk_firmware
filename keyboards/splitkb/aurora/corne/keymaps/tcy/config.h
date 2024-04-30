@@ -21,23 +21,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // use the power light of liatris controller
 // to display the cap lock light
-#define LED_CAPS_LOCK_PIN 24
+// #define LED_CAPS_LOCK_PIN 24
+// #define LED_PIN_ON_STATE 0
+
 #define SPLIT_ACTIVITY_ENABLE
 #define SPLIT_TRANSPORT_MIRROR
 
-#define SERIAL_USART_TX_PIN GP1
-
-// The default streaming mode is flaky and doesn't always work. This setting doesn't seem to affect performance.
-#define PS2_MOUSE_USE_REMOTE_MODE
-
-// Serial uses PIO0, change PS2 to PIO1.
-#define PS2_PIO_USE_PIO1
-
-#define PS2_MOUSE_INVERT_X
-#define PS2_MOUSE_INVERT_Y
-
-#define PS2_DATA_PIN    GP2
-#define PS2_CLOCK_PIN   GP3
-
-// Start faster when keyboard resets.
-#define PS2_MOUSE_INIT_DELAY 500
+#define MASTER_RIGHT
