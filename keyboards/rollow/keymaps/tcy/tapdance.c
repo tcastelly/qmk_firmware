@@ -22,6 +22,8 @@ void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data) {
 }
 
 void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
+    touched_td = false;
+
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
     if (state->pressed) {
@@ -43,6 +45,8 @@ void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
 // allow call multiple tap dance simultaneously
 // e.g: TD_DEL/TD_DEL_OSX
 void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *user_data) {
+    touched_td = false;
+
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
     if (state->pressed) {
@@ -61,6 +65,8 @@ void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *use
 }
 
 void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_data) {
+    touched_td = false;
+
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
     is_hold_tapdance_disabled = true;
@@ -209,7 +215,6 @@ void td_lgui_finished (tap_dance_state_t *state, void *user_data) {
           register_code(KC_LGUI);
           register_code(KC_TAB);
           unregister_code(KC_TAB);
-          layer_on(_MOD_OSX);
           break;
   }
 }
@@ -230,6 +235,146 @@ void td_lgui_reset (tap_dance_state_t *state, void *user_data) {
         case DOUBLE_HOLD:
             unregister_code(KC_LGUI);
             layer_off(_MOD_OSX);
+            break;
+    }
+    xtap_state.state = 0;
+}
+
+void td_lctl_finished (tap_dance_state_t *state, void *user_data) {
+  xtap_state.state = cur_dance(state);
+  is_hold_tapdance_disabled = false;
+
+  switch (xtap_state.state) {
+      case SINGLE_TAP:
+      case SINGLE_HOLD:
+          register_code(KC_LCTL);
+          break;
+
+      case DOUBLE_SINGLE_TAP:
+      case DOUBLE_HOLD:
+          register_code(KC_LALT);
+          break;
+  }
+}
+
+void td_lctl_reset (tap_dance_state_t *state, void *user_data) {
+    is_hold_tapdance_disabled = false;
+
+    switch (xtap_state.state) {
+        case SINGLE_TAP:
+        case SINGLE_HOLD:
+            unregister_code(KC_LCTL);
+            break;
+
+        case DOUBLE_SINGLE_TAP:
+        case DOUBLE_HOLD:
+            unregister_code(KC_LALT);
+            break;
+    }
+    xtap_state.state = 0;
+}
+
+void td_lalt_finished (tap_dance_state_t *state, void *user_data) {
+  xtap_state.state = cur_dance(state);
+  is_hold_tapdance_disabled = false;
+
+  switch (xtap_state.state) {
+      case SINGLE_TAP:
+      case SINGLE_HOLD:
+          register_code(KC_LALT);
+          break;
+
+      case DOUBLE_TAP:
+      case DOUBLE_HOLD:
+          register_code(KC_LCTL);
+          break;
+  }
+}
+
+void td_lalt_reset (tap_dance_state_t *state, void *user_data) {
+    is_hold_tapdance_disabled = false;
+
+    switch (xtap_state.state) {
+        case SINGLE_TAP:
+        case SINGLE_HOLD:
+            unregister_code(KC_LALT);
+            break;
+
+        case DOUBLE_TAP:
+        case DOUBLE_HOLD:
+            unregister_code(KC_LCTL);
+            break;
+    }
+    xtap_state.state = 0;
+}
+
+void td_ralt_finished (tap_dance_state_t *state, void *user_data) {
+  xtap_state.state = cur_dance(state);
+  is_hold_tapdance_disabled = false;
+
+  switch (xtap_state.state) {
+      case SINGLE_TAP:
+      case SINGLE_HOLD:
+          register_code(KC_RALT);
+          layer_on(_ACCENTS_RALT);
+          break;
+
+      case DOUBLE_SINGLE_TAP:
+      case DOUBLE_HOLD:
+          register_code(KC_LCTL);
+          break;
+  }
+}
+
+void td_ralt_reset (tap_dance_state_t *state, void *user_data) {
+    is_hold_tapdance_disabled = false;
+
+    switch (xtap_state.state) {
+        case SINGLE_TAP:
+        case SINGLE_HOLD:
+            unregister_code(KC_RALT);
+            layer_off(_ACCENTS_RALT);
+            break;
+
+        case DOUBLE_SINGLE_TAP:
+        case DOUBLE_HOLD:
+            unregister_code(KC_LCTL);
+            break;
+    }
+    xtap_state.state = 0;
+}
+
+void td_ralt_osx_finished (tap_dance_state_t *state, void *user_data) {
+  xtap_state.state = cur_dance(state);
+  is_hold_tapdance_disabled = false;
+
+  switch (xtap_state.state) {
+      case SINGLE_TAP:
+      case SINGLE_HOLD:
+          register_code(KC_RALT);
+          layer_on(_ACCENTS_RALT);
+          break;
+
+      case DOUBLE_SINGLE_TAP:
+      case DOUBLE_HOLD:
+          register_code(KC_LGUI);
+          break;
+  }
+}
+
+void td_ralt_osx_reset (tap_dance_state_t *state, void *user_data) {
+    is_hold_tapdance_disabled = false;
+
+    switch (xtap_state.state) {
+        case SINGLE_TAP:
+        case SINGLE_HOLD:
+            unregister_code(KC_RALT);
+            layer_off(_ACCENTS_RALT);
+            break;
+
+        case DOUBLE_SINGLE_TAP:
+        case DOUBLE_HOLD:
+            unregister_code(KC_LGUI);
             break;
     }
     xtap_state.state = 0;

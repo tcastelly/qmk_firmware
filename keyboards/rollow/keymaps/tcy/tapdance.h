@@ -39,23 +39,9 @@ enum custom_keycodes {
   // Jetbrains macro
   JET_FIND,
   JET_RNM,
-
-  // a + ..
-  A_W,
-  A_T,
-  A_O,
-  A_P,
-  A_S,
-  A_D,
-  A_H,
-  A_X,
-  A_C,
-  A_V,
-  A_B,
-  A_N,
-  A_M,
-  A_K,
-  A_L,
+  JET_OPTI,
+  JET_FORMAT,
+  JET_FORMAT_OSX,
 };
 
 // default tap dance
@@ -72,6 +58,8 @@ enum {
 
 // custom tap dance
 enum {
+    TD_ESC,
+    TD_ESC_OSX,
     TD_A,
     TD_A_OSX,
     TD_TAB,
@@ -113,6 +101,18 @@ typedef struct {
 
 extern bool is_hold_tapdance_disabled;
 
+extern void td_ralt_reset (tap_dance_state_t *state, void *user_data);
+
+extern void td_ralt_finished (tap_dance_state_t *state, void *user_data);
+
+extern void td_ralt_osx_reset (tap_dance_state_t *state, void *user_data);
+
+extern void td_ralt_osx_finished (tap_dance_state_t *state, void *user_data);
+
+extern void td_lctl_reset (tap_dance_state_t *state, void *user_data);
+
+extern void td_lctl_finished (tap_dance_state_t *state, void *user_data);
+
 extern void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *user_data);
 
 extern void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data);
@@ -126,6 +126,10 @@ extern void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *u
 extern void td_lgui_reset (tap_dance_state_t *state, void *user_data);
 
 extern void td_lgui_finished (tap_dance_state_t *state, void *user_data);
+
+extern void td_lalt_reset (tap_dance_state_t *state, void *user_data);
+
+extern void td_lalt_finished (tap_dance_state_t *state, void *user_data);
 
 #define ACTION_TAP_DANCE_TAP_HOLD(tap, hold) \
     { .fn = {NULL, tap_dance_tap_hold_finished, tap_dance_tap_hold_reset}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
@@ -143,3 +147,6 @@ extern void td_lgui_finished (tap_dance_state_t *state, void *user_data);
 
 #define ACTION_TAP_DANCE_TAP_HOLD_PERMISSIVE(tap, hold) \
     { .fn = {NULL, tap_dance_tap_hold_finished_permissive, tap_dance_tap_hold_reset}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
+
+#define ACTION_TAP_DANCE_TAP_HOLD_PERMISIVE_LAYOUT(tap, hold) \
+    { .fn = {NULL, tap_dance_tap_hold_finished_permisive_layout, tap_dance_tap_hold_reset_layout}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }

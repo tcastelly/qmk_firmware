@@ -63,9 +63,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                       //`--------------------------'  `--------------------------'
   ),
 
-  [_ESC_OSX] = LAYOUT_split_3x6_3(
+  [_MOD_OSX] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, JET_RNM, _______,    ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, TD(TD_DEL_OSX),
+      ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, JET_RNM, _______,    ACCENT_CIRCUM, KC_WH_D, KC_WH_U, JET_OPTI, JET_FORMAT_OSX, TD(TD_DEL_OSX),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, ACCENT_A_GRAVE, _______, _______, JET_FIND, _______,              TD(TD_LEFT_OSX), KC_DOWN, KC_UP,  TD(TD_RIGHT_OSX), _______, ACCENT_TREMA,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
@@ -75,27 +75,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                       //`--------------------------'  `--------------------------'
   ),
 
-  [_ESC] = LAYOUT_split_3x6_3(
+  [_MOD] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, JET_RNM, _______,   ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, TD(TD_DEL),
+      ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, JET_RNM, _______,   ACCENT_CIRCUM, KC_WH_D, KC_WH_U, JET_OPTI, JET_FORMAT, TD(TD_DEL),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, ACCENT_A_GRAVE, _______, _______, JET_FIND, _______,              TD(TD_LEFT), KC_DOWN, KC_UP,  TD(TD_RIGHT), _______, ACCENT_TREMA,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, _______, _______, _______, _______, _______,                     KC_MS_LEFT,KC_MS_DOWN,KC_MS_UP, KC_MS_RIGHT, _______,  _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           _______, KC_LCTL,KC_MS_BTN2, KC_MS_BTN1, TD(TD_RALT_OSX), _______
-                                      //`--------------------------'  `--------------------------'
-  ),
-
-  [_NUM_PADS] = LAYOUT_split_3x6_3(
-  //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-     _______, _______, _______, _______, _______, _______,                      _______, _______, KC_7,    KC_8,    KC_9, KC_BSPC,
-  //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      _______, _______, _______, _______, _______, _______,                      _______, _______, KC_4,    KC_5,    KC_6, KC_DOT,
-  //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      _______, _______, _______, _______, _______, _______,                      _______, _______, KC_1,    KC_2,    KC_3, KC_0,
-  //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                          _______, _______, _______,    _______, _______, KC_DOT
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -166,31 +154,43 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
             }
             return false;
 
-        // on default QWERTY (Linux) and ESC left encoder will be used to move active "window"
-        case _ESC:
+        // on default QWERTY (Linux) and ESC left encoder will be used to resize active "window"
+        case _MOD:
             if (index == 0) {
                 if (clockwise) {
-                    register_code(KC_LALT);
+                    register_code(KC_LCTL);
                     register_code(KC_LSFT);
                     register_code(KC_LEFT);
 
                     unregister_code(KC_LEFT);
                     unregister_code(KC_LSFT);
-                    unregister_code(KC_LALT);
+                    unregister_code(KC_LCTL);
                 } else {
-                    register_code(KC_LALT);
+                    register_code(KC_LCTL);
                     register_code(KC_LSFT);
                     register_code(KC_RIGHT);
 
                     unregister_code(KC_RIGHT);
                     unregister_code(KC_LSFT);
-                    unregister_code(KC_LALT);
+                    unregister_code(KC_LCTL);
                 }
             } else {
                 if (clockwise) {
-                    tap_code(KC_PGUP);
+                    register_code(KC_LCTL);
+                    register_code(KC_LSFT);
+                    register_code(KC_UP);
+
+                    unregister_code(KC_UP);
+                    unregister_code(KC_LSFT);
+                    unregister_code(KC_LCTL);
                 } else {
-                    tap_code(KC_PGDN);
+                    register_code(KC_LCTL);
+                    register_code(KC_LSFT);
+                    register_code(KC_DOWN);
+
+                    unregister_code(KC_DOWN);
+                    unregister_code(KC_LSFT);
+                    unregister_code(KC_LCTL);
                 }
             }
             return false;
@@ -221,10 +221,10 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
 
 // Associate our tap dance key with its functionality
 tap_dance_action_t tap_dance_actions[] = {
-    [TD_A] = ACTION_TAP_DANCE_TAP_HOLD_PERMISSIVE(KC_A, KC_LCTL),
-    [TD_A_OSX] = ACTION_TAP_DANCE_TAP_HOLD_PERMISSIVE(KC_A, KC_LCTL),
-    [TD_ESC] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC),
-    [TD_ESC_OSX] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC_OSX),
+    [TD_A] = ACTION_TAP_DANCE_TAP_HOLD(KC_A, KC_LCTL),
+    [TD_A_OSX] = ACTION_TAP_DANCE_TAP_HOLD(KC_A, KC_LCTL),
+    [TD_ESC] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _MOD),
+    [TD_ESC_OSX] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _MOD_OSX),
     [TD_TAB] = ACTION_TAP_DANCE_TAP_HOLD(KC_TAB, KC_TILD),
     [TD_O] = ACTION_TAP_DANCE_TAP_HOLD(KC_O, KC_LPRN),
     [TD_P] = ACTION_TAP_DANCE_TAP_HOLD(KC_P, KC_RPRN),
@@ -477,7 +477,44 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
        return false;
        break;
 
+     case JET_OPTI:
+       if (record->event.pressed) {
+           register_code(KC_LCTL);
+           register_code(KC_LALT);
+
+           tap_code(KC_O);
+           unregister_code(KC_LALT);
+           unregister_code(KC_LCTL);
+       }
+       return false;
+       break;
+
+     case  JET_FORMAT:
+       if (record->event.pressed) {
+           register_code(KC_LCTL);
+           register_code(KC_LALT);
+
+           tap_code(KC_O);
+           unregister_code(KC_LALT);
+           unregister_code(KC_LCTL);
+       }
+       return false;
+       break;
+
+     case  JET_FORMAT_OSX:
+       if (record->event.pressed) {
+           register_code(KC_LALT);
+           register_code(KC_LGUI);
+
+           tap_code(KC_L);
+           unregister_code(KC_LALT);
+           unregister_code(KC_LGUI);
+       }
+       return false;
+       break;
+
     case TD(TD_O):  // list all tap dance keycodes with tap-hold configurations
+    case TD(TD_A):
     case TD(TD_ESC):
     case TD(TD_ESC_OSX):
     case TD(TD_TAB):
@@ -494,8 +531,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case TD(TD_RIGHT):
     case TD(TD_RIGHT_OSX):
       if ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && !record->event.pressed) {
-          layer_off(_ESC);
-          layer_off(_ESC_OSX);
+          layer_off(_MOD);
+          layer_off(_MOD_OSX);
           is_hold_tapdance_disabled = false;
       }
 
@@ -505,6 +542,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           tap_code16(tap_hold->tap);
       }
       if ((keycode == TD(TD_A) || keycode == TD(TD_A_OSX) || keycode == TD(TD_SPC)) && !touched_td && !record->event.pressed && action->state.finished) {
+          unregister_code(KC_LCTL);
           tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
           tap_code16(tap_hold->tap);
       }
