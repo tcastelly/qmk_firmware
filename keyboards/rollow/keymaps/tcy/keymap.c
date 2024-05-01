@@ -71,7 +71,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, _______, _______, _______, _______, _______,                     KC_MS_LEFT,KC_MS_DOWN,KC_MS_UP, KC_MS_RIGHT, _______,  _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                          _______, _______,KC_MS_BTN2, KC_MS_BTN1, _______, _______
+                                          _______, KC_LCTL,KC_MS_BTN2, KC_MS_BTN1, TD(TD_RALT), _______
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -83,7 +83,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, _______, _______, _______, _______, _______,                     KC_MS_LEFT,KC_MS_DOWN,KC_MS_UP, KC_MS_RIGHT, _______,  _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                          _______, _______,KC_MS_BTN2, KC_MS_BTN1, _______, _______
+                                          _______, KC_LCTL,KC_MS_BTN2, KC_MS_BTN1, TD(TD_RALT_OSX), _______
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -128,16 +128,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 bool encoder_update_user(uint8_t index, bool clockwise) {
     switch (get_highest_layer(layer_state)) {
+        // both QWERTY AND QWERTY_OSX scroll with the right encoder
         case _QWERTY:
         case _QWERTY_OSX:
-            if (index == 0) {
-                if (clockwise) {
-                    tap_code(KC_MS_WH_UP);
-                } else {
-                    tap_code(KC_MS_WH_DOWN);
-                }
-            }
-            else if (index == 1) {
+            if (index == 1) {
                 if (clockwise) {
                     tap_code(KC_MS_WH_UP);
                 } else {
@@ -145,28 +139,56 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
                 }
             }
             return false;
+
+        // on default QWERTY (Linux) left encoder will be used to change active "window"
+        // simial to ALT/TAB
+        case _QWERTY:
+            if (index == 0) {
+                if (clockwise) {
+                    register_code(KC_LALT);
+                    register_code(KC_LEFT);
+
+                    unregister_code(KC_LALT);
+                    unregister_code(KC_LEFT);
+                } else {
+                    register_code(KC_LALT);
+                    register_code(KC_RIGHT);
+
+                    unregister_code(KC_LALT);
+                    unregister_code(KC_RIGH);
+            }
+            return false;
+
+        // on default QWERTY (Linux) and ESC left encoder will be used to move active "window"
+        case _ESC:
+            if (index == 0) {
+                if (clockwise) {
+                    register_code(KC_LALT);
+                    register_code(KC_LSFT);
+                    register_code(KC_LEFT);
+
+                    unregister_code(KC_LEFT);
+                    unregister_code(KC_LSFT);
+                    unregister_code(KC_LALT);
+                } else {
+                    register_code(KC_LALT);
+                    register_code(KC_LSFT);
+                    register_code(KC_RIGHT);
+
+                    unregister_code(KC_RIGH);
+                    unregister_code(KC_LSFT);
+                    unregister_code(KC_LALT);
+                }
+            }
+            return false;
+
+        case _LOWER:
         case _RAISE:
             if (index == 0) {
                 if (clockwise) {
                     tap_code(KC_VOLU);
                 } else {
                     tap_code(KC_VOLD);
-                }
-            }
-            else if (index == 1) {
-                if (clockwise) {
-                    tap_code(KC_LEFT);
-                } else {
-                    tap_code(KC_RIGHT);
-                }
-            }
-            return false;
-        case _LOWER:
-            if (index == 0) {
-                if (clockwise) {
-                    tap_code(KC_UP);
-                } else {
-                    tap_code(KC_DOWN);
                 }
             }
             else if (index == 1) {
@@ -470,4 +492,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       break;
   }
   return true;
+}
+
+uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case TD(TD_LGUI):
+        case TD(TD_LALT):
+            return TAPPING_TERM + 150;
+        default:
+            return TAPPING_TERM;
+    }
 }
