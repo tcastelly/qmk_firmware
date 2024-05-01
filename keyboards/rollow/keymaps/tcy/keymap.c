@@ -509,7 +509,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            register_code(KC_LCTL);
            register_code(KC_LALT);
 
-           tap_code(KC_O);
+           tap_code(KC_L);
            unregister_code(KC_LALT);
            unregister_code(KC_LCTL);
        }
@@ -530,6 +530,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     case TD(TD_O):  // list all tap dance keycodes with tap-hold configurations
     case TD(TD_A):
+    case TD(TD_A_OSX):
     case TD(TD_ESC):
     case TD(TD_ESC_OSX):
     case TD(TD_TAB):
