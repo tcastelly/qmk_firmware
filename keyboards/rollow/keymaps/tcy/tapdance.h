@@ -28,6 +28,7 @@ enum custom_keycodes {
   ACCENT_C,
   ACCENT_E_GRAVE,
   ACCENT_A_GRAVE,
+  ACCENT_EURO,
 
   // to be used with RALT already pressed
   ACCENT_I_CIRC_RALT,
@@ -82,7 +83,8 @@ enum {
     TD_LEFT,
     TD_LEFT_OSX,
     TD_RIGHT,
-    TD_RIGHT_OSX
+    TD_RIGHT_OSX,
+    TD_RAISE
 };
 
 typedef struct {
@@ -130,6 +132,14 @@ extern void td_lgui_finished (tap_dance_state_t *state, void *user_data);
 extern void td_lalt_reset (tap_dance_state_t *state, void *user_data);
 
 extern void td_lalt_finished (tap_dance_state_t *state, void *user_data);
+
+extern void td_raise_reset (tap_dance_state_t *state, void *user_data);
+
+extern void td_raise_finished (tap_dance_state_t *state, void *user_data);
+
+extern void td_raise_osx_reset (tap_dance_state_t *state, void *user_data);
+
+extern void td_raise_osx_finished (tap_dance_state_t *state, void *user_data);
 
 #define ACTION_TAP_DANCE_TAP_HOLD(tap, hold) \
     { .fn = {NULL, tap_dance_tap_hold_finished, tap_dance_tap_hold_reset}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
