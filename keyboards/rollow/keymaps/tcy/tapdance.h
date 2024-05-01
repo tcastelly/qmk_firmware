@@ -1,6 +1,8 @@
 #ifndef TAPDANCE_H
 #define TAPDANCE_H
 
+bool touched_td;
+
 enum layer_names {
     _QWERTY,
     _QWERTY_OSX,
@@ -8,10 +10,9 @@ enum layer_names {
     _LOWER,
     _RAISE,
     _ADJUST,
-    _ESC,
-    _ESC_OSX,
-    _NUM_PADS,
-    _ACCENTS_RALT
+    _MOD,
+    _MOD_OSX,
+    _ACCENTS_RALT,
 };
 
 enum custom_keycodes {
@@ -21,10 +22,10 @@ enum custom_keycodes {
   LOWER,
   RAISE,
   ADJUST,
-  ESC,
   ACCENT_GRAVE,
   ACCENT_CIRCUM,
   ACCENT_TREMA,
+  ACCENT_C,
   ACCENT_E_GRAVE,
   ACCENT_A_GRAVE,
 
@@ -38,6 +39,23 @@ enum custom_keycodes {
   // Jetbrains macro
   JET_FIND,
   JET_RNM,
+
+  // a + ..
+  A_W,
+  A_T,
+  A_O,
+  A_P,
+  A_S,
+  A_D,
+  A_H,
+  A_X,
+  A_C,
+  A_V,
+  A_B,
+  A_N,
+  A_M,
+  A_K,
+  A_L,
 };
 
 // default tap dance
@@ -54,12 +72,14 @@ enum {
 
 // custom tap dance
 enum {
-    TD_ESC,
-    TD_ESC_OSX,
+    TD_A,
+    TD_A_OSX,
     TD_TAB,
+    TD_SPC,
     TD_O,
     TD_P,
     TD_L,
+    TD_LSFT,
     TD_ENT,
     TD_SCLN,
     TD_LCTL,
@@ -93,27 +113,7 @@ typedef struct {
 
 extern bool is_hold_tapdance_disabled;
 
-extern void td_ralt_reset (tap_dance_state_t *state, void *user_data);
-
-extern void td_ralt_finished (tap_dance_state_t *state, void *user_data);
-
-extern void td_ralt_osx_reset (tap_dance_state_t *state, void *user_data);
-
-extern void td_ralt_osx_finished (tap_dance_state_t *state, void *user_data);
-
 extern void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *user_data);
-
-extern void td_lgui_reset (tap_dance_state_t *state, void *user_data);
-
-extern void td_lgui_finished (tap_dance_state_t *state, void *user_data);
-
-extern void td_lalt_reset (tap_dance_state_t *state, void *user_data);
-
-extern void td_lalt_finished (tap_dance_state_t *state, void *user_data);
-
-extern void td_lctl_reset (tap_dance_state_t *state, void *user_data);
-
-extern void td_lctl_finished (tap_dance_state_t *state, void *user_data);
 
 extern void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data);
 
@@ -122,6 +122,10 @@ extern void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_dat
 extern void tap_dance_tap_hold_reset_layout(tap_dance_state_t *state, void *user_data);
 
 extern void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_data);
+
+extern void td_lgui_reset (tap_dance_state_t *state, void *user_data);
+
+extern void td_lgui_finished (tap_dance_state_t *state, void *user_data);
 
 #define ACTION_TAP_DANCE_TAP_HOLD(tap, hold) \
     { .fn = {NULL, tap_dance_tap_hold_finished, tap_dance_tap_hold_reset}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
@@ -133,3 +137,9 @@ extern void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *u
 
 #define ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(tap, hold) \
     { .fn = {NULL, tap_dance_tap_hold_finished_layout, tap_dance_tap_hold_reset_layout}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
+
+#define ACTION_TAP_DANCE_TAP_HOLD_PERMISSIVE_LAYOUT(tap, hold) \
+    { .fn = {NULL, tap_dance_tap_hold_finished_permissive_layout, tap_dance_tap_hold_reset_layout}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
+
+#define ACTION_TAP_DANCE_TAP_HOLD_PERMISSIVE(tap, hold) \
+    { .fn = {NULL, tap_dance_tap_hold_finished_permissive, tap_dance_tap_hold_reset}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
