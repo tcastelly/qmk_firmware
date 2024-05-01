@@ -12,7 +12,6 @@
     { F4, F5, F6, F7, B1, B3 }
 #define DIODE_DIRECTION COL2ROW
 
-#define TAPPING_TERM 200
 #define DEBOUNCE 5
 
 /* encoder support */

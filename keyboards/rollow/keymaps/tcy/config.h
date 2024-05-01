@@ -8,3 +8,6 @@ for more options.
 #define MASTER_RIGHT
 #define TAPPING_TERM 170
 #define TAPPING_TERM_PER_KEY
+
+#undef ENCODER_RESOLUTION
+#define ENCODER_RESOLUTIONS_RIGHT { 1, 2 }

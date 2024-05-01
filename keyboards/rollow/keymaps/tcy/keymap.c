@@ -129,7 +129,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 bool encoder_update_user(uint8_t index, bool clockwise) {
     switch (get_highest_layer(layer_state)) {
         // both QWERTY AND QWERTY_OSX scroll with the right encoder
-        case _QWERTY:
         case _QWERTY_OSX:
             if (index == 1) {
                 if (clockwise) {
@@ -155,7 +154,15 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
                     register_code(KC_RIGHT);
 
                     unregister_code(KC_LALT);
-                    unregister_code(KC_RIGH);
+                    unregister_code(KC_RIGHT);
+                }
+            }
+            else {
+                if (clockwise) {
+                    tap_code(KC_MS_WH_UP);
+                } else {
+                    tap_code(KC_MS_WH_DOWN);
+                }
             }
             return false;
 
@@ -175,9 +182,15 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
                     register_code(KC_LSFT);
                     register_code(KC_RIGHT);
 
-                    unregister_code(KC_RIGH);
+                    unregister_code(KC_RIGHT);
                     unregister_code(KC_LSFT);
                     unregister_code(KC_LALT);
+                }
+            } else {
+                if (clockwise) {
+                    tap_code(KC_PGUP);
+                } else {
+                    tap_code(KC_PGDN);
                 }
             }
             return false;
@@ -191,7 +204,7 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
                     tap_code(KC_VOLD);
                 }
             }
-            else if (index == 1) {
+            else {
                 if (clockwise) {
                     tap_code(KC_PGUP);
                 } else {
@@ -241,16 +254,6 @@ tap_dance_action_t tap_dance_actions[] = {
     [TD_RALT_OSX] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_osx_finished, td_ralt_osx_reset),
     [TD_RALT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_finished, td_ralt_reset)
 };
-
-// Set a long-ish tapping term for tap-dance keys
-uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case QK_TAP_DANCE ... QK_TAP_DANCE_MAX:
-            return 275;
-        default:
-            return TAPPING_TERM;
-    }
-}
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   tap_dance_action_t *action;
