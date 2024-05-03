@@ -575,6 +575,9 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         case TD(TD_LGUI):
         case TD(TD_LALT):
             return TAPPING_TERM + 150;
+        case TD(TD_A):
+            return TAPPING_TERM + 25;
+            break;
         default:
             return TAPPING_TERM;
     }

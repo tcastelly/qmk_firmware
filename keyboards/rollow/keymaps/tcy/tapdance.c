@@ -201,6 +201,10 @@ void td_raise_finished (tap_dance_state_t *state, void *user_data) {
   xtap_state.state = cur_dance_permissive(state);
   is_hold_tapdance_disabled = false;
 
+  // quick fix to remove dupplicate RALT
+  unregister_code(KC_LALT);
+  unregister_code(KC_LGUI);
+
   switch (xtap_state.state) {
       case SINGLE_TAP:
       case SINGLE_HOLD:
