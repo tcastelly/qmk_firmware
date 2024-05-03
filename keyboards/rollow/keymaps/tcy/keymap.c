@@ -118,7 +118,18 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
     switch (get_highest_layer(layer_state)) {
         // both QWERTY AND QWERTY_OSX scroll with the right encoder
         case _QWERTY_OSX:
-            if (index == 1) {
+            if (index == 0) {
+                if (clockwise) {
+                    register_code(KC_LCTL);
+                    tap_code(KC_LEFT);
+                    unregister_code(KC_LCTL);
+                } else {
+                    register_code(KC_LCTL);
+                    tap_code(KC_RIGHT);
+                    unregister_code(KC_LCTL);
+                }
+            }
+            else {
                 if (clockwise) {
                     tap_code(KC_MS_WH_UP);
                 } else {
