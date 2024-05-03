@@ -207,6 +207,9 @@ void td_raise_finished (tap_dance_state_t *state, void *user_data) {
 
   switch (xtap_state.state) {
       case SINGLE_TAP:
+          register_code(KC_BSPC);
+          break;
+
       case SINGLE_HOLD:
           layer_on(_RAISE);
           break;
@@ -224,6 +227,9 @@ void td_raise_reset (tap_dance_state_t *state, void *user_data) {
 
     switch (xtap_state.state) {
         case SINGLE_TAP:
+          unregister_code(KC_BSPC);
+          break;
+
         case SINGLE_HOLD:
             layer_off(_RAISE);
             break;
