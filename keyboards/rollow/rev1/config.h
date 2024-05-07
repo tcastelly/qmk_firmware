@@ -9,6 +9,9 @@
 /* track point */
 #define PS1_MOUSE_SCROLL_BTN_MASK (1<<PS2_MOUSE_BTN_MIDDLE) /* Default */
 
+#define PS2_MOUSE_INVERT_X
+#define PS2_MOUSE_INVERT_Y
+
 // The default streaming mode is flaky and doesn't always work. This setting doesn't seem to affect performance.
 #define PS2_MOUSE_USE_REMOTE_MODE
 
