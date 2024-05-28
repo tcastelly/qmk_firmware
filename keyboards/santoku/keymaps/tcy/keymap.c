@@ -157,7 +157,7 @@ bool is_pinky_shift_keys_active = false;
 uint8_t acceleration_setting        = 2;
 float   acceleration_values[6]      = {0.6f, 0.8f, 1.0f, 1.2f, 1.4f, 1.6f};
 uint8_t linear_reduction_setting    = 2;
-float   linear_reduction_values[6]  = {2.4f, 2.2f, 2.0f, 1.8f, 1.6f, 1.4f};
+float   linear_reduction_values[6]  = {80.0f, 2.2f, 2.0f, 1.8f, 1.6f, 1.4f};
 uint8_t drag_scroll_speed_setting   = 2;
 uint8_t drag_scroll_speed_values[6] = {8, 7, 6, 5, 4, 3};
 char *  progress_bars_x6[6]         = {"[=     ]", "[==    ]", "[===   ]", "[====  ]", "[===== ]", "[=PLAID]"};
@@ -226,13 +226,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         {_______, ACCENT_A_GRAVE, _______, _______, JET_FIND, _______,              TD(TD_LEFT), KC_DOWN, KC_UP,  TD(TD_RIGHT), _______, ACCENT_TREMA},
         {_______, _______, _______, _______, _______, _______,                     _______, KC_KB_MUTE, _______, _______, _______,  _______},
         {___x___,  ___x___,      ___x___,      _______, _______,KC_MS_BTN2, KC_MS_BTN1, _______, _______,       ___x___,      ___x___,         ___x___}},
-
-    [_NUM_PADS] =
-    {/*NUM PADS*/
-        {_______, _______, _______, _______, _______, _______,                      _______, _______, KC_7,    KC_8,    KC_9, KC_BSPC},
-        { _______, _______, _______, _______, _______, _______,                      _______, _______, KC_4,    KC_5,    KC_6, KC_DOT},
-        {_______, _______, _______, _______, _______, _______,                      _______, _______, KC_1,    KC_2,    KC_3, KC_0},
-        {___x___,  ___x___,      ___x___,      _______, _______, _______,    _______, _______, KC_DOT,       ___x___,      ___x___,         ___x___}},
 
     [_ACCENTS_RALT] =
     {/*ACCENTS Ralt*/
@@ -693,9 +686,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case TD(TD_RIGHT):
         case TD(TD_RIGHT_OSX):
             if ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && !record->event.pressed) {
+                adjust_setting_uint8(&acceleration_setting, -2, 0, 5);
+                adjust_setting_uint8(&linear_reduction_setting, -2, 0, 5);
+
                 layer_off(_ESC);
                 layer_off(_ESC_OSX);
                 is_hold_tapdance_disabled = false;
+            } else if((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && record->event.pressed) {
+                adjust_setting_uint8(&acceleration_setting, 2, 0, 5);
+                adjust_setting_uint8(&linear_reduction_setting, 2, 0, 5);
             } else if (keycode == TD(TD_SPC) && !record->event.pressed) {
                 layer_off(_RAISE);
                 is_hold_tapdance_disabled = false;
@@ -719,8 +718,8 @@ void rotate_mouse_coordinates_optimized(uint16_t angle, report_mouse_t *mouse_re
 // TODO: Move the mouse acceleration and speed code into a separate function, like rotate_mouse_coordinates()
 // TODO: If possible, don't convert values back to int between functions. Keep as floats, round one time at the end.
 void ps2_mouse_moved_user(report_mouse_t *mouse_report) {
-    scale_mouse_vector_optimized(mouse_report);
-    rotate_mouse_coordinates_optimized(mouse_rotation_angle, mouse_report);
+    scale_mouse_vector(mouse_report);
+    rotate_mouse_coordinates(mouse_rotation_angle, mouse_report);
 
     if (is_scrolling) {
         // Calculate and accumulate scroll values based on mouse movement and divisors
@@ -836,39 +835,36 @@ void rotate_mouse_coordinates_optimized(uint16_t angle, report_mouse_t *mouse_re
     mouse_report->y = round(precomputed_sine * cached_mouse_x + precomputed_cosine * cached_mouse_y);
 }
 
+void scale_mouse_vector(report_mouse_t *mouse_report) {
+    // The math below turns the Trackpoint x and y reports (movements) into a vector and scales the vector with some trigonometry.
+    // This allows the user to dynamically adjust the mouse cursor sensitivity to their liking.
+    // It also results in arguably smoother movement than just multiplying the x and y values by some fixed value.
+    // (and yeah, there's some unnecessary/redundant math going here. I'm hoping to lay the foundation for things like software adjustable negative inertia.)
+        float hypotenuse        = sqrt((mouse_report->x * mouse_report->x) + (mouse_report->y * mouse_report->y));
+        float scaled_hypotenuse = pow(hypotenuse, acceleration_values[acceleration_setting]) / linear_reduction_values[linear_reduction_setting];
+        float angle             = atan2(mouse_report->y, mouse_report->x);
+        mouse_report->x += (scaled_hypotenuse * cos(angle));
+        mouse_report->y += (scaled_hypotenuse * sin(angle));
 
+}
 
-/* void scale_mouse_vector(report_mouse_t *mouse_report) { */
-/*     // The math below turns the Trackpoint x and y reports (movements) into a vector and scales the vector with some trigonometry. */
-/*     // This allows the user to dynamically adjust the mouse cursor sensitivity to their liking. */
-/*     // It also results in arguably smoother movement than just multiplying the x and y values by some fixed value. */
-/*     // (and yeah, there's some unnecessary/redundant math going here. I'm hoping to lay the foundation for things like software adjustable negative inertia.) */
-/*         float hypotenuse        = sqrt((mouse_report->x * mouse_report->x) + (mouse_report->y * mouse_report->y)); */
-/*         float scaled_hypotenuse = pow(hypotenuse, acceleration_values[acceleration_setting]) / linear_reduction_values[linear_reduction_setting]; */
-/*         float angle             = atan2(mouse_report->y, mouse_report->x); */
-/*         mouse_report->x += (scaled_hypotenuse * cos(angle)); */
-/*         mouse_report->y += (scaled_hypotenuse * sin(angle)); */
+void rotate_mouse_coordinates(uint16_t angle, report_mouse_t *mouse_report) {
+    if (angle == 0) {
+        return;
+    }
+    // because pi/180 = 0.017453
+    static const float degree = 0.017453f;
 
-/* } */
+    float radians = angle * degree;
 
-/* void rotate_mouse_coordinates(uint16_t angle, report_mouse_t *mouse_report) { */
-/*     if (angle == 0) { */
-/*         return; */
-/*     } */
-/*     // because pi/180 = 0.017453 */
-/*     static const float degree = 0.017453f; */
+    // Need to save these values because we rewrite mouse_report->x immediately but reuse the value to find the rotated y value
+    int current_x = mouse_report->x;
+    int current_y = mouse_report->y;
 
-/*     float radians = angle * degree; */
-
-/*     // Need to save these values because we rewrite mouse_report->x immediately but reuse the value to find the rotated y value */
-/*     int current_x = mouse_report->x; */
-/*     int current_y = mouse_report->y; */
-
-/*     // Calculate rotated x & y, convert back to an int */
-/*     mouse_report->x = round(cos(radians) * current_x - sin(radians) * current_y); */
-/*     mouse_report->y = round(sin(radians) * current_x + cos(radians) * current_y); */
-/* } */
-
+    // Calculate rotated x & y, convert back to an int
+    mouse_report->x = round(cos(radians) * current_x - sin(radians) * current_y);
+    mouse_report->y = round(sin(radians) * current_x + cos(radians) * current_y);
+}
 
 bool encoder_update_user(uint8_t index, bool clockwise) {
     //report_mouse_t currentReport     = pointing_device_get_report();
@@ -887,8 +883,6 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
     //pointing_device_send();
     return false;
 }
-
-
 
 void ps2_mouse_init_user(void) {
     uint8_t rcv;
@@ -962,10 +956,10 @@ void adjust_setting_uint16(uint16_t *setting, int8_t adjustment, uint16_t min, u
 }
 
 void adjust_setting_uint8(uint8_t *setting, int8_t adjustment, uint8_t min, uint8_t max) {
-    if (adjustment == -1 && *setting == min) {
+    if (adjustment < 0 && *setting == min) {
         *setting = max;
     }
-    else if (adjustment == 1 && *setting == max) {
+    else if (adjustment > 0 && *setting == max) {
         *setting = min;
     }
     else {
