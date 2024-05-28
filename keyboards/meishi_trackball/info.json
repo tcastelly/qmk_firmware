@@ -1,0 +1,37 @@
+{
+    "manufacturer": "aaaa",
+    "keyboard_name": "test_trackball",
+    "maintainer": "aaaa",
+    "bootloader": "atmel-dfu",
+    "diode_direction": "COL2ROW",
+    "features": {
+        "bootmagic": true,
+        "command": false,
+        "console": false,
+        "extrakey": true,
+        "mousekey": true,
+        "nkro": true
+    },
+    "processor": "atmega32u4",
+    "url": "",
+
+    "matrix_pins": {
+        "direct": [["B6", "B3", "B2"]]
+    },
+
+    "usb": {
+        "device_version": "1.0.0",
+        "pid": "0x000A",
+        "vid": "0x1720"
+    },
+
+    "layouts": {
+        "LAYOUT": {
+            "layout": [
+                { "matrix": [0, 0], "label": "0,0", "x": 0, "y": 0 },
+                { "matrix": [0, 1], "label": "0,1", "x": 1, "y": 0 },
+                { "matrix": [0, 2], "label": "0,2", "x": 2, "y": 0 }
+            ]
+        }
+    }
+}
