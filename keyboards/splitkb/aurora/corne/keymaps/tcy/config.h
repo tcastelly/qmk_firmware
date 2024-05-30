@@ -27,4 +27,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SPLIT_ACTIVITY_ENABLE
 #define SPLIT_TRANSPORT_MIRROR
 
-#define MASTER_RIGHT
+// #define MASTER_RIGHT
+
+#define SPLIT_TRANSPORT_MIRROR
+#define SPLIT_LAYER_STATE_ENABLE
+#define SPLIT_MODS_ENABLE
+
+#define RGBLIGHT_LAYERS
+#define RGBLIGHT_LAYER_BLINK
+#undef RGBLIGHT_DEFAULT_MODE
+#define RGBLIGHT_DEFAULT_MODE RGBLIGHT_MODE_STATIC_LIGHT
+

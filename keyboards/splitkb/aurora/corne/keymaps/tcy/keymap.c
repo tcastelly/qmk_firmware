@@ -457,3 +457,30 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   return true;
 }
 
+#ifdef RGBLIGHT_ENABLE
+void keyboard_post_init_user(void) {
+  rgblight_enable_noeeprom(); // Enables RGB, without saving settings
+  rgblight_sethsv_noeeprom(HSV_RED);
+  rgblight_mode_noeeprom(RGBLIGHT_MODE_STATIC_LIGHT);
+}
+
+layer_state_t layer_state_set_user(layer_state_t state) {
+    switch (get_highest_layer(state)) {
+        case _ESC_OSX:
+        case _QWERTY_OSX:
+            rgblight_sethsv_noeeprom(HSV_GREEN);
+            break;
+        case _QWERTY_GAMING:
+            rgblight_sethsv_noeeprom(HSV_YELLOW);
+            break;
+        case _ADJUST:
+            rgblight_sethsv_noeeprom(HSV_BLUE);
+            break;
+        case _QWERTY:
+            rgblight_sethsv_noeeprom(HSV_RED);
+        default: // for any other layers, or the default layer
+            break;
+    }
+    return state;
+}
+#endif
