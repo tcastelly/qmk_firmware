@@ -76,7 +76,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_ESC_OSX] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, JET_RNM, _______,    ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, TD(TD_DEL_OSX),
+      ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, JET_RNM, _______,    ACCENT_CIRCUM, KC_WH_D, KC_WH_U, JET_OPTI, JET_FORMAT_OSX, TD(TD_DEL_OSX),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, ACCENT_A_GRAVE, _______, _______, JET_FIND, _______,              TD(TD_LEFT_OSX), KC_DOWN, KC_UP,  TD(TD_RIGHT_OSX), _______, ACCENT_TREMA,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
@@ -88,7 +88,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_ESC] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, JET_RNM, _______,   ACCENT_CIRCUM, KC_WH_D, KC_WH_U, _______, _______, TD(TD_DEL),
+      ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, JET_RNM, _______,   ACCENT_CIRCUM, KC_WH_D, KC_WH_U, JET_OPTI, JET_FORMAT, TD(TD_DEL),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, ACCENT_A_GRAVE, _______, _______, JET_FIND, _______,              TD(TD_LEFT), KC_DOWN, KC_UP,  TD(TD_RIGHT), _______, ACCENT_TREMA,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
@@ -383,6 +383,42 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
            unregister_code(KC_LSFT);
            unregister_code(KC_F6);
+       }
+       return false;
+       break;
+
+     case JET_OPTI:
+       if (record->event.pressed) {
+           register_code(KC_LCTL);
+           register_code(KC_LALT);
+
+           tap_code(KC_O);
+           unregister_code(KC_LALT);
+           unregister_code(KC_LCTL);
+       }
+       return false;
+       break;
+
+     case  JET_FORMAT:
+       if (record->event.pressed) {
+           register_code(KC_LCTL);
+           register_code(KC_LALT);
+
+           tap_code(KC_L);
+           unregister_code(KC_LALT);
+           unregister_code(KC_LCTL);
+       }
+       return false;
+       break;
+
+     case  JET_FORMAT_OSX:
+       if (record->event.pressed) {
+           register_code(KC_LALT);
+           register_code(KC_LGUI);
+
+           tap_code(KC_L);
+           unregister_code(KC_LALT);
+           unregister_code(KC_LGUI);
        }
        return false;
        break;
