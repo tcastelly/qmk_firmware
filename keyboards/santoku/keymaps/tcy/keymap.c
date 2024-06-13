@@ -40,7 +40,6 @@ Trackpoint:
 #include "tapdance.c"
 #include "lib/lib8tion/lib8tion.h"
 
-#define VANITY_TIMEOUT 5000
 #define ___x___ XXXXXXX
 
 #define USER_CONFIG_SIGNATURE 0xDA7A // Used to determine if EEPROM has previously saved Settings already
@@ -59,12 +58,6 @@ static const char PROGMEM qmk_logo[] = {
     0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4,
     0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF, 0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0x00
 };
-
-typedef enum {
-    ALTTAB_INACTIVE,
-    ALTTAB_PRESSED,
-    ALTTAB_WAITING,
-} alttab_t;
 
 typedef enum {
     SETTING_TP_ACCELERATION,
@@ -146,7 +139,6 @@ setting_t settings[NUM_SETTINGS] = {
 };
 
 // One tap alt-tab controls. Improvement to the code example from: https://docs.qmk.fm/#/feature_macros?id=super-alt%e2%86%aftab
-alttab_t is_alt_tab_pressed = ALTTAB_INACTIVE;
 uint16_t alt_tab_timer      = 0;
 uint16_t alt_tab_timeout    = 300;
 
@@ -154,19 +146,21 @@ uint16_t alt_tab_timeout    = 300;
 bool is_pinky_shift_keys_active = false;
 
 // Trackpoint/mouse pointer dynamic speed controls and GUI/OLED settings
-uint8_t acceleration_setting        = 2;
-float   acceleration_values[6]      = {0.6f, 0.8f, 1.0f, 1.2f, 1.4f, 1.6f};
-uint8_t linear_reduction_setting    = 2;
-float   linear_reduction_values[6]  = {80.0f, 2.2f, 2.0f, 1.8f, 1.6f, 1.4f};
-uint8_t drag_scroll_speed_setting   = 2;
-uint8_t drag_scroll_speed_values[6] = {8, 7, 6, 5, 4, 3};
-char *  progress_bars_x6[6]         = {"[=     ]", "[==    ]", "[===   ]", "[====  ]", "[===== ]", "[=PLAID]"};
-uint8_t scroll_wheel_test_setting   = 0;
-uint16_t mouse_rotation_angle       = 350;
+uint8_t acceleration_setting            = 2;
+uint8_t acceleration_setting_backup     = 2;
+float   acceleration_values[6]          = {0.6f, 0.8f, 1.0f, 1.2f, 1.4f, 1.6f};
+uint8_t linear_reduction_setting        = 2;
+uint8_t linear_reduction_setting_backup = 2;
+float   linear_reduction_values[6]      = {80.0f, 2.2f, 2.0f, 1.8f, 1.6f, 1.4f};
+uint8_t drag_scroll_speed_setting       = 2;
+uint8_t drag_scroll_speed_values[6]     = {8, 7, 6, 5, 4, 3};
+char *  progress_bars_x6[6]             = {"[=     ]", "[==    ]", "[===   ]", "[====  ]", "[===== ]", "[=PLAID]"};
+uint8_t scroll_wheel_test_setting       = 0;
+uint16_t mouse_rotation_angle           = 350;
 
-uint8_t current_setting_choice      = 0;
-int8_t settings_scroll_position     = 0;
-int8_t settings_selected_setting    = 0;
+uint8_t current_setting_choice          = 0;
+int8_t settings_scroll_position         = 0;
+int8_t settings_selected_setting        = 0;
 
 user_config_t user_config;
 
@@ -348,17 +342,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return true;
 
-        case TAPALTTB: // Improved on but inspired by: https://github.com/qmk/qmk_firmware/blob/master/keyboards/dz60/keymaps/_bonfire/not-in-use/super-alt-tab.c
-            if (record->event.pressed) {
-                is_alt_tab_pressed = ALTTAB_PRESSED;
-                register_code(KC_LALT);
-                tap_code(KC_TAB);
-            } else {
-                is_alt_tab_pressed = ALTTAB_WAITING;
-                alt_tab_timer      = timer_read();
-            }
-            return true;
-
         case SETTINGS_UP:
         case SETTINGS_DOWN:
             if (record->event.pressed) {
@@ -467,9 +450,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             break;
 #endif
 
-        case KC_LALT:
-        case KC_LGUI:
+        // set max speed Trackpoint
         case KC_LSFT:
+            if (record->event.pressed) {
+                acceleration_setting_backup = acceleration_setting;
+                linear_reduction_setting_backup = linear_reduction_setting;
+
+                acceleration_setting = 5;
+                linear_reduction_setting = 5;
+            } else {
+                acceleration_setting = acceleration_setting_backup;
+                linear_reduction_setting = acceleration_setting_backup;
+            }
             return true;
             break;
 
@@ -686,15 +678,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case TD(TD_RIGHT):
         case TD(TD_RIGHT_OSX):
             if ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && !record->event.pressed) {
-                adjust_setting_uint8(&acceleration_setting, -2, 0, 5);
-                adjust_setting_uint8(&linear_reduction_setting, -2, 0, 5);
+                acceleration_setting = acceleration_setting_backup;
+                linear_reduction_setting = acceleration_setting_backup;
 
                 layer_off(_ESC);
                 layer_off(_ESC_OSX);
                 is_hold_tapdance_disabled = false;
             } else if((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && record->event.pressed) {
-                adjust_setting_uint8(&acceleration_setting, 2, 0, 5);
-                adjust_setting_uint8(&linear_reduction_setting, 2, 0, 5);
+                  acceleration_setting_backup = acceleration_setting;
+                  linear_reduction_setting_backup = linear_reduction_setting;
+
+                  acceleration_setting = 1;
+                  linear_reduction_setting = 1;
             } else if (keycode == TD(TD_SPC) && !record->event.pressed) {
                 layer_off(_RAISE);
                 is_hold_tapdance_disabled = false;

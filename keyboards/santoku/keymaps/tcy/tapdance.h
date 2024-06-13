@@ -46,7 +46,6 @@ enum custom_keycodes {
 
   // santoku
   SHFT_KEY,
-  TAPALTTB,
   OVERVIEW,
   SETTINGS,
   SETTINGS_UP,
