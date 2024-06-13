@@ -312,11 +312,11 @@ bool oled_task_user(void) {
 
         oled_write_P(qmk_logo, false);
 
-        oled_set_cursor(oled_max_chars() - 2, oled_max_lines() - 1);
+        oled_write_ln_P(PSTR("                    "), false);
         if (is_kc_caps) {
-            oled_write("[]", false);
+          oled_write_ln_P(PSTR("                  []"), false);
         } else {
-            oled_write("  ", false);
+          oled_write_ln_P(PSTR("                    "), false);
         }
     }
 
