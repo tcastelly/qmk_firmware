@@ -2,6 +2,8 @@
 #include "tapdance.c"
 #include "lib/lib8tion/lib8tion.h"
 
+static bool scrolling_mode = false;
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT_split_3x6_3(
   //,---------------------------------------------------            ,-----------------------------------------------------.
@@ -563,6 +565,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           is_hold_tapdance_disabled = false;
       }
 
+      if (keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) {
+          scrolling_mode = record->event.pressed;
+      }
+
       action = &tap_dance_actions[TD_INDEX(keycode)];
       if (!record->event.pressed && action->state.count && !action->state.finished) {
           tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
@@ -644,4 +650,38 @@ bool oled_task_user(){
     return false;
 }
 #endif
+
+
+//
+// trackpad
+//
+
+// Modify these values to adjust the scrolling speed
+#define SCROLL_DIVISOR_H 8.0
+#define SCROLL_DIVISOR_V 8.0
+
+// Variables to store accumulated scroll values
+float scroll_accumulated_h = 0;
+float scroll_accumulated_v = 0;
+
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    if (scrolling_mode) {
+        // Calculate and accumulate scroll values based on mouse movement and divisors
+        scroll_accumulated_h += (float)mouse_report.x / SCROLL_DIVISOR_H;
+        scroll_accumulated_v += (float)mouse_report.y / SCROLL_DIVISOR_V;
+
+        // Assign integer parts of accumulated scroll values to the mouse report
+        mouse_report.h = (int8_t)scroll_accumulated_h;
+        mouse_report.v = (int8_t)scroll_accumulated_v;
+
+        // Update accumulated scroll values by subtracting the integer parts
+        scroll_accumulated_h -= (int8_t)scroll_accumulated_h;
+        scroll_accumulated_v -= (int8_t)scroll_accumulated_v;
+
+        // Clear the X and Y values of the mouse report
+        mouse_report.x = 0;
+        mouse_report.y = 0;
+    }
+    return mouse_report;
+}
 
