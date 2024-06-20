@@ -212,18 +212,19 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
 
         case _LOWER:
         case _RAISE:
+        case _MOD_OSX:
             if (index == 0) {
                 if (clockwise) {
-                    tap_code(KC_VOLU);
-                } else {
                     tap_code(KC_VOLD);
+                } else {
+                    tap_code(KC_VOLU);
                 }
             }
             else {
                 if (clockwise) {
-                    tap_code(KC_PGUP);
-                } else {
                     tap_code(KC_PGDN);
+                } else {
+                    tap_code(KC_PGUP);
                 }
             }
             return false;
