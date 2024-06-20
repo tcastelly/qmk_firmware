@@ -4,6 +4,8 @@
 
 static bool scrolling_mode = false;
 
+static bool lock_mode = false;
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT_split_3x6_3(
   //,---------------------------------------------------            ,-----------------------------------------------------.
@@ -299,9 +301,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case LOWER:
       if (record->event.pressed) {
         is_hold_tapdance_disabled = true;
+        lock_mode = true;
         layer_on(_LOWER);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
       } else {
+        lock_mode = false;
         layer_off(_LOWER);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
         is_hold_tapdance_disabled = false;
@@ -679,6 +683,13 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
         scroll_accumulated_v -= (int8_t)scroll_accumulated_v;
 
         // Clear the X and Y values of the mouse report
+        mouse_report.x = 0;
+        mouse_report.y = 0;
+    }
+
+    if (lock_mode) {
+        mouse_report.h = 0;
+        mouse_report.v = 0;
         mouse_report.x = 0;
         mouse_report.y = 0;
     }
