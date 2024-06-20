@@ -162,9 +162,9 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
             }
             else {
                 if (clockwise) {
-                    tap_code(KC_MS_WH_UP);
-                } else {
                     tap_code(KC_MS_WH_DOWN);
+                } else {
+                    tap_code(KC_MS_WH_UP);
                 }
             }
             return false;
@@ -193,17 +193,17 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
                 if (clockwise) {
                     register_code(KC_LCTL);
                     register_code(KC_LSFT);
-                    register_code(KC_UP);
+                    register_code(KC_DOWN);
 
-                    unregister_code(KC_UP);
+                    unregister_code(KC_DOWN);
                     unregister_code(KC_LSFT);
                     unregister_code(KC_LCTL);
                 } else {
                     register_code(KC_LCTL);
                     register_code(KC_LSFT);
-                    register_code(KC_DOWN);
+                    register_code(KC_UP);
 
-                    unregister_code(KC_DOWN);
+                    unregister_code(KC_UP);
                     unregister_code(KC_LSFT);
                     unregister_code(KC_LCTL);
                 }
@@ -215,16 +215,16 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
         case _MOD_OSX:
             if (index == 0) {
                 if (clockwise) {
-                    tap_code(KC_VOLD);
+                    tap_code(KC_PGDN);
                 } else {
-                    tap_code(KC_VOLU);
+                    tap_code(KC_PGUP);
                 }
             }
             else {
                 if (clockwise) {
-                    tap_code(KC_PGDN);
+                    tap_code(KC_VOLD);
                 } else {
-                    tap_code(KC_PGUP);
+                    tap_code(KC_VOLU);
                 }
             }
             return false;
