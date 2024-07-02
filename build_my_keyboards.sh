@@ -6,6 +6,7 @@ qmk compile -kb splitkb/aurora/corne -km tcy
 qmk compile -kb splitkb/aurora/corne -km tcy_trackpads
 qmk compile -kb splitkb/aurora/corne -km tcy_pimoroni_trackball_oled
 qmk compile -kb crkbd -km tcy
+qmk compile -kb crkbd -e CONVERT_TO=promicro_rp2040 -km tcy_trackpad
 qmk compile -kb keyball/keyball44 -km tcy
 qmk compile -kb totem -km tcy
 qmk compile -kb nullbitsco/tidbit -km oled
