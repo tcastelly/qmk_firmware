@@ -3,6 +3,9 @@
 
 bool is_hold_tapdance_disabled = false;
 
+bool touched_td = false;
+
+
 void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
@@ -13,6 +16,8 @@ void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data) {
 }
 
 void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
+    touched_td = false;
+
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
     if (state->pressed) {
@@ -34,6 +39,8 @@ void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
 // allow call multiple tap dance simultaneously
 // e.g: TD_DEL/TD_DEL_OSX
 void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *user_data) {
+    touched_td = false;
+
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
     if (state->pressed) {
@@ -53,6 +60,8 @@ void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *use
 
 // START tap-hold
 void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_data) {
+    touched_td = false;
+
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
     is_hold_tapdance_disabled = true;

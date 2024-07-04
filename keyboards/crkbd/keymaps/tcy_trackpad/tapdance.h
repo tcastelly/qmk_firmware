@@ -1,6 +1,8 @@
 #ifndef TAPDANCE_H
 #define TAPDANCE_H
 
+bool touched_td;
+
 enum layer_names {
     _QWERTY,
     _QWERTY_OSX,
@@ -62,6 +64,8 @@ enum {
 
 // custom tap dance
 enum {
+    TD_A,
+    TD_A_OSX,
     TD_ESC,
     TD_ESC_OSX,
     TD_TAB,
