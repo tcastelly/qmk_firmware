@@ -54,12 +54,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     #define RGBLIGHT_VAL_STEP 17
 #endif
 
-// #define SPLIT_ACTIVITY_ENABLE
-// #define SPLIT_TRANSPORT_MIRROR
-
 #define AZOTEQ_IQS5XX_TPS65
-#define AZOTEQ_IQS5XX_ZOOM_ENABLE true
+// #define AZOTEQ_IQS5XX_ZOOM_ENABLE true
 #define AZOTEQ_IQS5XX_ROTATION_270
 #define POINTING_DEVICE_RIGHT
 #define SPLIT_POINTING_ENABLE
-// #define POINTING_DEVICE_TASK_THROTTLE_MS 8
