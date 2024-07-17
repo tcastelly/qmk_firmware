@@ -68,3 +68,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // To squeeze firmware size
 #undef LOCKING_SUPPORT_ENABLE
 #undef LOCKING_RESYNC_ENABLE
+
+// defines for tuning the OLED
+#define OLED_TIMEOUT 15000
+#define OLED_UPDATE_INTERVAL 100
+#define OLED_FADE_OUT
+#define OLED_FADE_OUT_INTERVAL 2
+#define OLED_UPDATE_PROCESS_LIMIT 4
