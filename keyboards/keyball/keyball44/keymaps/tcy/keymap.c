@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "tapdance.c"
 #include "quantum.h"
+#include "common/bitc_led.c"
 
 #ifdef OLED_ENABLE
   #include "bongo.h"
@@ -531,4 +532,8 @@ uint16_t keycode_config(uint16_t keycode) {
 }
 uint8_t mod_config(uint8_t mod) {
     return mod;
+}
+
+void keyboard_pre_init_user(void) {
+  set_bitc_LED(LED_OFF);
 }
