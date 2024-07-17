@@ -32,6 +32,8 @@ enum oled_modes {
 
 int8_t oled_mode = OLED_BONGO_LAYOUT;
 
+static uint32_t key_timer = 0;
+
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT_universal(
@@ -176,8 +178,18 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
+void matrix_scan_user(void) {
+  if (timer_elapsed32(key_timer) > 30000) { // 30 seconds
+      oled_mode = OLED_OFF;
+  } else {
+      oled_mode = OLED_BONGO_LAYOUT;
+  }
+}
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   tap_dance_action_t *action;
+
+  key_timer = timer_read32();  // resets timer
 
   switch (keycode) {
     case QWERTY:
