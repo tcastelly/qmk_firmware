@@ -42,6 +42,9 @@ enum custom_keycodes {
   // Jetbrains macro
   JET_FIND,
   JET_RNM,
+  JET_OPTI,
+  JET_FORMAT,
+  JET_FORMAT_OSX,
 };
 
 // default tap dance
@@ -68,10 +71,6 @@ enum {
     TD_ENT,
     TD_SCLN,
     TD_LCTL,
-    TD_LGUI,
-    TD_LALT,
-    TD_RALT,
-    TD_RALT_OSX,
     TD_BSPC,
     TD_BSPC_OSX,
     TD_DEL,
@@ -99,23 +98,12 @@ typedef struct {
 
 extern bool is_hold_tapdance_disabled;
 
-extern void td_ralt_reset (tap_dance_state_t *state, void *user_data);
-
-extern void td_ralt_finished (tap_dance_state_t *state, void *user_data);
-
-extern void td_ralt_osx_reset (tap_dance_state_t *state, void *user_data);
-
-extern void td_ralt_osx_finished (tap_dance_state_t *state, void *user_data);
-
 extern void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *user_data);
 
-extern void td_lgui_reset (tap_dance_state_t *state, void *user_data);
 
-extern void td_lgui_finished (tap_dance_state_t *state, void *user_data);
+extern void td_raise_reset (tap_dance_state_t *state, void *user_data);
 
-extern void td_lalt_reset (tap_dance_state_t *state, void *user_data);
-
-extern void td_lalt_finished (tap_dance_state_t *state, void *user_data);
+extern void td_raise_finished (tap_dance_state_t *state, void *user_data);
 
 extern void td_lctl_reset (tap_dance_state_t *state, void *user_data);
 
