@@ -130,6 +130,92 @@ int cur_dance (tap_dance_state_t *state) {
     return 8;
 }
 
+int cur_dance_permissive (tap_dance_state_t *state) {
+    if (state->count == 1) {
+        if (state->interrupted || state->pressed) {
+            return SINGLE_HOLD;
+        } else {
+            return SINGLE_TAP;
+        }
+    }
+    else if (state->count == 2) {
+        /*
+         * DOUBLE_SINGLE_TAP is to distinguish between typing "pepper", and actually wanting a double tap
+         * action when hitting 'pp'. Suggested use case for this return value is when you want to send two
+         * keystrokes of the key, and not the 'double tap' action/macro.
+         */
+        if (state->interrupted) {
+            return DOUBLE_SINGLE_TAP;
+        }
+        else if (state->pressed) {
+            return DOUBLE_HOLD;
+        }
+        else {
+            return DOUBLE_TAP;
+        }
+    }
+    else if (state->count == 3) {
+        if (state->interrupted) {
+            return TRIPLE_SINGLE_TAP;
+        }
+        else if (state->pressed) {
+            return TRIPLE_HOLD;
+        }
+        else {
+            return TRIPLE_TAP;
+        }
+    }
+
+    //magic number. At some point this method will expand to work for more presses
+    return 8;
+}
+
+void td_raise_finished (tap_dance_state_t *state, void *user_data) {
+  xtap_state.state = cur_dance_permissive(state);
+  is_hold_tapdance_disabled = false;
+
+  // quick fix to remove dupplicate RALT
+  unregister_code(KC_LALT);
+  unregister_code(KC_LGUI);
+
+  switch (xtap_state.state) {
+      case SINGLE_TAP:
+          register_code(KC_BSPC);
+          break;
+
+      case SINGLE_HOLD:
+          layer_on(_RAISE);
+          break;
+
+      case DOUBLE_SINGLE_TAP:
+      case DOUBLE_HOLD:
+          register_code(KC_RALT);
+          layer_on(_ACCENTS_RALT);
+          break;
+  }
+}
+
+void td_raise_reset (tap_dance_state_t *state, void *user_data) {
+    is_hold_tapdance_disabled = false;
+
+    switch (xtap_state.state) {
+        case SINGLE_TAP:
+          unregister_code(KC_BSPC);
+          break;
+
+        case SINGLE_HOLD:
+            layer_off(_RAISE);
+            break;
+
+        case DOUBLE_SINGLE_TAP:
+        case DOUBLE_HOLD:
+            unregister_code(KC_RALT);
+            layer_off(_ACCENTS_RALT);
+            break;
+    }
+    xtap_state.state = 0;
+}
+
 //instanalize an instance of 'tap' for the 'x' tap dance.
 static tap xtap_state = {
   .is_press_action = true,
