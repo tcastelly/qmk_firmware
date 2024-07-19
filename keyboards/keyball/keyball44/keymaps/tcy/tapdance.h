@@ -6,7 +6,6 @@ bool touched_td;
 enum layer_names {
     _QWERTY,
     _QWERTY_OSX,
-    _QWERTY_GAMING,
     _LOWER,
     _RAISE,
     _ADJUST,
@@ -18,7 +17,6 @@ enum layer_names {
 enum custom_keycodes {
   QWERTY = SAFE_RANGE,
   QWERTY_OSX,
-  QWERTY_GAMING,
   LOWER,
   RAISE,
   ADJUST,

@@ -210,13 +210,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         return false;
         break;
 
-    case QWERTY_GAMING:
-        if (record->event.pressed) {
-            layer_move(_QWERTY_GAMING);
-        }
-        return false;
-        break;
-
     case LOWER:
       if (record->event.pressed) {
         is_hold_tapdance_disabled = true;
