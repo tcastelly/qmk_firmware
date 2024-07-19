@@ -33,6 +33,9 @@ enum oled_modes {
 
 int8_t oled_mode = OLED_BONGO_LAYOUT;
 
+// prevent the oled to comeback on after typing
+bool keep_oled_off = false;
+
 static uint32_t key_timer = 0;
 
 // clang-format off
@@ -182,7 +185,7 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 void matrix_scan_user(void) {
   if (timer_elapsed32(key_timer) > 30000) { // 30 seconds
       oled_mode = OLED_OFF;
-  } else {
+  } else if (!keep_oled_off) {
       oled_mode = OLED_BONGO_LAYOUT;
   }
 }
@@ -466,8 +469,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
        if (record->event.pressed) {
            if (oled_mode != OLED_OFF) {
                oled_mode = OLED_OFF;
+               keep_oled_off = true;
            } else {
                oled_mode = OLED_BONGO_LAYOUT;
+               keep_oled_off = false;
            }
        }
        touched_td = true;
