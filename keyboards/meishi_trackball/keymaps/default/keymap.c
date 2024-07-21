@@ -20,10 +20,10 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 #ifdef POINTING_DEVICE_ENABLE
 #    define ANGLE_UNIT 15
 #    define ANGLE_MAX (360 / ANGLE_UNIT)
-uint8_t angle = 0;
+uint8_t angle = -60;
 
 report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
-    double rad     = ANGLE_UNIT * angle * (M_PI / 180);
+    double rad     = ANGLE_UNIT * angle * (M_PI / 180) * -1;
     int8_t x_rev   = +mouse_report.x * cos(rad) - mouse_report.y * sin(rad);
     int8_t y_rev   = +mouse_report.x * sin(rad) + mouse_report.y * cos(rad);
     mouse_report.x = x_rev;
@@ -40,10 +40,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #    endif
 
     switch (keycode) {
-        case ROT_R15:
+        case ROT_L15:
             angle = (angle + 1) % ANGLE_MAX;
             return false;
-        case ROT_L15:
+        case ROT_R15:
             angle = (angle + ANGLE_MAX - 1) % ANGLE_MAX;
             return false;
         default:
