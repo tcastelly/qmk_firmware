@@ -212,3 +212,7 @@ void x_reset(tap_dance_state_t *state, void *user_data) {
     }
     xtap_state.state = TD_NONE;
 }
+
+ void keyboard_post_init_user(void) {
+    pointing_device_set_cpi(500);
+ }
