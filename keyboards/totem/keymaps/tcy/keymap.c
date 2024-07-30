@@ -128,10 +128,10 @@ TD(TD_LSFT),  KC_Z,          KC_X,     KC_C,        KC_V,         KC_B,      KC_
 
    [_MOD] = LAYOUT(
  //╷         ╷               ╷         ╷                 ╷            ╷            ╷╷              ╷              ╷         ╷              ╷         ╷        ╷
-              ACCENT_GRAVE,   A_W,      ACCENT_E_GRAVE,   JET_RNM,     A_T,          ACCENT_CIRCUM,  KC_WH_D,      KC_WH_U,  A_O,           A_P,
+              ACCENT_GRAVE,   A_W,      ACCENT_E_GRAVE,   JET_RNM,     A_T,          ACCENT_CIRCUM,  KC_WH_D,      KC_WH_U,  JET_OPTI, JET_FORMAT,
               _______,        A_S,      A_D,              JET_FIND,    A_H,          TD(TD_LEFT),    KC_DOWN,      KC_UP,    TD(TD_RIGHT),  _______,
     _______,  _______,        A_X,      A_C,              A_V,         A_B,          KC_MS_LEFT,     KC_MS_DOWN,   KC_MS_UP, KC_MS_RIGHT,   KC_QUOT,  _______,
-                                        _______,          _______,     KC_MS_BTN2,   KC_MS_BTN1,     TD(TD_DEL),   ACCENT_TREMA
+                                        _______,          KC_MS_BTN1,  KC_MS_BTN2,   KC_MS_BTN1,     TD(TD_DEL),   ACCENT_TREMA
  ),
 /*
    ╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
@@ -151,10 +151,10 @@ TD(TD_LSFT),  KC_Z,          KC_X,     KC_C,        KC_V,         KC_B,      KC_
 
    [_MOD_OSX] = LAYOUT(
  //╷         ╷               ╷         ╷                  ╷            ╷         ╷╷                    ╷              ╷                ╷                  ╷         ╷         ╷
-              ACCENT_GRAVE,   A_W,      ACCENT_E_GRAVE,   JET_RNM,     A_T,          ACCENT_CIRCUM,    KC_WH_D,        KC_WH_U,         A_O,               A_P,
+              ACCENT_GRAVE,   A_W,      ACCENT_E_GRAVE,   JET_RNM,     A_T,          ACCENT_CIRCUM,    KC_WH_D,        KC_WH_U,         JET_OPTI, JET_FORMAT_OSX,
               _______,        A_S,      A_D,              JET_FIND,    A_H,          TD(TD_LEFT_OSX),  KC_DOWN,        KC_UP,           TD(TD_RIGHT_OSX),  _______,
     _______,  _______,        A_X,      A_C,              A_V,         A_B,          KC_MS_LEFT,       KC_MS_DOWN,     KC_MS_UP,        KC_MS_RIGHT,       KC_QUOT,  _______,
-                                        _______,          _______,     KC_MS_BTN2,   KC_MS_BTN1,       TD(TD_DEL_OSX), ACCENT_TREMA
+                                        _______,          KC_MS_BTN1,  KC_MS_BTN2,   KC_MS_BTN1,       TD(TD_DEL_OSX), ACCENT_TREMA
  ),
  /*
    ╺━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸
@@ -640,6 +640,45 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            unregister_code(KC_F1);
            unregister_code(KC_LALT);
            tap_code(KC_1);
+       }
+       touched_td = true;
+       return false;
+       break;
+
+     case JET_OPTI:
+       if (record->event.pressed) {
+           register_code(KC_LCTL);
+           register_code(KC_LALT);
+
+           tap_code(KC_O);
+           unregister_code(KC_LALT);
+           unregister_code(KC_LCTL);
+       }
+       touched_td = true;
+       return false;
+       break;
+
+     case  JET_FORMAT:
+       if (record->event.pressed) {
+           register_code(KC_LCTL);
+           register_code(KC_LALT);
+
+           tap_code(KC_L);
+           unregister_code(KC_LALT);
+           unregister_code(KC_LCTL);
+       }
+       touched_td = true;
+       return false;
+       break;
+
+     case  JET_FORMAT_OSX:
+       if (record->event.pressed) {
+           register_code(KC_LALT);
+           register_code(KC_LGUI);
+
+           tap_code(KC_L);
+           unregister_code(KC_LALT);
+           unregister_code(KC_LGUI);
        }
        touched_td = true;
        return false;

@@ -39,6 +39,9 @@ enum custom_keycodes {
   // Jetbrains macro
   JET_FIND,
   JET_RNM,
+  JET_OPTI,
+  JET_FORMAT,
+  JET_FORMAT_OSX,
 
   // a + ..
   A_W,
