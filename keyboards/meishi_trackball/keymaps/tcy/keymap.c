@@ -22,6 +22,39 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "wait.h"
 #include "debug.h"
 
+static bool scrolling_mode = false;
+
+//Tap Dance Declarations
+enum {
+  TD_MS_BTN1 = 0
+};
+
+typedef enum {
+    TD_NONE,
+    TD_UNKNOWN,
+    TD_SINGLE_TAP,
+    TD_SINGLE_HOLD,
+    TD_DOUBLE_TAP,
+    TD_DOUBLE_HOLD,
+    TD_DOUBLE_SINGLE_TAP, // Send two single taps
+    TD_TRIPLE_TAP,
+    TD_TRIPLE_HOLD
+} td_state_t;
+
+typedef struct {
+    bool is_press_action;
+    td_state_t state;
+} td_tap_t;
+
+// For the x tap dance. Put it here so it can be used in any keymap
+void x_finished(tap_dance_state_t *state, void *user_data);
+void x_reset(tap_dance_state_t *state, void *user_data);
+
+//Tap Dance Definitions
+tap_dance_action_t tap_dance_actions[] = {
+  [TD_MS_BTN1]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, x_finished, x_reset)
+};
+
 typedef union {
     uint32_t raw;
     struct {
@@ -121,7 +154,6 @@ void pointing_device_init_kb(void) {
     // set the CPI.
     pointing_device_set_cpi(cpi_array[cocot_config.cpi_idx]);
 }
-
 
 report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
 
@@ -247,23 +279,26 @@ void eeconfig_init_kb(void) {
 void matrix_init_kb(void) {
     // is safe to just read CPI setting since matrix init
     // comes before pointing device init.
-    cocot_config.raw = eeconfig_read_kb();
-    if (cocot_config.cpi_idx > CPI_OPTION_SIZE) // || cocot_config.scrl_div > SCRL_DIV_SIZE || cocot_config.rotation_angle > ANGLE_SIZE)
-    {
-        eeconfig_init_kb();
-    }
+    // cocot_config.raw = eeconfig_read_kb();
+    // if (cocot_config.cpi_idx > CPI_OPTION_SIZE) // || cocot_config.scrl_div > SCRL_DIV_SIZE || cocot_config.rotation_angle > ANGLE_SIZE)
+    // {
+    //     eeconfig_init_kb();
+    // }
+
+    eeconfig_init_kb();
     matrix_init_user();
 }
 
 bool cocot_get_scroll_mode(void) {
-    return cocot_config.scrl_mode;
+    return scrolling_mode;
+    // return cocot_config.scrl_mode;
 }
 
 void cocot_set_scroll_mode(bool mode) {
     cocot_config.scrl_mode = mode;
 }
 
-const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {[0] = LAYOUT(KC_MS_BTN1, KC_MS_BTN2, KC_MS_BTN3)};
+const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {[0] = LAYOUT(TD(TD_MS_BTN1), KC_MS_BTN2, KC_MS_BTN3)};
 
 keyevent_t encoder1_ccw = {
     .key = (keypos_t){.row = 0, .col = 3},
@@ -274,6 +309,16 @@ keyevent_t encoder1_cw = {
     .key = (keypos_t){.row = 0, .col = 4},
     .pressed = false
 };
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case QK_KB_0:
+            scrolling_mode = record->event.pressed;
+            return false;
+        default:
+            return true;
+    }
+}
 
 bool encoder_update_user(uint8_t index, bool clockwise) {
     if (index == 0) { // First encoder
@@ -307,6 +352,67 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     }
   return state;
 };
+
+td_state_t cur_dance(tap_dance_state_t *state) {
+    if (state->count == 1) {
+        if (state->interrupted || !state->pressed) return TD_SINGLE_TAP;
+        // Key has not been interrupted, but the key is still held. Means you want to send a 'HOLD'.
+        else return TD_SINGLE_HOLD;
+    } else if (state->count == 2) {
+        // TD_DOUBLE_SINGLE_TAP is to distinguish between typing "pepper", and actually wanting a double tap
+        // action when hitting 'pp'. Suggested use case for this return value is when you want to send two
+        // keystrokes of the key, and not the 'double tap' action/macro.
+        if (state->interrupted) return TD_DOUBLE_SINGLE_TAP;
+        else if (state->pressed) return TD_DOUBLE_HOLD;
+        else return TD_DOUBLE_TAP;
+    }
+
+    // Assumes no one is trying to type the same letter three times (at least not quickly).
+    // If your tap dance key is 'KC_W', and you want to type "www." quickly - then you will need to add
+    // an exception here to return a 'TD_TRIPLE_SINGLE_TAP', and define that enum just like 'TD_DOUBLE_SINGLE_TAP'
+    if (state->count == 3) {
+        if (state->interrupted || !state->pressed) return TD_TRIPLE_TAP;
+        else return TD_TRIPLE_HOLD;
+    } else return TD_UNKNOWN;
+}
+
+// Create an instance of 'td_tap_t' for the 'x' tap dance.
+static td_tap_t xtap_state = {
+    .is_press_action = true,
+    .state = TD_NONE
+};
+
+
+void x_finished(tap_dance_state_t *state, void *user_data) {
+    xtap_state.state = cur_dance(state);
+    switch (xtap_state.state) {
+        case TD_SINGLE_TAP: register_code(KC_MS_BTN1); break;
+        case TD_SINGLE_HOLD: register_code(KC_MS_BTN1); break;
+        case TD_DOUBLE_TAP: register_code(KC_MS_BTN2); break;
+        case TD_DOUBLE_HOLD:
+            scrolling_mode = true;
+          break;
+        // Last case is for fast typing. Assuming your key is `f`:
+        // For example, when typing the word `buffer`, and you want to make sure that you send `ff` and not `Esc`.
+        // In order to type `ff` when typing fast, the next character will have to be hit within the `TAPPING_TERM`, which by default is 200ms.
+        case TD_DOUBLE_SINGLE_TAP: tap_code(KC_MS_BTN2); register_code(KC_MS_BTN2); break;
+        default: break;
+    }
+}
+
+void x_reset(tap_dance_state_t *state, void *user_data) {
+    switch (xtap_state.state) {
+        case TD_SINGLE_TAP: unregister_code(KC_MS_BTN1); break;
+        case TD_SINGLE_HOLD: unregister_code(KC_MS_BTN1); break;
+        case TD_DOUBLE_TAP: unregister_code(KC_MS_BTN2); break;
+        case TD_DOUBLE_HOLD:
+          scrolling_mode = false;
+          break;
+        case TD_DOUBLE_SINGLE_TAP: unregister_code(KC_MS_BTN2); break;
+        default: break;
+    }
+    xtap_state.state = TD_NONE;
+}
 
 // OLED utility
 #ifdef OLED_ENABLE
@@ -374,4 +480,3 @@ bool oled_task_user(void) {
     return false;
 }
 #endif
-

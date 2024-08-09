@@ -1,0 +1,5 @@
+#pragma once
+
+#define TAPPING_TERM 160
+#define COCOT_CPI_DEFAULT 2
+#define COCOT_ROTATION_DEFAULT 2

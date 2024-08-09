@@ -1,6 +1,3 @@
 #pragma once
 
-#define DYNAMIC_KEYMAP_LAYER_COUNT 3
-#define POINTING_DEVICE_ROTATION_180
-#define TAPPING_TERM 160
-
+#define TAPPING_TERM 200
