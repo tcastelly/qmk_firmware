@@ -563,10 +563,15 @@ static const char PROGMEM raw_logo[] = { // Punisher - Vertical - OLED_ROTATION_
 };
 
 void matrix_scan_user(void) {
+    if (keep_oled_off) {
+        oled_off();
+        return;
+    }
+
     if (is_keyboard_master()) {
         if (timer_elapsed32(key_timer) > 30000) { // 30 seconds
             oled_mode = OLED_OFF;
-        } else if (!keep_oled_off) {
+        } else {
             oled_mode = OLED_BONGO_LAYOUT;
         }
     } else {
@@ -584,6 +589,7 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
     // return rotation;
     return OLED_ROTATION_180;
 }
+
 void draw_static(void) {
     if (is_oled_on()) {
         oled_write_raw_P(raw_logo, sizeof(raw_logo));
