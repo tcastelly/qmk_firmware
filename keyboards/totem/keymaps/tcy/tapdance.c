@@ -94,15 +94,28 @@ void tap_dance_tap_hold_finished_permissive(tap_dance_state_t *state, void *user
     if (state->pressed) {
         if (state->count == 1 || state->interrupted) {
             register_code16(tap_hold->hold);
-        } else {
-            tap_hold->held = tap_hold->tap;
         }
         tap_hold->held = tap_hold->hold;
     }
 }
 
 void tap_dance_tap_hold_reset_layout(tap_dance_state_t *state, void *user_data) {
+}
+
+void tap_dance_tap_hold_finished_permissive_with_layout(tap_dance_state_t *state, void *user_data) {
     is_hold_tapdance_disabled = false;
+
+    touched_td = false;
+
+    tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
+
+    if (state->pressed) {
+        if (state->count == 1 || state->interrupted) {
+            register_code16(tap_hold->hold);
+            layer_on(tap_hold->layout);
+        }
+        tap_hold->held = tap_hold->hold;
+    }
 }
 // END tap-hold
 
@@ -193,7 +206,7 @@ int cur_dance_permissive (tap_dance_state_t *state) {
 
 void td_lgui_finished (tap_dance_state_t *state, void *user_data) {
   xtap_state.state = cur_dance_permissive(state);
-  is_hold_tapdance_disabled = false;
+  is_hold_tapdance_disabled = true;
 
   switch (xtap_state.state) {
       case SINGLE_TAP:

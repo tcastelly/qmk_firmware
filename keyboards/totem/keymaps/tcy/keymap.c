@@ -42,7 +42,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
               KC_Q,     KC_W,     KC_E,          KC_R,         KC_T,      KC_Y,         KC_U,         KC_I,     TD(TD_O), TD(TD_P),
               TD(TD_A), KC_S,     KC_D,          KC_F,         KC_G,      KC_H,         KC_J,         KC_K,     TD(TD_L), TD(TD_SCLN),
 TD(TD_LSFT),  KC_Z,     KC_X,     KC_C,          KC_V,         KC_B,      KC_N,         KC_M,         KC_COMM,  KC_DOT,   KC_SLSH,             TD(TD_ENT),
-                                  TD(TD_LCTL),   TD(TD_LALT),  LOWER,     TD(TD_SPC),   TD(TD_BSPC),  TD(TD_RALT)
+                                  TD(TD_LCTL),   TD(TD_LALT),  LOWER,     KC_SPC,       TD(TD_BSPC),  TD(TD_RALT)
+ ),
+   [_SHIFT_QWERTY] = LAYOUT(
+ //╷         ╷         ╷         ╷              ╷             ╷         ╷╷             ╷             ╷         ╷         ╷         ╷         ╷
+              KC_Q,     KC_W,     KC_E,          KC_R,         KC_T,      KC_Y,         KC_U,         KC_I,     TD(TD_O), TD(TD_P),
+              TD(TD_A), KC_S,     KC_D,          KC_F,         KC_G,      KC_H,         KC_J,         KC_K,     TD(TD_L), TD(TD_SCLN),
+_______,      KC_Z,     KC_X,     KC_C,          KC_V,         KC_B,      KC_N,         KC_M,         KC_COMM,  KC_DOT,   KC_SLSH,             TD(TD_ENT),
+                                  TD(TD_LCTL),   TD(TD_LALT),  LOWER,     KC_SPC,       CUST_BSPC,    TD(TD_RALT)
  ),
  /*
    ┌─────────────────────────────────────────────────┐
@@ -61,8 +68,15 @@ TD(TD_LSFT),  KC_Z,     KC_X,     KC_C,          KC_V,         KC_B,      KC_N, 
  //╷         ╷              ╷         ╷            ╷             ╷         ╷╷            ╷                ╷         ╷        ╷         ╷         ╷
               KC_Q,          KC_W,     KC_E,        KC_R,         KC_T,      KC_Y,        KC_U,            KC_I,    TD(TD_O), TD(TD_P),
               TD(TD_A_OSX),  KC_S,     KC_D,        KC_F,         KC_G,      KC_H,        KC_J,            KC_K,    TD(TD_L), TD(TD_SCLN),
-TD(TD_LSFT),  KC_Z,          KC_X,     KC_C,        KC_V,         KC_B,      KC_N,        KC_M,            KC_COMM, KC_DOT,   KC_SLSH,            TD(TD_ENT),
-                                       TD(TD_LCTL), TD(TD_LGUI),  LOWER,     TD(TD_SPC),  TD(TD_BSPC_OSX), TD(TD_RALT)
+TD(TD_LSFT_OSX),KC_Z,          KC_X,     KC_C,        KC_V,         KC_B,      KC_N,        KC_M,            KC_COMM, KC_DOT,   KC_SLSH,            TD(TD_ENT),
+                                       TD(TD_LCTL), TD(TD_LGUI),  LOWER,     KC_SPC,  TD(TD_BSPC_OSX), TD(TD_RALT)
+ ),
+   [_SHIFT_QWERTY_OSX] = LAYOUT(
+ //╷         ╷              ╷         ╷            ╷             ╷         ╷╷            ╷                ╷         ╷        ╷         ╷         ╷
+              KC_Q,          KC_W,     KC_E,        KC_R,         KC_T,      KC_Y,        KC_U,            KC_I,    TD(TD_O), TD(TD_P),
+              TD(TD_A_OSX),  KC_S,     KC_D,        KC_F,         KC_G,      KC_H,        KC_J,            KC_K,    TD(TD_L), TD(TD_SCLN),
+_______,      KC_Z,          KC_X,     KC_C,        KC_V,         KC_B,      KC_N,        KC_M,            KC_COMM, KC_DOT,   KC_SLSH,            TD(TD_ENT),
+                                       TD(TD_LCTL), TD(TD_LGUI),  LOWER,     KC_SPC,  CUST_BSPC_OSX, TD(TD_RALT)
  ),
 /*
 
@@ -209,14 +223,14 @@ TD(TD_LSFT),  KC_Z,          KC_X,     KC_C,        KC_V,         KC_B,      KC_
 tap_dance_action_t tap_dance_actions[] = {
     [TD_A] = ACTION_TAP_DANCE_TAP_HOLD_PERMISSIVE_LAYOUT(KC_A, _MOD),
     [TD_A_OSX] = ACTION_TAP_DANCE_TAP_HOLD_PERMISSIVE_LAYOUT(KC_A, _MOD_OSX),
-    [TD_SPC] = ACTION_TAP_DANCE_TAP_HOLD_PERMISSIVE_LAYOUT(KC_SPC, _RAISE),
     [TD_TAB] = ACTION_TAP_DANCE_TAP_HOLD(KC_TAB, KC_TILD),
     [TD_O] = ACTION_TAP_DANCE_TAP_HOLD(KC_O, KC_LPRN),
     [TD_P] = ACTION_TAP_DANCE_TAP_HOLD(KC_P, KC_RPRN),
     [TD_L] = ACTION_TAP_DANCE_TAP_HOLD(KC_L, KC_LCBR),
     [TD_SCLN] = ACTION_TAP_DANCE_TAP_HOLD(KC_SCLN, KC_RCBR),
     [TD_ENT] = ACTION_TAP_DANCE_TAP_HOLD_PERMISSIVE(KC_ENT, KC_LSFT),
-    [TD_LSFT] = ACTION_TAP_DANCE_TAP_HOLD_PERMISSIVE(KC_ESC, KC_LSFT),
+    [TD_LSFT] = ACTION_TAP_DANCE_TAP_HOLD_PERMISSIVE_WITH_LAYOUT(KC_ESC, KC_LSFT, _SHIFT_QWERTY),
+    [TD_LSFT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_PERMISSIVE_WITH_LAYOUT(KC_ESC, KC_LSFT, _SHIFT_QWERTY_OSX),
     [TD_LCTL] = ACTION_TAP_DANCE_TAP_HOLD_PERMISSIVE(KC_TILD, KC_LCTL),
     [TD_LALT] = ACTION_TAP_DANCE_TAP_HOLD(KC_TAB, KC_LALT),
     [TD_RALT] = ACTION_TAP_DANCE_TAP_HOLD(KC_QUOT, KC_RALT),
@@ -224,8 +238,8 @@ tap_dance_action_t tap_dance_actions[] = {
 
     // same tap-dance
     // enable it for osx and linux
-    [TD_BSPC] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LCTL(KC_BSPC)),
-    [TD_BSPC_OSX] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LALT(KC_BSPC)),
+    [TD_BSPC] = ACTION_TAP_DANCE_TAP_HOLD_PERMISSIVE_LAYOUT(KC_BSPC, _RAISE),
+    [TD_BSPC_OSX] = ACTION_TAP_DANCE_TAP_HOLD_PERMISSIVE_LAYOUT(KC_BSPC, _RAISE),
 
     [TD_DEL] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_DEL, LCTL(KC_DEL)),
     [TD_DEL_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_DEL, LALT(KC_DEL)),
@@ -240,9 +254,10 @@ tap_dance_action_t tap_dance_actions[] = {
 // Set a long-ish tapping term for tap-dance keys
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
+        case TD(TD_BSPC):
+        case TD(TD_BSPC_OSX):
         case TD(TD_LSFT):
-            return TAPPING_TERM - 20;
-        case TD(TD_SPC):
+        case TD(TD_LSFT_OSX):
             return TAPPING_TERM - 20;
         case TD(TD_A):
         case TD(TD_A_OSX):
@@ -620,6 +635,34 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
        touched_td = true;
        break;
 
+     // used to unregister LSFT and register BSPC
+     case CUST_BSPC:
+       touched_td = true;
+       if (record->event.pressed) {
+           unregister_code(KC_LSFT);
+           register_code(KC_LCTL);
+           register_code(KC_BSPC);
+       } else {
+           unregister_code(KC_BSPC);
+           unregister_code(KC_LCTL);
+       }
+       return false;
+       break;
+
+     // used to unregister LSFT and register BSPC
+     case CUST_BSPC_OSX:
+       touched_td = true;
+       if (record->event.pressed) {
+           unregister_code(KC_LSFT);
+           register_code(KC_LALT);
+           register_code(KC_BSPC);
+       } else {
+           unregister_code(KC_BSPC);
+           unregister_code(KC_LALT);
+       }
+       return false;
+       break;
+
      case JET_RNM:
        if (record->event.pressed) {
            register_code(KC_LSFT);
@@ -687,10 +730,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case TD(TD_O):  // list all tap dance keycodes with tap-hold configurations
     case TD(TD_A):
     case TD(TD_A_OSX):
-    case TD(TD_SPC):
     case TD(TD_TAB):
     case TD(TD_LCTL):
     case TD(TD_LSFT):
+    case TD(TD_LSFT_OSX):
     case TD(TD_LALT):
     case TD(TD_RALT):
     case TD(TD_P):
@@ -705,12 +748,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case TD(TD_LEFT_OSX):
     case TD(TD_RIGHT):
     case TD(TD_RIGHT_OSX):
+      // all permissive layouts
       if ((keycode == TD(TD_A) || keycode == TD(TD_A_OSX)) && !record->event.pressed) {
           layer_off(_MOD);
           layer_off(_MOD_OSX);
           is_hold_tapdance_disabled = false;
-      } else if (keycode == TD(TD_SPC) && !record->event.pressed) {
+      } else if ((keycode == TD(TD_BSPC) || keycode == TD(TD_BSPC_OSX)) && !record->event.pressed) {
+          touched_td = true;
           layer_off(_RAISE);
+          is_hold_tapdance_disabled = false;
+      } else if ((keycode == TD(TD_LSFT) || keycode == TD(TD_LSFT_OSX)) && !record->event.pressed) {
+          touched_td = true;
+          layer_off(_SHIFT_QWERTY);
+          layer_off(_SHIFT_QWERTY_OSX);
           is_hold_tapdance_disabled = false;
       }
 
@@ -720,7 +770,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           tap_code16(tap_hold->tap);
       }
 
-      if ((keycode == TD(TD_A) || keycode == TD(TD_A_OSX) || keycode == TD(TD_SPC)) && !touched_td && !record->event.pressed && action->state.finished) {
+      if ((keycode == TD(TD_A) || keycode == TD(TD_A_OSX)) && !touched_td && !record->event.pressed && action->state.finished) {
           tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
           tap_code16(tap_hold->tap);
       }
