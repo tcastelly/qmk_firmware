@@ -100,6 +100,7 @@ void tap_dance_tap_hold_finished_permissive(tap_dance_state_t *state, void *user
 }
 
 void tap_dance_tap_hold_reset_layout(tap_dance_state_t *state, void *user_data) {
+    is_hold_tapdance_disabled = false;
 }
 
 void tap_dance_tap_hold_finished_permissive_with_layout(tap_dance_state_t *state, void *user_data) {
@@ -228,7 +229,7 @@ void td_lgui_finished (tap_dance_state_t *state, void *user_data) {
 }
 
 void td_lgui_reset (tap_dance_state_t *state, void *user_data) {
-    is_hold_tapdance_disabled = false;
+    is_hold_tapdance_disabled = true;
 
     switch (xtap_state.state) {
         case SINGLE_TAP:
