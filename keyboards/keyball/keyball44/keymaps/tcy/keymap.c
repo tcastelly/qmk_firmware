@@ -153,7 +153,7 @@ tap_dance_action_t tap_dance_actions[] = {
     [TD_L] = ACTION_TAP_DANCE_TAP_HOLD(KC_L, KC_LCBR),
     [TD_SCLN] = ACTION_TAP_DANCE_TAP_HOLD(KC_SCLN, KC_RCBR),
     [TD_ENT] = ACTION_TAP_DANCE_TAP_HOLD(KC_ENT, KC_LSFT),
-    [TD_RAISE] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_raise_finished, td_raise_reset),
+    [TD_RAISE] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_BSPC, _RAISE),
 
     // same tap-dance
     // enable it for osx and linux

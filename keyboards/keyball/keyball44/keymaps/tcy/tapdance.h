@@ -11,7 +11,6 @@ enum layer_names {
     _ADJUST,
     _ESC,
     _ESC_OSX,
-    _ACCENTS_RALT,
 };
 
 enum custom_keycodes {
@@ -97,11 +96,6 @@ typedef struct {
 extern bool is_hold_tapdance_disabled;
 
 extern void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *user_data);
-
-
-extern void td_raise_reset (tap_dance_state_t *state, void *user_data);
-
-extern void td_raise_finished (tap_dance_state_t *state, void *user_data);
 
 extern void td_lctl_reset (tap_dance_state_t *state, void *user_data);
 

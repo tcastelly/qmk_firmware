@@ -176,52 +176,6 @@ int cur_dance_permissive (tap_dance_state_t *state) {
     return 8;
 }
 
-void td_raise_finished (tap_dance_state_t *state, void *user_data) {
-  xtap_state.state = cur_dance_permissive(state);
-  is_hold_tapdance_disabled = false;
-
-  // quick fix to remove dupplicate RALT
-  unregister_code(KC_LALT);
-  unregister_code(KC_LGUI);
-
-  switch (xtap_state.state) {
-      case SINGLE_TAP:
-          register_code(KC_BSPC);
-          break;
-
-      case SINGLE_HOLD:
-          layer_on(_RAISE);
-          break;
-
-      case DOUBLE_SINGLE_TAP:
-      case DOUBLE_HOLD:
-          register_code(KC_RALT);
-          layer_on(_ACCENTS_RALT);
-          break;
-  }
-}
-
-void td_raise_reset (tap_dance_state_t *state, void *user_data) {
-    is_hold_tapdance_disabled = false;
-
-    switch (xtap_state.state) {
-        case SINGLE_TAP:
-          unregister_code(KC_BSPC);
-          break;
-
-        case SINGLE_HOLD:
-            layer_off(_RAISE);
-            break;
-
-        case DOUBLE_SINGLE_TAP:
-        case DOUBLE_HOLD:
-            unregister_code(KC_RALT);
-            layer_off(_ACCENTS_RALT);
-            break;
-    }
-    xtap_state.state = 0;
-}
-
 void td_lctl_finished (tap_dance_state_t *state, void *user_data) {
   xtap_state.state = cur_dance(state);
   is_hold_tapdance_disabled = false;
