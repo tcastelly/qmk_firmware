@@ -25,3 +25,4 @@ qmk compile -j 0 -kb rollow -km tcy
 qmk compile -j 0 -kb rollow -km tcy_trackpad
 qmk compile -j 0 -kb abitkeys/mc2s_lp -km tcy
 qmk compile -j 0 -kb santoku -km tcy
+qmk compile -j 0 -kb bastardkb/charybdis/3x6 -km tcy
