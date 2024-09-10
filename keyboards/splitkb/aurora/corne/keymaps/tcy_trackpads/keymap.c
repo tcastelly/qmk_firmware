@@ -126,9 +126,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
       _______, QWERTY , QWERTY_OSX  , QWERTY_GAMING, _______, _______,                 _______, _______, _______, _______, _______, QK_BOOT,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-     RGB_TOG, RGB_HUI, RGB_SAI, RGB_VAI, _______, _______,                _______,  _______, _______,  _______, _______, _______,
+     _RGB_TOG, _______, _______, _______, _______, _______,                _______,  _______, _______,  _______, _______, _______,
   //|--------+--------+-     -------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      RGB_MOD, RGB_HUD, RGB_SAD, RGB_VAD, _______, _______,                _______, _______, _______, _______, _______, _______,
+      _______, _______, _______, _______, _______, _______,                _______, _______, _______, _______, _______, _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           _______, _______, _______,    _______, _______, _______
                                       //`--------------------------'  `--------------------------'
@@ -236,6 +236,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         layer_off(_RAISE);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
         is_hold_tapdance_disabled = false;
+      }
+      return false;
+      break;
+
+    case _RGB_TOG:
+      if (record->event.pressed) {
+          if (rgb_matrix_is_enabled()) {
+              rgb_matrix_disable_noeeprom();
+          } else {
+              rgb_matrix_enable_noeeprom();
+          }
       }
       return false;
       break;
@@ -468,11 +479,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
 void keyboard_post_init_user(void) {
+    rgb_matrix_disable_noeeprom();
+
     // default values (true, 1000)
-    pointing_device_set_cpi_on_side(true, 10); //Set cpi on left side to a low value for slower scrolling.
+    pointing_device_set_cpi_on_side(true, 80); //Set cpi on left side to a low value for slower scrolling.
 
     // default values (false 8000)
-    pointing_device_set_cpi_on_side(false, 80); //Set cpi on right side to a reasonable value for mousing.
+    pointing_device_set_cpi_on_side(false, 700); //Set cpi on right side to a reasonable value for mousing.
 }
 
 report_mouse_t pointing_device_task_combined_user(report_mouse_t left_report, report_mouse_t right_report) {
@@ -482,4 +495,13 @@ report_mouse_t pointing_device_task_combined_user(report_mouse_t left_report, re
     left_report.y = 0;
 
     return pointing_device_combine_reports(left_report, right_report);
+}
+
+//Lighting
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    for (uint8_t i = led_min; i < led_max; i++) {
+      rgb_matrix_set_color(i, 50, 15, 0);
+    }
+
+    return false;
 }
