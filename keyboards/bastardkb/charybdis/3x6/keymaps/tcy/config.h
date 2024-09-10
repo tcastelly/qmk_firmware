@@ -1,3 +1,4 @@
 #define TAP_CODE_DELAY 5
 #define TAPPING_TERM 170
 #define TAPPING_TERM_PER_KEY
+#define EE_HANDS
