@@ -68,7 +68,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
     _______, KC_F7,   KC_F8,   ACCENT_C,KC_F10,  KC_F11,                        KC_F12,  KC_NUHS, KC_PGUP, KC_PGDN, _______,  _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                          _______, _______, _______,   _______, _______
+                                          _______, _______, LOWER,   _______, _______
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -120,7 +120,8 @@ tap_dance_action_t tap_dance_actions[] = {
     [TD_L] = ACTION_TAP_DANCE_TAP_HOLD(KC_L, KC_LCBR),
     [TD_SCLN] = ACTION_TAP_DANCE_TAP_HOLD(KC_SCLN, KC_RCBR),
     [TD_ENT] = ACTION_TAP_DANCE_TAP_HOLD(KC_ENT, KC_LSFT),
-    [TD_RAISE] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_BSPC, _RAISE),
+    [TD_RAISE] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_raise_finished, td_raise_reset),
+
 
     // same tap-dance
     // enable it for osx and linux
@@ -458,4 +459,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 void keyboard_post_init_user(void) {
     rgb_matrix_disable_noeeprom();
+}
+
+//Lighting
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    for (uint8_t i = led_min; i < led_max; i++) {
+      rgb_matrix_set_color(i, 50, 15, 0);
+    }
+
+    return false;
 }
