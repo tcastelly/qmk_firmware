@@ -84,7 +84,8 @@ enum {
     TD_LEFT_OSX,
     TD_RIGHT,
     TD_RIGHT_OSX,
-    TD_RAISE
+    TD_RAISE,
+    TD_LOWER
 };
 
 typedef struct {

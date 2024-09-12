@@ -197,6 +197,40 @@ int cur_dance_permissive (tap_dance_state_t *state) {
     return 8;
 }
 
+void td_lower_finished (tap_dance_state_t *state, void *user_data) {
+  xtap_state.state = cur_dance_permissive(state);
+  is_hold_tapdance_disabled = false;
+
+  switch (xtap_state.state) {
+      case SINGLE_TAP:
+      case SINGLE_HOLD:
+          layer_on(_LOWER);
+          break;
+
+      case DOUBLE_SINGLE_TAP:
+      case DOUBLE_HOLD:
+          register_code(KC_LCTL);
+          break;
+  }
+}
+
+void td_lower_reset (tap_dance_state_t *state, void *user_data) {
+    is_hold_tapdance_disabled = false;
+
+    switch (xtap_state.state) {
+        case SINGLE_TAP:
+        case SINGLE_HOLD:
+            layer_off(_LOWER);
+            break;
+
+        case DOUBLE_SINGLE_TAP:
+        case DOUBLE_HOLD:
+            unregister_code(KC_LCTL);
+            break;
+    }
+    xtap_state.state = 0;
+}
+
 void td_raise_finished (tap_dance_state_t *state, void *user_data) {
   xtap_state.state = cur_dance_permissive(state);
   is_hold_tapdance_disabled = false;
