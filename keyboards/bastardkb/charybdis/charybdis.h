@@ -108,4 +108,9 @@ bool charybdis_get_pointer_dragscroll_enabled(void);
  * are translated into horizontal and vertical scroll movements.
  */
 void charybdis_set_pointer_dragscroll_enabled(bool enable);
+
+/**
+ * disable the pointing device
+ */
+void charybdis_set_disable(bool disable);
 #endif // POINTING_DEVICE_ENABLE

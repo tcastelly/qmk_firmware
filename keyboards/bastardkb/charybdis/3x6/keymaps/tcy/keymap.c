@@ -18,7 +18,8 @@
 #include "tapdance.c"
 #include "lib/lib8tion/lib8tion.h"
 
-static bool keep_rgb_off = false;
+static bool keep_rgb_off = true;
+static bool is_rgb_off = true;
 
 static uint32_t key_timer = 0;
 
@@ -149,8 +150,15 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 }
 
 void matrix_scan_user(void) {
-  if (timer_elapsed32(key_timer) > 30000) { // 30 seconds
+  charybdis_set_disable(timer_elapsed32(key_timer) < 250);
+
+  // 30 seconds
+  is_rgb_off = timer_elapsed32(key_timer) > 30000;
+
+  if (is_rgb_off) {
+    rgb_matrix_disable_noeeprom();
   } else if (!keep_rgb_off) {
+    rgb_matrix_enable_noeeprom();
   }
 }
 
@@ -203,9 +211,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case _RGB_TOG:
       if (record->event.pressed) {
           if (rgb_matrix_is_enabled()) {
+              keep_rgb_off = true;
               rgb_matrix_disable_noeeprom();
+              is_rgb_off = true;
           } else {
               rgb_matrix_enable_noeeprom();
+              keep_rgb_off = false;
+              is_rgb_off = false;
           }
       }
       return false;
@@ -468,4 +480,23 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     }
 
     return false;
+}
+
+layer_state_t layer_state_set_user(layer_state_t state) {
+    uint8_t current_layer = get_highest_layer(state);
+
+    charybdis_set_pointer_dragscroll_enabled(current_layer == _LOWER);
+
+    return state;
+}
+
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    bool has_moved = mouse_report.x > 0 || mouse_report.y > 0 || mouse_report.v > 0 || mouse_report.h > 0;
+
+    if (is_rgb_off && !keep_rgb_off && has_moved) {
+      key_timer = timer_read32();  // resets timer
+      rgb_matrix_enable_noeeprom();
+      is_rgb_off = false;
+    }
+    return mouse_report;
 }
