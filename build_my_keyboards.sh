@@ -20,7 +20,7 @@ qmk compile -j 0 -kb crkbd -e CONVERT_TO=promicro_rp2040 -km tcy_trackpad
 
 qmk compile -j 0 -kb keyball/keyball44 -km tcy
 qmk compile -j 0 -kb totem -km tcy
-qmk compile -j 0 -kb nullbitsco/tidbit -km oled
+qmk compile -j 0 -kb nullbitsco/tidbit -km tcy
 qmk compile -j 0 -kb rollow -km tcy
 qmk compile -j 0 -kb rollow -km tcy_trackpad
 qmk compile -j 0 -kb abitkeys/mc2s_lp -km tcy
