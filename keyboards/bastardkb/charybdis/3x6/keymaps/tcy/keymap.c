@@ -150,7 +150,7 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 }
 
 void matrix_scan_user(void) {
-  charybdis_set_disable(timer_elapsed32(key_timer) < 400);
+  charybdis_set_disable(timer_elapsed32(key_timer) < 250);
 
   // 30 seconds
   is_rgb_off = timer_elapsed32(key_timer) > 30000;
