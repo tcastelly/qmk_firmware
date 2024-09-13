@@ -149,8 +149,12 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 }
 
 void matrix_scan_user(void) {
+  charybdis_set_disable(timer_elapsed32(key_timer) < 400)
+
   if (timer_elapsed32(key_timer) > 30000) { // 30 seconds
+    rgb_matrix_disable_noeeprom();
   } else if (!keep_rgb_off) {
+    rgb_matrix_enable_noeeprom();
   }
 }
 
@@ -203,9 +207,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case _RGB_TOG:
       if (record->event.pressed) {
           if (rgb_matrix_is_enabled()) {
+              keep_rgb_off = true;
               rgb_matrix_disable_noeeprom();
           } else {
               rgb_matrix_enable_noeeprom();
+              keep_rgb_off = false;
           }
       }
       return false;
@@ -468,4 +474,10 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     }
 
     return false;
+}
+
+layer_state_t layer_state_set_user(layer_state_t state) {
+    uint8_t current_layer = get_highest_layer(state);
+
+    charybdis_set_pointer_dragscroll_enabled(current_layer == _LOWER);
 }

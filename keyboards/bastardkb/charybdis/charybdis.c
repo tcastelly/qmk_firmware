@@ -54,6 +54,7 @@
 typedef union {
     uint8_t raw;
     struct {
+        bool    is_disabled : 5;
         uint8_t pointer_default_dpi : 4; // 16 steps available.
         uint8_t pointer_sniping_dpi : 2; // 4 steps available.
         bool    is_dragscroll_enabled : 1;
@@ -73,6 +74,7 @@ static charybdis_config_t g_charybdis_config = {0};
  */
 static void read_charybdis_config_from_eeprom(charybdis_config_t* config) {
     config->raw                   = eeconfig_read_kb() & 0xff;
+    config->is_disabled = false;
     config->is_dragscroll_enabled = false;
     config->is_sniping_enabled    = false;
 }
@@ -176,6 +178,10 @@ void charybdis_set_pointer_dragscroll_enabled(bool enable) {
     maybe_update_pointing_device_cpi(&g_charybdis_config);
 }
 
+void charybdis_set_disable(bool disable) {
+    g_charybdis_config.is_disabled = disable;
+}
+
 /**
  * \brief Augment the pointing device behavior.
  *
@@ -184,6 +190,10 @@ void charybdis_set_pointer_dragscroll_enabled(bool enable) {
 static void pointing_device_task_charybdis(report_mouse_t* mouse_report) {
     static int16_t scroll_buffer_x = 0;
     static int16_t scroll_buffer_y = 0;
+    if (g_charybdis_config->is_disabled) {
+        return;
+    }
+
     if (g_charybdis_config.is_dragscroll_enabled) {
 #    ifdef CHARYBDIS_DRAGSCROLL_REVERSE_X
         scroll_buffer_x -= mouse_report->x;
