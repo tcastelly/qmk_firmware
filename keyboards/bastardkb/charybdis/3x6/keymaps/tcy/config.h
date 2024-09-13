@@ -4,3 +4,6 @@
 
 #define SPLIT_ACTIVITY_ENABLE
 #define SPLIT_TRANSPORT_MIRROR
+
+#undef MASTER_RIGHT
+#define EE_HANDS

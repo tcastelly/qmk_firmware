@@ -54,7 +54,7 @@
 typedef union {
     uint8_t raw;
     struct {
-        bool    is_disabled : 5;
+        bool    is_disabled : 1;
         uint8_t pointer_default_dpi : 4; // 16 steps available.
         uint8_t pointer_sniping_dpi : 2; // 4 steps available.
         bool    is_dragscroll_enabled : 1;
@@ -190,7 +190,11 @@ void charybdis_set_disable(bool disable) {
 static void pointing_device_task_charybdis(report_mouse_t* mouse_report) {
     static int16_t scroll_buffer_x = 0;
     static int16_t scroll_buffer_y = 0;
-    if (g_charybdis_config->is_disabled) {
+    if (g_charybdis_config.is_disabled) {
+        mouse_report->h = 0;
+        mouse_report->v = 0;
+        mouse_report->x = 0;
+        mouse_report->y = 0;
         return;
     }
 
