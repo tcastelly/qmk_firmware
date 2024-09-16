@@ -56,6 +56,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     )
 };
 
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    return true;
+}
+
 #ifdef ENCODER_MAP_ENABLE
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [0] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU), ENCODER_CCW_CW(_______, _______), ENCODER_CCW_CW(_______, _______), ENCODER_CCW_CW(_______, _______), },
@@ -69,15 +73,15 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 oled_rotation_t oled_init_user(oled_rotation_t rotation) { return OLED_ROTATION_180; }
 
 bool oled_task_user(void) {
-    oled_set_cursor(0, 0);
+    oled_set_cursor(2, 0);
     sprintf(wpm, "Je" );
     oled_write(wpm, false);
 
-    oled_set_cursor(4, 1);
+    oled_set_cursor(7, 1);
     sprintf(wpm, "t'aime" );
     oled_write(wpm, false);
 
-    oled_set_cursor(13, 2);
+    oled_set_cursor(16, 2);
     sprintf(wpm, "<3" );
     oled_write(wpm, false);
 
