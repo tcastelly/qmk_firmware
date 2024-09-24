@@ -320,6 +320,10 @@ bool oled_task_user(void) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     tap_dance_action_t *action;
+
+    bool layer = get_highest_layer(layer_state);
+    bool can_update_tp = layer == _QWERTY || layer == _QWERTY_OSX;
+
     switch (keycode) {
         case SHFT_KEY:
             if (is_pinky_shift_keys_active) {
@@ -452,15 +456,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         // set max speed Trackpoint
         case KC_LSFT:
-            if (record->event.pressed) {
-                acceleration_setting_backup = acceleration_setting;
-                linear_reduction_setting_backup = linear_reduction_setting;
+            if (can_update_tp) {
+                if (record->event.pressed) {
+                    acceleration_setting_backup = acceleration_setting;
+                    linear_reduction_setting_backup = linear_reduction_setting;
 
-                acceleration_setting = 5;
-                linear_reduction_setting = 5;
-            } else {
-                acceleration_setting = acceleration_setting_backup;
-                linear_reduction_setting = acceleration_setting_backup;
+                    acceleration_setting = 5;
+                    linear_reduction_setting = 5;
+                } else {
+                    acceleration_setting = acceleration_setting_backup;
+                    linear_reduction_setting = acceleration_setting_backup;
+                }
             }
             return true;
             break;
@@ -678,13 +684,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case TD(TD_RIGHT):
         case TD(TD_RIGHT_OSX):
             if ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && !record->event.pressed) {
-                acceleration_setting = acceleration_setting_backup;
-                linear_reduction_setting = acceleration_setting_backup;
+                if (can_update_tp) {
+                    acceleration_setting = acceleration_setting_backup;
+                    linear_reduction_setting = acceleration_setting_backup;
+                }
 
                 layer_off(_ESC);
                 layer_off(_ESC_OSX);
                 is_hold_tapdance_disabled = false;
-            } else if((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && record->event.pressed) {
+            } else if(can_update_tp && ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && record->event.pressed)) {
                   acceleration_setting_backup = acceleration_setting;
                   linear_reduction_setting_backup = linear_reduction_setting;
 
