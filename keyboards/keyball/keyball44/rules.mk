@@ -2,7 +2,7 @@
 MCU = atmega32u4
 
 # Bootloader selection
-BOOTLOADER = caterina
+BOOTLOADER = atmel-dfu
 
 # Link Time Optimization required for size.
 LTO_ENABLE = yes
