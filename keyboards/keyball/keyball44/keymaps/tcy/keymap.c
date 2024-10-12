@@ -72,7 +72,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
     _______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,                        KC_F12,  S(KC_NUHS), KC_HOME, KC_END, _______, _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                        _______, _______, _______, _______, _______,             KC_MS_BTN1, KC_MS_BTN1, _______, _______, _______
+                        _______, _______, _______, QK_BOOT, _______,             KC_MS_BTN1, KC_MS_BTN1, _______, _______, _______
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -84,7 +84,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
     _______, KC_F7,   KC_F8,   ACCENT_C,KC_F10,  KC_F11,                        KC_F12,  KC_NUHS, KC_PGUP, KC_PGDN, _______,  _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                        _______, _______, _______, _______, _______,             _______, _______, _______, _______, _______
+                        _______, _______, _______, _______, _______,             QK_BOOT, _______, _______, _______, _______
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -517,20 +517,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 #ifdef OLED_ENABLE
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-    if (is_keyboard_master()) {
-        return OLED_ROTATION_180;
-    }
+    // if (is_keyboard_master()) {
+    //     return OLED_ROTATION_180;
+    // }
 
-    return rotation;
+    // return rotation;
+    return OLED_ROTATION_180;
 }
 #endif
-
-uint16_t keycode_config(uint16_t keycode) {
-    return keycode;
-}
-uint8_t mod_config(uint8_t mod) {
-    return mod;
-}
 
 void keyboard_pre_init_user(void) {
   set_bitc_LED(LED_OFF);

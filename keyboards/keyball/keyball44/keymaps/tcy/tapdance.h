@@ -11,7 +11,6 @@ enum layer_names {
     _ADJUST,
     _ESC,
     _ESC_OSX,
-    _ACCENTS_RALT,
 };
 
 enum custom_keycodes {
@@ -51,10 +50,7 @@ enum {
   SINGLE_HOLD = 2, // should use tap_dance_tap_hold_t instead
   DOUBLE_TAP = 3,
   DOUBLE_HOLD = 4,
-  DOUBLE_SINGLE_TAP = 5, //send two single taps
-  TRIPLE_TAP = 6,
-  TRIPLE_HOLD = 7,
-  TRIPLE_SINGLE_TAP = 8
+  DOUBLE_SINGLE_TAP = 5 //send two single taps
 };
 
 // custom tap dance
@@ -96,12 +92,11 @@ typedef struct {
 
 extern bool is_hold_tapdance_disabled;
 
-extern void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *user_data);
-
-
 extern void td_raise_reset (tap_dance_state_t *state, void *user_data);
 
 extern void td_raise_finished (tap_dance_state_t *state, void *user_data);
+
+extern void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *user_data);
 
 extern void td_lctl_reset (tap_dance_state_t *state, void *user_data);
 

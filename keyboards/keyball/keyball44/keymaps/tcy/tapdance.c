@@ -120,17 +120,6 @@ int cur_dance (tap_dance_state_t *state) {
             return DOUBLE_TAP;
         }
     }
-    else if (state->count == 3) {
-        if (state->interrupted) {
-            return TRIPLE_SINGLE_TAP;
-        }
-        else if (state->pressed) {
-            return TRIPLE_HOLD;
-        }
-        else {
-            return TRIPLE_TAP;
-        }
-    }
 
     //magic number. At some point this method will expand to work for more presses
     return 8;
@@ -160,17 +149,6 @@ int cur_dance_permissive (tap_dance_state_t *state) {
             return DOUBLE_TAP;
         }
     }
-    else if (state->count == 3) {
-        if (state->interrupted) {
-            return TRIPLE_SINGLE_TAP;
-        }
-        else if (state->pressed) {
-            return TRIPLE_HOLD;
-        }
-        else {
-            return TRIPLE_TAP;
-        }
-    }
 
     //magic number. At some point this method will expand to work for more presses
     return 8;
@@ -196,7 +174,6 @@ void td_raise_finished (tap_dance_state_t *state, void *user_data) {
       case DOUBLE_SINGLE_TAP:
       case DOUBLE_HOLD:
           register_code(KC_RALT);
-          layer_on(_ACCENTS_RALT);
           break;
   }
 }
@@ -216,7 +193,6 @@ void td_raise_reset (tap_dance_state_t *state, void *user_data) {
         case DOUBLE_SINGLE_TAP:
         case DOUBLE_HOLD:
             unregister_code(KC_RALT);
-            layer_off(_ACCENTS_RALT);
             break;
     }
     xtap_state.state = 0;
