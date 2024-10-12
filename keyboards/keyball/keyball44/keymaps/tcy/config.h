@@ -36,3 +36,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define TAP_CODE_DELAY 5
 #define TAPPING_TERM 170
 // #define TAPPING_TERM_PER_KEY
+
+// #undef MASTER_LEFT
+// #define MASTER_RIGHT

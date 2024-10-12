@@ -526,13 +526,6 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 }
 #endif
 
-uint16_t keycode_config(uint16_t keycode) {
-    return keycode;
-}
-uint8_t mod_config(uint8_t mod) {
-    return mod;
-}
-
 void keyboard_pre_init_user(void) {
   set_bitc_LED(LED_OFF);
 }
