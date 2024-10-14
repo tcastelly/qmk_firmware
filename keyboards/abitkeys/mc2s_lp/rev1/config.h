@@ -15,3 +15,5 @@
 /* Locking resynchronize hack */
 #define LOCKING_RESYNC_ENABLE
 
+/* fix OSX wakeup */
+#define USB_SUSPEND_WAKEUP_DELAY 200
