@@ -2,7 +2,7 @@
     "manufacturer": "Thomas CASTELLY",
     "keyboard_name": "tcy/noam_hatsu",
     "maintainer": "Thomas CASTELLY",
-    "diode_direction": "ROW2COL",
+    "diode_direction": "COL2ROW",
     "features": {
         "bootmagic": true,
         "command": false,
@@ -23,7 +23,7 @@
     },
     "matrix_pins": {
         "cols": ["GP21", "GP23", "GP20", "GP22", "GP26", "GP27", "GP28", "GP29"],
-        "rows": ["GP5", "GP6", "GP7", "GP4"]
+        "rows": ["GP4", "GP5", "GP6", "GP7"]
     },
     "url": "",
     "usb": {
@@ -88,11 +88,11 @@
                 {"matrix": [6, 6], "x": 2,  "y": 14},
                 {"matrix": [6, 7], "x": 2,  "y": 15},
 
-                {"matrix": [3, 2], "x": 3,  "y": 2 },
-                {"matrix": [3, 3], "x": 3,  "y": 3 },
+                {"matrix": [3, 4], "x": 3,  "y": 2 },
+                {"matrix": [3, 5], "x": 3,  "y": 3 },
 
-                {"matrix": [7, 2], "x": 3,  "y": 13},
-                {"matrix": [7, 3], "x": 3,  "y": 12}
+                {"matrix": [7, 4], "x": 3,  "y": 13},
+                {"matrix": [7, 5], "x": 3,  "y": 12}
             ]
         }
     }
