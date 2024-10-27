@@ -29,4 +29,4 @@ qmk compile -j 0 -kb bastardkb/charybdis/3x6 -km tcy
 qmk compile -j 0 -kb meishi_trackball -km tcy
 
 qmk compile -j 0 -kb tcy/noam_hatsu -km test
-qmk flash -j 0 -kb tcy/noam_hatsu -km test -bl uf2-split-right
+# qmk flash -j 0 -kb tcy/noam_hatsu -km test -bl uf2-split-right
