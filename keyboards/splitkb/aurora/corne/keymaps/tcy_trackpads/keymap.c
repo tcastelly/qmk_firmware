@@ -485,7 +485,7 @@ void keyboard_post_init_user(void) {
     pointing_device_set_cpi_on_side(true, 80); //Set cpi on left side to a low value for slower scrolling.
 
     // default values (false 8000)
-    pointing_device_set_cpi_on_side(false, 600); //Set cpi on right side to a reasonable value for mousing.
+    pointing_device_set_cpi_on_side(false, 500); //Set cpi on right side to a reasonable value for mousing.
 }
 
 report_mouse_t pointing_device_task_combined_user(report_mouse_t left_report, report_mouse_t right_report) {
