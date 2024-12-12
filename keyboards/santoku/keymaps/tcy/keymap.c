@@ -47,9 +47,13 @@ Trackpoint:
 
 #define NUM_DISPLAY_ROWS 4
 
+static uint32_t key_timer = 0;
+static bool disable_tp = false;
+static bool can_update_tp = true;
+
 // Scroll declarations
 // Variables to store accumulated scroll values
-static bool  is_scrolling = false;
+static bool is_scrolling = false;
 float scroll_accumulated_h = 0;
 float scroll_accumulated_v = 0;
 
@@ -198,7 +202,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         {KC_TILD, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,                       KC_CIRC, KC_AMPR,    KC_ASTR,    KC_LPRN, KC_RPRN, KC_DEL},
         {KC_CAPS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                         KC_F6,   KC_MINS,    KC_PLUS,    KC_LCBR, KC_RCBR, KC_PIPE},
         {_______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,                        KC_F12,  S(KC_NUHS), KC_HOME, KC_END, _______, TOGGLE_OLED},
-        {___x___,  ___x___,      ___x___,      _______, _______, _______,    KC_MS_BTN1, _______, _______,       ___x___,      ___x___,        ___x___}},
+        {___x___,  ___x___,      ___x___,      _______, KC_MS_BTN1, KC_MS_BTN2,    KC_MS_BTN1, KC_MS_BTN2, _______,       ___x___,      ___x___,        ___x___}},
 
     [_RAISE] =
     {/*QWERTY Raise*/
@@ -212,7 +216,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         {ACCENT_GRAVE, ACCENT_GRAVE, _______, ACCENT_E_GRAVE, JET_RNM, _______,    ACCENT_CIRCUM, KC_WH_D, KC_WH_U, JET_OPTI, JET_FORMAT_OSX, TD(TD_DEL_OSX)},
         {_______, ACCENT_A_GRAVE, _______, _______, JET_FIND, _______,              TD(TD_LEFT_OSX), KC_DOWN, KC_UP,  TD(TD_RIGHT_OSX), _______, ACCENT_TREMA},
         {_______, _______, _______, _______, _______, _______,                     _______,KC_KB_MUTE,_______, _______, _______,  _______},
-        {___x___,  ___x___,      ___x___,      _______, _______,KC_MS_BTN2, KC_MS_BTN1, _______,       ___x___,      ___x___,         ___x___}},
+        {___x___,  ___x___,      ___x___,      _______, KC_MS_BTN1 ,KC_MS_BTN2, KC_MS_BTN1, KC_MS_BTN2,       ___x___,      ___x___,         ___x___}},
 
     [_ESC] =
     {/*ESC*/
@@ -321,8 +325,7 @@ bool oled_task_user(void) {
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     tap_dance_action_t *action;
 
-    bool layer = get_highest_layer(layer_state);
-    bool can_update_tp = layer == _QWERTY || layer == _QWERTY_OSX;
+    key_timer = timer_read32();  // resets timer
 
     switch (keycode) {
         case SHFT_KEY:
@@ -458,6 +461,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case KC_LSFT:
             if (can_update_tp) {
                 if (record->event.pressed) {
+                    can_update_tp = false;
+
                     acceleration_setting_backup = acceleration_setting;
                     linear_reduction_setting_backup = linear_reduction_setting;
 
@@ -466,6 +471,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 } else {
                     acceleration_setting = acceleration_setting_backup;
                     linear_reduction_setting = acceleration_setting_backup;
+
+                    can_update_tp = true;
                 }
             }
             return true;
@@ -684,15 +691,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case TD(TD_RIGHT):
         case TD(TD_RIGHT_OSX):
             if ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && !record->event.pressed) {
-                if (can_update_tp) {
-                    acceleration_setting = acceleration_setting_backup;
-                    linear_reduction_setting = acceleration_setting_backup;
-                }
+                acceleration_setting = acceleration_setting_backup;
+                linear_reduction_setting = acceleration_setting_backup;
+                can_update_tp = true;
 
                 layer_off(_ESC);
                 layer_off(_ESC_OSX);
                 is_hold_tapdance_disabled = false;
             } else if(can_update_tp && ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && record->event.pressed)) {
+                  can_update_tp = false;
+
                   acceleration_setting_backup = acceleration_setting;
                   linear_reduction_setting_backup = linear_reduction_setting;
 
@@ -721,6 +729,14 @@ void rotate_mouse_coordinates_optimized(uint16_t angle, report_mouse_t *mouse_re
 // TODO: Move the mouse acceleration and speed code into a separate function, like rotate_mouse_coordinates()
 // TODO: If possible, don't convert values back to int between functions. Keep as floats, round one time at the end.
 void ps2_mouse_moved_user(report_mouse_t *mouse_report) {
+    if (disable_tp) {
+        mouse_report->x = 0;
+        mouse_report->y = 0;
+        mouse_report->v = 0;
+        mouse_report->h = 0;
+        return;
+    }
+
     scale_mouse_vector(mouse_report);
     rotate_mouse_coordinates(mouse_rotation_angle, mouse_report);
 
@@ -1129,6 +1145,14 @@ tap_dance_action_t tap_dance_actions[] = {
     [TD_RALT_OSX] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_osx_finished, td_ralt_osx_reset),
     [TD_RALT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_finished, td_ralt_reset)
 };
+
+void matrix_scan_user(void) {
+  if (timer_elapsed32(key_timer) > 200) {
+      disable_tp = false;
+  } else {
+      disable_tp = true;
+  }
+}
 
 // Set a long-ish tapping term for tap-dance keys
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
