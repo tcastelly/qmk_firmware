@@ -48,8 +48,8 @@ Trackpoint:
 #define NUM_DISPLAY_ROWS 4
 
 static uint32_t key_timer = 0;
+static uint32_t tp_timer = 0;
 static bool disable_tp = false;
-static bool can_update_tp = true;
 
 // Scroll declarations
 // Variables to store accumulated scroll values
@@ -261,34 +261,42 @@ bool oled_task_user(void) {
     switch (get_highest_layer(layer_state)) {
         case _ADJUST:
             oled_write_ln_P(PSTR("       ADJUST       "), true);
+            disable_tp = true;
             break;
 
         case _LOWER:
             oled_write_ln_P(PSTR("       LOWER        "), true);
+            disable_tp = true;
             break;
 
         case _RAISE:
             oled_write_ln_P(PSTR("       RAISE        "), true);
+            disable_tp = true;
             break;
 
         case _QWERTY:
             oled_write_ln_P(PSTR("       QWERTY       "), true);
+            disable_tp = false;
             break;
 
         case _QWERTY_OSX:
             oled_write_ln_P(PSTR("     QWERTY OSX     "), true);
+            disable_tp = false;
             break;
 
         case _QWERTY_GAMING:
             oled_write_ln_P(PSTR("    QWERTY Gaming   "), true);
+            disable_tp = true;
             break;
 
         case _ESC:
             oled_write_ln_P(PSTR("        ESC         "), true);
+            disable_tp = true;
             break;
 
         case _ESC_OSX:
             oled_write_ln_P(PSTR("      ESC OSX       "), true);
+            disable_tp = true;
             break;
 
         case _ACCENTS_RALT:
@@ -296,6 +304,7 @@ bool oled_task_user(void) {
             break;
 
         case _SETTINGS:
+            disable_tp = true;
             oled_write_ln_P(PSTR("      Options       "), true);
             oled_write_ln_P(PSTR(""), false);
             update_settings_display();
@@ -326,6 +335,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     tap_dance_action_t *action;
 
     key_timer = timer_read32();  // resets timer
+                                 //
+    if (!record->event.pressed) {
+        acceleration_setting = acceleration_setting_backup;
+        linear_reduction_setting = acceleration_setting_backup;
+    }
 
     switch (keycode) {
         case SHFT_KEY:
@@ -459,20 +473,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         // set max speed Trackpoint
         case KC_LSFT:
-            if (can_update_tp) {
+            if (!disable_tp) {
                 if (record->event.pressed) {
-                    can_update_tp = false;
-
+                    disable_tp = true;
                     acceleration_setting_backup = acceleration_setting;
                     linear_reduction_setting_backup = linear_reduction_setting;
 
                     acceleration_setting = 5;
                     linear_reduction_setting = 5;
                 } else {
-                    acceleration_setting = acceleration_setting_backup;
-                    linear_reduction_setting = acceleration_setting_backup;
-
-                    can_update_tp = true;
+                    disable_tp = false;
                 }
             }
             return true;
@@ -691,16 +701,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case TD(TD_RIGHT):
         case TD(TD_RIGHT_OSX):
             if ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && !record->event.pressed) {
-                acceleration_setting = acceleration_setting_backup;
-                linear_reduction_setting = acceleration_setting_backup;
-                can_update_tp = true;
+                disable_tp = false;
 
                 layer_off(_ESC);
                 layer_off(_ESC_OSX);
                 is_hold_tapdance_disabled = false;
-            } else if(can_update_tp && ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && record->event.pressed)) {
-                  can_update_tp = false;
-
+            } else if(!disable_tp && ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && record->event.pressed)) {
+                  disable_tp = true;
                   acceleration_setting_backup = acceleration_setting;
                   linear_reduction_setting_backup = linear_reduction_setting;
 
@@ -775,6 +782,8 @@ void ps2_mouse_moved_user(report_mouse_t *mouse_report) {
         if ((mouse_report->v != 0 || mouse_report->h != 0) && drag_scroll_counter % drag_scroll_speed_values[drag_scroll_speed_setting] != 0) {
             mouse_report->v = 0;
             mouse_report->h = 0;
+
+            tp_timer = timer_read32();  // resets timer
         }
     }
 }
@@ -1147,6 +1156,12 @@ tap_dance_action_t tap_dance_actions[] = {
 };
 
 void matrix_scan_user(void) {
+  // after a while, reset the tp acceleration
+  // if (timer_elapsed32(tp_timer) > 3000) {
+  //     acceleration_setting = 2;
+  //     linear_reduction_setting = 2;
+  // }
+
   if (timer_elapsed32(key_timer) > 200) {
       disable_tp = false;
   } else {
