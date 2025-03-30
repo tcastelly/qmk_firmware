@@ -2,7 +2,9 @@
 #include "tapdance.c"
 #include "lib/lib8tion/lib8tion.h"
 
-static bool           is_scrolling        = false;
+static bool scrolling_mode = false;
+
+static bool lock_mode = false;
 
 // switch off the power light of the liatris controller
 void keyboard_pre_init_user(void) {
@@ -58,7 +60,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
     _______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,                        KC_F12,  S(KC_NUHS), KC_HOME, KC_END, _______, _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                          _______, _______, _______,    KC_MS_BTN1, _______, _______
+                                          _______, QK_BOOT, _______,  KC_MS_BTN1, _______, _______
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -70,7 +72,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
     _______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,                        KC_F12,  KC_NUHS, KC_PGUP, KC_PGDN, _______,  _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                          _______, _______, _______,    _______, _______, _______
+                                          _______, _______, _______,    _______, _______, QK_BOOT
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -209,20 +211,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case LOWER:
       if (record->event.pressed) {
         is_hold_tapdance_disabled = true;
+        lock_mode = true;
         layer_on(_LOWER);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
-
-        // enable scroll
-        is_scrolling = true;
       } else {
+        lock_mode = false;
         layer_off(_LOWER);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
         is_hold_tapdance_disabled = false;
-
-        // disable scroll
-        if (is_scrolling) {  // check if we were scrolling before and set disable if so
-            is_scrolling = false;
-        }
       }
       return false;
       break;
@@ -468,6 +464,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           is_hold_tapdance_disabled = false;
       }
 
+      if (keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) {
+          scrolling_mode = record->event.pressed;
+      }
+
       action = &tap_dance_actions[TD_INDEX(keycode)];
       if (!record->event.pressed && action->state.count && !action->state.finished) {
           tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
@@ -495,6 +495,34 @@ report_mouse_t pointing_device_task_combined_user(report_mouse_t left_report, re
     left_report.y = 0;
 
     return pointing_device_combine_reports(left_report, right_report);
+}
+
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    if (scrolling_mode) {
+        // Calculate and accumulate scroll values based on mouse movement and divisors
+        scroll_accumulated_h += (float)mouse_report.x / SCROLL_DIVISOR_H;
+        scroll_accumulated_v += (float)mouse_report.y / SCROLL_DIVISOR_V;
+
+        // Assign integer parts of accumulated scroll values to the mouse report
+        mouse_report.h = (int8_t)scroll_accumulated_h;
+        mouse_report.v = (int8_t)scroll_accumulated_v;
+
+        // Update accumulated scroll values by subtracting the integer parts
+        scroll_accumulated_h -= (int8_t)scroll_accumulated_h;
+        scroll_accumulated_v -= (int8_t)scroll_accumulated_v;
+
+        // Clear the X and Y values of the mouse report
+        mouse_report.x = 0;
+        mouse_report.y = 0;
+    }
+
+    if (lock_mode) {
+        mouse_report.h = 0;
+        mouse_report.v = 0;
+        mouse_report.x = 0;
+        mouse_report.y = 0;
+    }
+    return mouse_report;
 }
 
 //Lighting
