@@ -475,7 +475,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           is_hold_tapdance_disabled = false;
       }
 
-     if (keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) {
+      if (keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) {
           scrolling_mode = record->event.pressed;
       }
 
