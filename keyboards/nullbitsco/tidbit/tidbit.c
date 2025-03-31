@@ -77,47 +77,47 @@ bool oled_task_kb(void) {
 //     set_bitc_LED(led_state.num_lock ? LED_DIM : LED_OFF);
 // }
 
-// bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
-//     process_record_remote_kb(keycode, record);
-//     if (!process_record_user(keycode, record)) return false;
-//
-//     // Get the current NLCK status & set if not set.
-//     // Only do this once, in case user has a NLCK key
-//     // and wants to disable it later on.
-//     if (!numlock_set && record->event.pressed) {
-//         led_t led_state = host_keyboard_led_state();
-//         if (!led_state.num_lock) {
-//             register_code(KC_NUM_LOCK);
-//         }
-//         numlock_set = true;
-//     }
-//
-//     switch (keycode) {
-//         case QK_BOOT:
-//             if (record->event.pressed) {
-//                 set_bitc_LED(LED_DIM);
-//                 rgblight_disable_noeeprom();
-//                 #ifdef OLED_ENABLE
-//                 oled_off();
-//                 #endif
-//                 bootloader_jump();  // jump to bootloader
-//             }
-//             return false;
-//
-//         default:
-//             break;
-//     }
-//
-//     return true;
-// }
-//
-// void matrix_init_kb(void) {
-//     set_bitc_LED(LED_OFF);
-//     matrix_init_remote_kb();
-//     matrix_init_user();
-// }
-//
-// void matrix_scan_kb(void) {
-//     matrix_scan_remote_kb();
-//     matrix_scan_user();
-// }
+/**
+bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
+    process_record_remote_kb(keycode, record);
+    if (!process_record_user(keycode, record)) return false;
+
+    // Get the current NLCK status & set if not set.
+    // Only do this once, in case user has a NLCK key
+    // and wants to disable it later on.
+    if (!numlock_set && record->event.pressed) {
+        led_t led_state = host_keyboard_led_state();
+        if (!led_state.num_lock) {
+            register_code(KC_NUM_LOCK);
+        }
+        numlock_set = true;
+    }
+
+    return true;
+}
+
+void matrix_init_kb(void) {
+    set_bitc_LED(LED_OFF);
+    matrix_init_remote_kb();
+    matrix_init_user();
+}
+
+void matrix_scan_kb(void) {
+    matrix_scan_remote_kb();
+    matrix_scan_user();
+}
+**/
+
+bool shutdown_kb(bool jump_to_bootloader) {
+    if (!shutdown_user(jump_to_bootloader)) {
+        return false;
+    }
+
+    set_bitc_LED(LED_DIM);
+    rgblight_disable_noeeprom();
+#ifdef OLED_ENABLE
+    oled_off();
+#endif
+    return true;
+}
+>>>>>>> bc42a7ea8980c1d135ac6f2d2ec194e3e7355bfe
