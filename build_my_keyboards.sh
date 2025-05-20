@@ -27,3 +27,6 @@ qmk compile -j 0 -kb abitkeys/mc2s_lp -km tcy
 qmk compile -j 0 -kb santoku -km tcy
 qmk compile -j 0 -kb bastardkb/charybdis/3x6 -km tcy
 qmk compile -j 0 -kb meishi_trackball -km tcy
+
+# TCY keyboards
+qmk compile -j 0 -kb tcy/tp_pg1316s -km tcy
