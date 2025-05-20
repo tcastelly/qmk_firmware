@@ -24,5 +24,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* Select hand configuration */
 
-#define OLED_TIMEOUT 30000
+#define PS2_PIO_USE_PIO1 // Force the usage of PIO1 peripheral, by default the PS2 implementation uses the PIO0 peripheral
+
+#define I2C1_SCL_PIN GP3
+#define I2C1_SDA_PIN GP2
+
+#define AZOTEQ_IQS5XX_TPS65
+#define AZOTEQ_IQS5XX_ROTATION_270
 

@@ -1,2 +1,2 @@
 TAP_DANCE_ENABLE = yes
-OLED_ENABLE = no
+OLED_ENABLE = yes
