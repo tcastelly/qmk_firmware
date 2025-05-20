@@ -17,6 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include QMK_KEYBOARD_H
+#include <math.h>
+#include "ps2_mouse.h"
 #include "tapdance.c"
 
 #ifdef OLED_ENABLE
@@ -28,12 +30,33 @@ enum oled_modes {
   OLED_OFF,
 };
 
+static uint32_t tp_timer = 0;
+
+static bool scrolling_mode = false;
+
+static bool disable_tp = false;
+
+static bool lock_mode = false;
+
 int8_t oled_mode = OLED_BONGO_LAYOUT;
 
 // prevent the oled to comeback on after typing
 bool keep_oled_off = false;
 
 static uint32_t key_timer = 0;
+
+// Trackpoint dynamic speed controls
+uint16_t mouse_rotation_angle           = 350;
+
+uint8_t drag_scroll_speed_setting       = 2;
+uint8_t drag_scroll_speed_values[6]     = {8, 7, 6, 5, 4, 3};
+
+uint8_t acceleration_setting            = 2;
+float   acceleration_values[6]          = {0.6f, 0.8f, 1.0f, 1.2f, 1.4f, 1.6f};
+
+uint8_t linear_reduction_setting        = 2;
+float   linear_reduction_values[6]      = {80.0f, 2.2f, 2.0f, 1.8f, 1.6f, 1.4f};
+//
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT(
@@ -235,9 +258,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case LOWER:
       if (record->event.pressed) {
         is_hold_tapdance_disabled = true;
+        lock_mode = true;
         layer_on(_LOWER);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
       } else {
+        lock_mode = false;
         layer_off(_LOWER);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
         is_hold_tapdance_disabled = false;
@@ -503,10 +528,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case TD(TD_LEFT_OSX):
     case TD(TD_RIGHT):
     case TD(TD_RIGHT_OSX):
-      if ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && !record->event.pressed) {
-          layer_off(_ESC);
-          layer_off(_ESC_OSX);
-          is_hold_tapdance_disabled = false;
+       if ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && !record->event.pressed) {
+         disable_tp = false;
+
+         layer_off(_ESC);
+         layer_off(_ESC_OSX);
+         is_hold_tapdance_disabled = false;
+      } else if(!disable_tp && ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && record->event.pressed)) {
+        disable_tp = true;
       }
 
       action = &tap_dance_actions[TD_INDEX(keycode)];
@@ -542,9 +571,13 @@ void matrix_scan_user(void) {
     } else {
       oled_off();
     }
+
+    if (timer_elapsed32(key_timer) > 200) {
+        disable_tp = false;
+    } else {
+        disable_tp = true;
+    }
 }
-
-
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
     return OLED_ROTATION_270;
@@ -564,3 +597,192 @@ bool oled_task_user(void) {
     return false;
 }
 #endif
+
+//
+// trackpad
+//
+
+// Modify these values to adjust the scrolling speed
+#define SCROLL_DIVISOR_H 8.0
+#define SCROLL_DIVISOR_V 8.0
+
+// Variables to store accumulated scroll values
+float scroll_accumulated_h = 0;
+float scroll_accumulated_v = 0;
+
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    if (scrolling_mode) {
+        // Calculate and accumulate scroll values based on mouse movement and divisors
+        scroll_accumulated_h += (float)mouse_report.x / SCROLL_DIVISOR_H;
+        scroll_accumulated_v += (float)mouse_report.y / SCROLL_DIVISOR_V;
+
+        // Assign integer parts of accumulated scroll values to the mouse report
+        mouse_report.h = (int8_t)scroll_accumulated_h;
+        mouse_report.v = (int8_t)scroll_accumulated_v;
+
+        // Update accumulated scroll values by subtracting the integer parts
+        scroll_accumulated_h -= (int8_t)scroll_accumulated_h;
+        scroll_accumulated_v -= (int8_t)scroll_accumulated_v;
+
+        // Clear the X and Y values of the mouse report
+        mouse_report.x = 0;
+        mouse_report.y = 0;
+    }
+
+    if (lock_mode) {
+        mouse_report.h = 0;
+        mouse_report.v = 0;
+        mouse_report.x = 0;
+        mouse_report.y = 0;
+    }
+    return mouse_report;
+}
+
+void keyboard_post_init_user(void) {
+    pointing_device_set_cpi(350);
+}
+
+// Fast approximation for square root
+inline float fast_approximate_square_root(float input_number) {
+  uint32_t bit_representation;
+  float half_input = input_number;
+  float approximate_result;
+  const float constant_for_approximation = 1.5F;
+
+  half_input = input_number * 0.5F;
+  approximate_result = input_number;
+
+  // Safe float-to-int reinterpretation
+  memcpy(&bit_representation, &approximate_result, sizeof(bit_representation));
+
+  bit_representation = 0x5f3759df - (bit_representation >> 1);
+
+  // Safe int-to-float reinterpretation
+  memcpy(&approximate_result, &bit_representation, sizeof(approximate_result));
+
+  approximate_result = approximate_result * (constant_for_approximation - (half_input * approximate_result * approximate_result));
+
+  return 1.0f / approximate_result;
+}
+
+inline float fast_approximate_power(float base_value, float exponent_value) {
+    union {
+        float float_value;
+        int int_value;
+    } union_representation = { base_value };
+
+    union_representation.int_value = (int)(exponent_value * (union_representation.int_value - 1064866805) + 1064866805);
+
+    return union_representation.float_value;
+}
+
+void scale_mouse_vector(report_mouse_t *mouse_report) {
+    // The math below turns the Trackpoint x and y reports (movements) into a vector and scales the vector with some trigonometry.
+    // This allows the user to dynamically adjust the mouse cursor sensitivity to their liking.
+    // It also results in arguably smoother movement than just multiplying the x and y values by some fixed value.
+    // (and yeah, there's some unnecessary/redundant math going here. I'm hoping to lay the foundation for things like software adjustable negative inertia.)
+        float hypotenuse        = sqrt((mouse_report->x * mouse_report->x) + (mouse_report->y * mouse_report->y));
+        float scaled_hypotenuse = pow(hypotenuse, acceleration_values[acceleration_setting]) / linear_reduction_values[linear_reduction_setting];
+        float angle             = atan2(mouse_report->y, mouse_report->x);
+        mouse_report->x += (scaled_hypotenuse * cos(angle));
+        mouse_report->y += (scaled_hypotenuse * sin(angle));
+
+}
+
+
+void rotate_mouse_coordinates_optimized(uint16_t angle, report_mouse_t *mouse_report) {
+    if (angle == 0) {
+        return;
+    }
+
+    // Pre-calculate conversion factor; this assumes angle rarely changes
+    static float last_angle = 0;
+    static float precomputed_cosine = 1.0;
+    static float precomputed_sine = 0.0;
+    if (last_angle != angle) {
+        static const float degree_to_radian_conversion = 0.017453f;
+        float radians = angle * degree_to_radian_conversion;
+        precomputed_cosine = cos(radians);
+        precomputed_sine = sin(radians);
+        last_angle = angle;
+    }
+
+    // Cache current x and y coordinates to reduce memory access
+    int cached_mouse_x = mouse_report->x;
+    int cached_mouse_y = mouse_report->y;
+
+    // Use precomputed trigonometric values
+    mouse_report->x = round(precomputed_cosine * cached_mouse_x - precomputed_sine * cached_mouse_y);
+    mouse_report->y = round(precomputed_sine * cached_mouse_x + precomputed_cosine * cached_mouse_y);
+}
+
+void rotate_mouse_coordinates(uint16_t angle, report_mouse_t *mouse_report) {
+    if (angle == 0) {
+        return;
+    }
+    // because pi/180 = 0.017453
+    static const float degree = 0.017453f;
+
+    float radians = angle * degree;
+
+    // Need to save these values because we rewrite mouse_report->x immediately but reuse the value to find the rotated y value
+    int current_x = mouse_report->x;
+    int current_y = mouse_report->y;
+
+    // Calculate rotated x & y, convert back to an int
+    mouse_report->x = round(cos(radians) * current_x - sin(radians) * current_y);
+    mouse_report->y = round(sin(radians) * current_x + cos(radians) * current_y);
+}
+
+void ps2_mouse_moved_user(report_mouse_t *mouse_report) {
+    if (disable_tp) {
+        mouse_report->x = 0;
+        mouse_report->y = 0;
+        mouse_report->v = 0;
+        mouse_report->h = 0;
+        return;
+    }
+
+    scale_mouse_vector(mouse_report);
+    rotate_mouse_coordinates(mouse_rotation_angle, mouse_report);
+
+    if (scrolling_mode) {
+        // Calculate and accumulate scroll values based on mouse movement and divisors
+        scroll_accumulated_h += (float)mouse_report->x / PS2_MOUSE_SCROLL_DIVISOR_H;
+        scroll_accumulated_v += (float)mouse_report->y / PS2_MOUSE_SCROLL_DIVISOR_V;
+
+        // Assign integer parts of accumulated scroll values to the mouse report
+        mouse_report->h = (int8_t)scroll_accumulated_h;
+        mouse_report->v = (int8_t)scroll_accumulated_v;
+
+        // Update accumulated scroll values by subtracting the integer parts
+        scroll_accumulated_h -= (int8_t)scroll_accumulated_h;
+        scroll_accumulated_v -= (int8_t)scroll_accumulated_v;
+
+        // Clear the X and Y values of the mouse report
+        mouse_report->x = 0;
+        mouse_report->y = 0;
+
+        // Invert scrolling direction
+        mouse_report->h = -mouse_report->h;
+        mouse_report->v = -mouse_report->v;
+
+        // Send mouse report
+        pointing_device_set_report(*mouse_report);
+        pointing_device_send();
+    } else{
+        // Drag scrolling with the Trackpoint is reported so often that it makes the feature unusable without slowing it down.
+        // The below code only reports when the counter is evenly divisible by the chosen integer speed.
+        // Skipping reports is technically, probably, not ideal. I'd like to find a way to send a slower speed without skipping.
+        // As is, however, it works well and is user configurable from the Options screen.
+        // TODO: Break out into dedicated function
+        static uint16_t drag_scroll_counter = 0;
+        drag_scroll_counter == 40320 ? drag_scroll_counter = 0 : drag_scroll_counter++ ; // Because 8!==40320 (allows clean mod divisibility and avoids scrolling surge when resetting to 0)
+        if ((mouse_report->v != 0 || mouse_report->h != 0) && drag_scroll_counter % drag_scroll_speed_values[drag_scroll_speed_setting] != 0) {
+            mouse_report->v = 0;
+            mouse_report->h = 0;
+
+            tp_timer = timer_read32();  // resets timer
+        }
+    }
+}
