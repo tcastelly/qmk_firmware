@@ -87,67 +87,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   )
 };
 
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  tap_dance_action_t *action;
-
-  switch (keycode) {
-        case CUST_RGB:
-          if (record->event.pressed) {
-            layer_on(_CUST_RGB);
-          } else {
-            layer_off(_CUST_RGB);
-          }
-          return false;
-          break;
-
-        case ADJUST:
-          if (record->event.pressed) {
-            layer_on(_ADJUST);
-          } else {
-            layer_off(_ADJUST);
-          }
-          return false;
-          break;
-
-        case QWERTY:
-          if (record->event.pressed) {
-            set_single_persistent_default_layer(_QWERTY);
-          }
-          return false;
-          break;
-
-        case KC_LALT:
-        case KC_LGUI:
-        case KC_LSFT:
-          if (record->event.pressed) {
-              is_hold_tapdance_disabled = true;
-          } else {
-              is_hold_tapdance_disabled = false;
-          }
-          return true;
-          break;
-
-        case TD(TD_O):  // list all tap dance keycodes with tap-hold configurations
-        case TD(TD_ESC):
-        case TD(TD_TAB):
-        case TD(TD_P):
-        case TD(TD_L):
-        case TD(TD_SCLN):
-          if (keycode == TD(TD_ESC) && !record->event.pressed) {
-              layer_off(_ARROWS);
-              is_hold_tapdance_disabled = false;
-          }
-
-          action = &tap_dance_actions[TD_INDEX(keycode)];
-          if (!record->event.pressed && action->state.count && !action->state.finished) {
-              tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
-              tap_code16(tap_hold->tap);
-          }
-          break;
-      }
-    return true;
-};
-
 void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
@@ -210,5 +149,66 @@ tap_dance_action_t tap_dance_actions[] = {
     [TD_P] = ACTION_TAP_DANCE_TAP_HOLD(KC_P, KC_RPRN),
     [TD_L] = ACTION_TAP_DANCE_TAP_HOLD(KC_L, KC_LCBR),
     [TD_SCLN] = ACTION_TAP_DANCE_TAP_HOLD(KC_SCLN, KC_RCBR),
+};
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  tap_dance_action_t *action;
+
+  switch (keycode) {
+        case CUST_RGB:
+          if (record->event.pressed) {
+            layer_on(_CUST_RGB);
+          } else {
+            layer_off(_CUST_RGB);
+          }
+          return false;
+          break;
+
+        case ADJUST:
+          if (record->event.pressed) {
+            layer_on(_ADJUST);
+          } else {
+            layer_off(_ADJUST);
+          }
+          return false;
+          break;
+
+        case QWERTY:
+          if (record->event.pressed) {
+            set_single_persistent_default_layer(_QWERTY);
+          }
+          return false;
+          break;
+
+        case KC_LALT:
+        case KC_LGUI:
+        case KC_LSFT:
+          if (record->event.pressed) {
+              is_hold_tapdance_disabled = true;
+          } else {
+              is_hold_tapdance_disabled = false;
+          }
+          return true;
+          break;
+
+        case TD(TD_O):  // list all tap dance keycodes with tap-hold configurations
+        case TD(TD_ESC):
+        case TD(TD_TAB):
+        case TD(TD_P):
+        case TD(TD_L):
+        case TD(TD_SCLN):
+          if (keycode == TD(TD_ESC) && !record->event.pressed) {
+              layer_off(_ARROWS);
+              is_hold_tapdance_disabled = false;
+          }
+
+          action = &tap_dance_actions[QK_TAP_DANCE_GET_INDEX(keycode)];
+          if (!record->event.pressed && action->state.count && !action->state.finished) {
+              tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
+              tap_code16(tap_hold->tap);
+          }
+          break;
+      }
+    return true;
 };
 

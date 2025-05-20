@@ -106,7 +106,6 @@ void matrix_scan_kb(void) {
     matrix_scan_remote_kb();
     matrix_scan_user();
 }
-**/
 
 bool shutdown_kb(bool jump_to_bootloader) {
     if (!shutdown_user(jump_to_bootloader)) {
@@ -120,4 +119,4 @@ bool shutdown_kb(bool jump_to_bootloader) {
 #endif
     return true;
 }
->>>>>>> bc42a7ea8980c1d135ac6f2d2ec194e3e7355bfe
+**/
