@@ -1,0 +1,5 @@
+POINTING_DEVICE_ENABLE = yes
+POINTING_DEVICE_DRIVER = azoteq_iqs5xx
+
+AUDIO_ENABLE = yes
+AUDIO_DRIVER = pwm_hardware
