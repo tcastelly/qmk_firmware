@@ -51,3 +51,8 @@ https://docs.qmk.fm/#/faq_keymap?id=arrow-on-right-modifier-keys-with-dual-role 
 
 };
 
+bool oled_task_user(void) {
+    oled_write_P(PSTR("Hello World!"), false);
+    return false;
+}
+

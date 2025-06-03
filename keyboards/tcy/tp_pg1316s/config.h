@@ -32,3 +32,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define AZOTEQ_IQS5XX_TPS65
 #define AZOTEQ_IQS5XX_ROTATION_270
 
+#define AUDIO_PIN GP19
+#define AUDIO_PWM_DRIVER PWMD1
+#define AUDIO_PWM_CHANNEL RP2040_PWM_CHANNEL_B
+
+#define AUDIO_VOICES
+#define AUDIO_DAC_SAMPLE_MAX 4095U
+#define AUDIO_VOICE_DEFAULT butts_fader
+
+#ifdef AUDIO_ENABLE
+  #define STARTUP_SOUND E__NOTE(_E6), E__NOTE(_A6), ED_NOTE(_E7),
+#endif
+
+#define OLED_DISPLAY_WIDTH 96
+#define OLED_DISPLAY_HEIGHT 16

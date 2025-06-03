@@ -30,6 +30,8 @@ enum oled_modes {
   OLED_OFF,
 };
 
+float layer_sound_on[][2] = SONG(STARTUP_SOUND);
+
 static uint32_t tp_timer = 0;
 
 static bool scrolling_mode = false;
@@ -46,7 +48,7 @@ bool keep_oled_off = false;
 static uint32_t key_timer = 0;
 
 // Trackpoint dynamic speed controls
-uint16_t mouse_rotation_angle           = 350;
+uint16_t mouse_rotation_angle           = 250;
 
 uint8_t drag_scroll_speed_setting       = 2;
 uint8_t drag_scroll_speed_values[6]     = {8, 7, 6, 5, 4, 3};
@@ -556,32 +558,32 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
 #ifdef OLED_ENABLE
-void matrix_scan_user(void) {
-    if (keep_oled_off) {
-        oled_off();
-        return;
-    }
-
-    if (is_keyboard_master()) {
-        if (timer_elapsed32(key_timer) > 30000) { // 30 seconds
-            oled_mode = OLED_OFF;
-        } else {
-            oled_mode = OLED_BONGO_LAYOUT;
-        }
-    } else {
-      oled_off();
-    }
-
-    if (timer_elapsed32(key_timer) > 200) {
-        disable_tp = false;
-    } else {
-        disable_tp = true;
-    }
-}
-
-oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-    return OLED_ROTATION_270;
-}
+// void matrix_scan_user(void) {
+//     if (keep_oled_off) {
+//         oled_off();
+//         return;
+//     }
+// 
+//     if (is_keyboard_master()) {
+//         if (timer_elapsed32(key_timer) > 30000) { // 30 seconds
+//             oled_mode = OLED_OFF;
+//         } else {
+//             oled_mode = OLED_BONGO_LAYOUT;
+//         }
+//     } else {
+//       oled_off();
+//     }
+// 
+//     if (timer_elapsed32(key_timer) > 200) {
+//         disable_tp = false;
+//     } else {
+//         disable_tp = true;
+//     }
+// }
+// 
+// oled_rotation_t oled_init_user(oled_rotation_t rotation) {
+//     return OLED_ROTATION_270;
+// }
 
 bool oled_task_user(void) {
     switch (oled_mode) {
@@ -639,7 +641,11 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 }
 
 void keyboard_post_init_user(void) {
+    PLAY_SONG(layer_sound_on);
+
+#ifdef POINTING_DEVICE_ENABLE
     pointing_device_set_cpi(350);
+#endif
 }
 
 // Fast approximation for square root
@@ -768,8 +774,10 @@ void ps2_mouse_moved_user(report_mouse_t *mouse_report) {
         mouse_report->v = -mouse_report->v;
 
         // Send mouse report
+#ifdef POINTING_DEVICE_ENABLE
         pointing_device_set_report(*mouse_report);
         pointing_device_send();
+#endif
     } else{
         // Drag scrolling with the Trackpoint is reported so often that it makes the feature unusable without slowing it down.
         // The below code only reports when the counter is evenly divisible by the chosen integer speed.
