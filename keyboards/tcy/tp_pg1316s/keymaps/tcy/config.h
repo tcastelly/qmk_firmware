@@ -24,8 +24,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* Select hand configuration */
 
-#define OLED_TIMEOUT 30000
-
 // defines for making the Trackpoint more fluid
 #define PS2_MOUSE_USE_REMOTE_MODE
 
@@ -38,8 +36,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PS2_MOUSE_BTN_MIDDLE    2
 
 #define PS2_MOUSE_INIT_DELAY 1000 /* Default */
-
-
 
 #ifdef PS2_USE_USART
 /* synchronous, odd parity, 1-bit stop, 8-bit data, sample at falling edge */

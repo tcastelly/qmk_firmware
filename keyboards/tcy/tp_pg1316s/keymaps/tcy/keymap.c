@@ -22,15 +22,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "tapdance.c"
 
 #ifdef OLED_ENABLE
-  #include "bongo.h"
+  #include "minimal_oled.h"
 #endif
 
 enum oled_modes {
   OLED_BONGO_LAYOUT,
+  OLED_MINIMAL,
   OLED_OFF,
 };
 
+enum buzz_modes {
+  BUZZ_ON,
+  BUZZ_OFF,
+};
+
+#ifdef AUDIO_ENABLE
 float layer_sound_on[][2] = SONG(STARTUP_SOUND);
+#endif
 
 static uint32_t tp_timer = 0;
 
@@ -40,7 +48,9 @@ static bool disable_tp = false;
 
 static bool lock_mode = false;
 
-int8_t oled_mode = OLED_BONGO_LAYOUT;
+int8_t oled_mode = OLED_MINIMAL;
+
+int8_t buzz_mode = BUZZ_OFF;
 
 // prevent the oled to comeback on after typing
 bool keep_oled_off = false;
@@ -53,10 +63,10 @@ uint16_t mouse_rotation_angle           = 250;
 uint8_t drag_scroll_speed_setting       = 2;
 uint8_t drag_scroll_speed_values[6]     = {8, 7, 6, 5, 4, 3};
 
-uint8_t acceleration_setting            = 2;
-float   acceleration_values[6]          = {0.6f, 0.8f, 1.0f, 1.2f, 1.4f, 1.6f};
+uint8_t acceleration_setting            = 6;
+float   acceleration_values[7]          = {0.6f, 0.8f, 1.0f, 1.2f, 1.4f, 1.6f, 2.4f};
 
-uint8_t linear_reduction_setting        = 2;
+uint8_t linear_reduction_setting        = 5;
 float   linear_reduction_values[6]      = {80.0f, 2.2f, 2.0f, 1.8f, 1.6f, 1.4f};
 //
 
@@ -173,7 +183,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
       RGB_TOG, QWERTY , QWERTY_OSX  , QWERTY_GAMING, _______, _______,                 _______, _______, _______, _______, _______, QK_BOOT,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-     TOGGLE_OLED, RGB_HUI, RGB_SAI, RGB_VAI, _______, _______,                _______,  _______, _______,  _______, _______, _______,
+     TOGGLE_OLED, RGB_HUI, RGB_SAI, RGB_VAI, _______, _______,                _______,  _______, _______,  _______, _______, TOGGLE_BUZZ,
   //|--------+--------+-     -------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       RGB_MOD, RGB_HUD, RGB_SAD, RGB_VAD, _______, _______,                _______, _______, _______, _______, _______, _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
@@ -234,6 +244,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   tap_dance_action_t *action;
 
   key_timer = timer_read32();  // resets timer
+                               //
+#ifdef AUDIO_ENABLE
+  if (!record->event.pressed && buzz_mode == BUZZ_ON) {
+    PLAY_SONG(layer_sound_on);
+  }
+#endif
 
   switch (keycode) {
     case QWERTY:
@@ -505,8 +521,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                oled_mode = OLED_OFF;
                keep_oled_off = true;
            } else {
-               oled_mode = OLED_BONGO_LAYOUT;
+               oled_mode = OLED_MINIMAL;
                keep_oled_off = false;
+           }
+       }
+       return false;
+       break;
+
+     case TOGGLE_BUZZ:
+       if (record->event.pressed) {
+           if (buzz_mode != BUZZ_OFF) {
+               buzz_mode = BUZZ_OFF;
+           } else {
+               buzz_mode = BUZZ_ON;
            }
        }
        return false;
@@ -540,6 +567,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         disable_tp = true;
       }
 
+      if (keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) {
+          scrolling_mode = record->event.pressed;
+      }
+
       action = &tap_dance_actions[TD_INDEX(keycode)];
       if (!record->event.pressed && action->state.count && !action->state.finished) {
           tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
@@ -558,42 +589,32 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
 #ifdef OLED_ENABLE
-// void matrix_scan_user(void) {
-//     if (keep_oled_off) {
-//         oled_off();
-//         return;
-//     }
-// 
-//     if (is_keyboard_master()) {
-//         if (timer_elapsed32(key_timer) > 30000) { // 30 seconds
-//             oled_mode = OLED_OFF;
-//         } else {
-//             oled_mode = OLED_BONGO_LAYOUT;
-//         }
-//     } else {
-//       oled_off();
-//     }
-// 
-//     if (timer_elapsed32(key_timer) > 200) {
-//         disable_tp = false;
-//     } else {
-//         disable_tp = true;
-//     }
-// }
-// 
-// oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-//     return OLED_ROTATION_270;
-// }
+void matrix_scan_user(void) {
+    if (timer_elapsed32(key_timer) > 200) {
+        disable_tp = false;
+    } else {
+        disable_tp = true;
+    }
+
+    if (timer_elapsed32(key_timer) > 30000) { // 30 seconds
+      oled_mode = OLED_OFF;
+    } else if (!keep_oled_off) {
+      oled_mode = OLED_MINIMAL;
+    }
+}
+
+oled_rotation_t oled_init_user(oled_rotation_t rotation) {
+    return OLED_ROTATION_180;
+}
 
 bool oled_task_user(void) {
     switch (oled_mode) {
-        case OLED_BONGO_LAYOUT:
-            oled_clear();
-            draw_bongo();
+        case OLED_MINIMAL:
+            draw_minimal();
             break;
         default:
         case OLED_OFF:
-            oled_off();
+            _oled_off();
             break;
     }
     return false;
@@ -641,8 +662,8 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 }
 
 void keyboard_post_init_user(void) {
-    PLAY_SONG(layer_sound_on);
-
+  oled_off();
+  draw_minimal();
 #ifdef POINTING_DEVICE_ENABLE
     pointing_device_set_cpi(350);
 #endif

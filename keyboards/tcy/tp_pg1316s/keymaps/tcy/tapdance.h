@@ -30,6 +30,8 @@ enum custom_keycodes {
   ACCENT_E_GRAVE,
   ACCENT_A_GRAVE,
 
+  TOGGLE_BUZZ,
+
   TOGGLE_OLED,
   TOGGLE_OLED_WPM,
   TOGGLE_OLED_LAYOUT,

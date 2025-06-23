@@ -44,5 +44,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   #define STARTUP_SOUND E__NOTE(_E6), E__NOTE(_A6), ED_NOTE(_E7),
 #endif
 
-#define OLED_DISPLAY_WIDTH 96
-#define OLED_DISPLAY_HEIGHT 16
+// defines for tuning the OLED
+#define OLED_TIMEOUT 15000
+#define OLED_UPDATE_INTERVAL 100
+#define OLED_FADE_OUT
+#define OLED_FADE_OUT_INTERVAL 2
+#define OLED_UPDATE_PROCESS_LIMIT 4
+
+// Does not work
+// #define OLED_DISPLAY_WIDTH 96
+// #define OLED_DISPLAY_HEIGHT 16
+
+// Use this instead
+#define OLED_WIDTH 96
+#define OLED_HEIGHT 16
+
+// #define PS2_MOUSE_X_MULTIPLIER 3
+// #define PS2_MOUSE_Y_MULTIPLIER 3
+// #define PS2_MOUSE_V_MULTIPLIER 1
