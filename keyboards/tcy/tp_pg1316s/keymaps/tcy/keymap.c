@@ -64,7 +64,7 @@ uint8_t drag_scroll_speed_setting       = 2;
 uint8_t drag_scroll_speed_values[6]     = {8, 7, 6, 5, 4, 3};
 
 uint8_t acceleration_setting            = 6;
-float   acceleration_values[7]          = {0.6f, 0.8f, 1.0f, 1.2f, 1.4f, 1.6f, 2.0f};
+float   acceleration_values[7]          = {0.6f, 0.8f, 1.0f, 1.2f, 1.4f, 1.6f, 1.8f};
 
 uint8_t linear_reduction_setting        = 5;
 float   linear_reduction_values[7]      = {80.0f, 2.2f, 2.0f, 1.8f, 1.6f, 1.4f, 0.4f};
