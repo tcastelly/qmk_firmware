@@ -59,6 +59,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define OLED_WIDTH 96
 #define OLED_HEIGHT 16
 
-// #define PS2_MOUSE_X_MULTIPLIER 3
-// #define PS2_MOUSE_Y_MULTIPLIER 3
-// #define PS2_MOUSE_V_MULTIPLIER 1
+#define PS2_MOUSE_X_MULTIPLIER 1
+#define PS2_MOUSE_Y_MULTIPLIER 1
+#define PS2_MOUSE_V_MULTIPLIER 2
