@@ -12,7 +12,7 @@
         "console": false,
         "extrakey": true,
         "mousekey": true,
-        "nkro": true
+        "rgb_matrix": true
     },
     "url": "",
     "usb": {
@@ -32,7 +32,7 @@
         }
     },
     "matrix_pins": {
-        "cols": [ "GP29", "GP28", "GP27", "GP26", "GP22", "GP23" ],
+        "cols": [ "GP20", "GP22", "GP26", "GP27", "GP28", "GP29" ],
         "rows": [ "GP4", "GP5", "GP6", "GP7" ]
     },
     "rgblight": {
@@ -44,6 +44,7 @@
         "driver": "vendor"
     },
     "rgb_matrix": {
+        "driver": "ws2812",
         "split_count": [27, 27],
         "layout": [
             {"x": 85, "y": 16, "flags": 2},

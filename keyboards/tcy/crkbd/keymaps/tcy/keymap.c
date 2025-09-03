@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include QMK_KEYBOARD_H
 #include <math.h>
+#include "timer.h"
 #include "tapdance.c"
 
 #ifdef OLED_ENABLE
@@ -37,6 +38,8 @@ int8_t oled_mode = OLED_BONGO_LAYOUT;
 
 // prevent the oled to comeback on after typing
 bool keep_oled_off = false;
+
+bool keep_rgb_off = true;
 
 static uint32_t key_timer = 0;
 
@@ -151,7 +154,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_ADJUST] = LAYOUT(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      RGB_TOG, QWERTY , QWERTY_OSX  , QWERTY_GAMING, _______, _______,                 _______, _______, _______, _______, _______, QK_BOOT,
+      _RGB_TOG, QWERTY , QWERTY_OSX  , QWERTY_GAMING, _______, _______,                 _______, _______, _______, _______, _______, QK_BOOT,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
      TOGGLE_OLED, RGB_HUI, RGB_SAI, RGB_VAI, _______, _______,                _______,  _______, _______,  _______, _______, _______,
   //|--------+--------+-     -------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
@@ -214,6 +217,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   tap_dance_action_t *action;
 
   key_timer = timer_read32();  // resets timer
+                               
+  if (!keep_rgb_off && !rgb_matrix_is_enabled()) {
+    rgb_matrix_enable_noeeprom();
+  }
 
   switch (keycode) {
     case QWERTY:
@@ -273,6 +280,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         return true;
         break;
 #endif
+
+    case _RGB_TOG:
+      if (record->event.pressed) {
+          if (rgb_matrix_is_enabled()) {
+              rgb_matrix_disable_noeeprom();
+              keep_rgb_off = true;
+          } else {
+              rgb_matrix_enable_noeeprom();
+              keep_rgb_off = false;
+          }
+      }
+      return false;
+      break;
 
     case KC_LALT:
     case KC_LGUI:
@@ -516,6 +536,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
          is_hold_tapdance_disabled = false;
       }
 
+      if (keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) {
+          scrolling_mode = record->event.pressed;
+      }
+
       action = &tap_dance_actions[TD_INDEX(keycode)];
       if (!record->event.pressed && action->state.count && !action->state.finished) {
           tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
@@ -533,8 +557,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   return true;
 }
 
-#ifdef OLED_ENABLE
 void matrix_scan_user(void) {
+#ifdef OLED_ENABLE
     if (keep_oled_off) {
         oled_off();
         return;
@@ -549,8 +573,16 @@ void matrix_scan_user(void) {
     } else {
       oled_off();
     }
+#endif
+
+    if (timer_elapsed32(key_timer) > RGB_MATRIX_TIMEOUT) {
+        if (rgb_matrix_is_enabled()) {
+            rgb_matrix_disable();
+        }
+    }
 }
 
+#ifdef OLED_ENABLE
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
     return OLED_ROTATION_270;
 }
@@ -610,6 +642,58 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
     return mouse_report;
 }
 
-void keyboard_post_init_user(void) {
-    pointing_device_set_cpi(350);
+report_mouse_t pointing_device_task_combined_user(report_mouse_t left_report, report_mouse_t right_report) {
+    // Pimoroni (left) → scroll
+    // Calculate and accumulate scroll values based on mouse movement and divisors
+    scroll_accumulated_h += (float)left_report.x / SCROLL_DIVISOR_H;
+    scroll_accumulated_v += (float)left_report.y / SCROLL_DIVISOR_V;
+
+    // Assign integer parts of accumulated scroll values to the mouse report
+    if (is_keyboard_left()) {
+      left_report.h = (int8_t)scroll_accumulated_h;
+    } else {
+      left_report.h = 0;
+    }
+    left_report.v = (int8_t)scroll_accumulated_v;
+
+    // Update accumulated scroll values by subtracting the integer parts
+    if (is_keyboard_left()) {
+      scroll_accumulated_h -= (int8_t)scroll_accumulated_h;
+    }
+    scroll_accumulated_v -= (int8_t)scroll_accumulated_v;
+
+    // Clear the X and Y values of the mouse report
+    left_report.x = 0;
+    left_report.y = 0;
+
+    // Azoteq (right) just acts as mouse
+    return pointing_device_combine_reports(left_report, pointing_device_task_user(right_report));
 }
+
+void keyboard_post_init_user(void) {
+    if (keep_rgb_off) {
+      rgb_matrix_disable_noeeprom();
+    }
+
+    if (is_keyboard_left()) {
+      pointing_device_set_cpi_on_side(true, 10000); //Set cpi on left side to a low value for slower scrolling.
+    } else {
+      pointing_device_set_cpi_on_side(true, 30000); //Set cpi on left side to a low value for slower scrolling.
+    }
+
+    pointing_device_set_cpi_on_side(false, 349); //Set cpi on right side to a reasonable value for mousing.
+}
+
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    for (uint8_t i = led_min; i < led_max; i++) {
+      // orange
+      // rgb_matrix_set_color(i, 50, 15, 0);
+
+      // purple
+      rgb_matrix_set_color(i, 50, 0, 50); // purple
+
+    }
+
+    return false;
+}
+
