@@ -26,7 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 enum oled_modes {
-  OLED_BONGO_LAYOUT,
   OLED_MINIMAL,
   OLED_OFF,
 };
@@ -65,11 +64,11 @@ uint8_t drag_scroll_speed_values[6]     = {8, 7, 6, 5, 4, 3};
 
 #define MIN_ACCELERATION_SETTING         1;
 #define MAX_ACCELERATION_SETTING         6;
-#define DEFAULT_ACCELERATION_SETTING     5;
+#define DEFAULT_ACCELERATION_SETTING     4;
 uint8_t acceleration_setting            = DEFAULT_ACCELERATION_SETTING;
 float   acceleration_values[7]          = {0.6f, 0.8f, 1.0f, 1.2f, 1.4f, 1.6f, 1.8f};
 
-uint8_t linear_reduction_setting        = 4;
+uint8_t linear_reduction_setting        = 3;
 float   linear_reduction_values[7]      = {80.0f, 2.2f, 2.0f, 1.8f, 1.6f, 1.4f, 0.4f};
 //
 
