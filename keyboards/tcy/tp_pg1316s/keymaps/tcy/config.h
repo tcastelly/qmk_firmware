@@ -69,3 +69,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PS2_USART_ERROR         (UCSR1A & ((1<<FE1) | (1<<DOR1) | (1<<UPE1)))
 #define PS2_USART_RX_VECT       USART1_RX_vect
 #endif
+
+#define MIN_ACCELERATION_SETTING         1;
+#define MAX_ACCELERATION_SETTING         6;
+#define DEFAULT_ACCELERATION_SETTING     5;

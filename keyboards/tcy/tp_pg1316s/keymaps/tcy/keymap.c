@@ -41,8 +41,6 @@ float layer_sound_on[][2] = SONG(STARTUP_SOUND);
 
 static uint32_t tp_timer = 0;
 
-static bool scrolling_mode = false;
-
 static bool disable_tp = false;
 
 static bool lock_mode = false;
@@ -62,10 +60,6 @@ uint16_t mouse_rotation_angle           = 250;
 uint8_t drag_scroll_speed_setting       = 2;
 uint8_t drag_scroll_speed_values[6]     = {8, 7, 6, 5, 4, 3};
 
-#define MIN_ACCELERATION_SETTING         1;
-#define MAX_ACCELERATION_SETTING         6;
-#define DEFAULT_ACCELERATION_SETTING     4;
-uint8_t acceleration_setting            = DEFAULT_ACCELERATION_SETTING;
 float   acceleration_values[7]          = {0.6f, 0.8f, 1.0f, 1.2f, 1.4f, 1.6f, 1.8f};
 
 uint8_t linear_reduction_setting        = 3;
@@ -243,8 +237,6 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  acceleration_setting = DEFAULT_ACCELERATION_SETTING;
-
   tap_dance_action_t *action;
 
   key_timer = timer_read32();  // resets timer
@@ -321,7 +313,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           acceleration_setting = MAX_ACCELERATION_SETTING;
           is_hold_tapdance_disabled = true;
       } else {
+          acceleration_setting = DEFAULT_ACCELERATION_SETTING;
           is_hold_tapdance_disabled = false;
+
+          // OSX needs less speed
+          if (get_highest_layer(layer_state) == _QWERTY_OSX) {
+            acceleration_setting -= 1;
+          }
       }
       return true;
       break;
@@ -574,9 +572,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
       if (keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) {
           scrolling_mode = record->event.pressed;
-          if (scrolling_mode) {
-            acceleration_setting = MIN_ACCELERATION_SETTING;
-          }
       }
 
       action = &tap_dance_actions[TD_INDEX(keycode)];

@@ -25,35 +25,39 @@ static void draw_minimal(void)
 
   oled_set_cursor(6, 0);       // Set cursor to origin
                                //
+  char buf[32];  // temporary buffer for formatted string
   switch (current_layer) {
       case _QWERTY:
-          oled_write_P(PSTR("Q              "), false);
+          snprintf(buf, sizeof(buf), "Q             %d", acceleration_setting);
           break;
       case _QWERTY_OSX:
-          oled_write_P(PSTR("Q-OSX          "), false);
+          snprintf(buf, sizeof(buf), "Q-OSX         %d", acceleration_setting);
           break;
       case _ESC:
-          oled_write_P(PSTR("ESC            "), false);
+          snprintf(buf, sizeof(buf), "ESC           %d", acceleration_setting);
           break;
       case _ESC_OSX:
-          oled_write_P(PSTR("ESC-OSX        "), false);
+          snprintf(buf, sizeof(buf), "ESC-OSX       %d", acceleration_setting);
           break;
       case _LOWER:
-          oled_write_P(PSTR("Lower          "), false);
+          snprintf(buf, sizeof(buf), "Lower          ");
           break;
       case _RAISE:
-          oled_write_P(PSTR("Raise          "), false);
+          snprintf(buf, sizeof(buf), "Raise          ");
           break;
       case _ADJUST:
-          oled_write_P(PSTR("Adjust         "), false);
+          snprintf(buf, sizeof(buf), "Adjust         ");
           break;
       case _ACCENTS_RALT:
-          oled_write_P(PSTR("Accents        "), false);
+          snprintf(buf, sizeof(buf), "Accents        ");
           break;
       default:
-          oled_write_P(PSTR( "               "), false);
+          snprintf(buf, sizeof(buf), "               ");
           break;
+
   }
+
+  oled_write(buf, false);
 
   oled_set_cursor(6, 1);       // Set cursor to last available point
   if (is_kc_caps) {
@@ -65,6 +69,23 @@ static void draw_minimal(void)
 
 layer_state_t layer_state_set_user(layer_state_t state) {
     current_layer = get_highest_layer(state);
+
+    switch (current_layer) {
+      case _QWERTY_OSX:
+        // OSX needs less speed
+        acceleration_setting = DEFAULT_ACCELERATION_SETTING;
+        acceleration_setting -= 1;
+        break;
+      case _ESC:
+      case _ESC_OSX:
+        if (scrolling_mode) {
+          acceleration_setting = MIN_ACCELERATION_SETTING;
+        }
+        break;
+      default:
+        acceleration_setting = DEFAULT_ACCELERATION_SETTING;
+        break;
+    }
 
     return state;
 }

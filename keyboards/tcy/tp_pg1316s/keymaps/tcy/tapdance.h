@@ -3,6 +3,10 @@
 
 bool touched_td;
 
+uint8_t acceleration_setting = DEFAULT_ACCELERATION_SETTING;
+
+bool scrolling_mode = false;
+
 enum layer_names {
     _QWERTY,
     _QWERTY_OSX,
