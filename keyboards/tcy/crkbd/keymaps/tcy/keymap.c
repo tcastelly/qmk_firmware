@@ -41,6 +41,10 @@ bool keep_oled_off = false;
 
 bool keep_rgb_off = true;
 
+uint16_t last_run = 0;
+
+bool toggled_startup_rgb  = false;
+
 static uint32_t key_timer = 0;
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -575,10 +579,12 @@ void matrix_scan_user(void) {
     }
 #endif
 
-    if (timer_elapsed32(key_timer) > RGB_MATRIX_TIMEOUT) {
-        if (rgb_matrix_is_enabled()) {
-            rgb_matrix_disable();
-        }
+    // x sec after starupt switch off rgb
+    if ((timer_elapsed(last_run) > 4000 && !toggled_startup_rgb) || (timer_elapsed32(key_timer) > RGB_MATRIX_TIMEOUT)) {
+      toggled_startup_rgb = true;
+      if (rgb_matrix_is_enabled()) {
+        rgb_matrix_disable_noeeprom();
+      }
     }
 }
 
@@ -671,9 +677,13 @@ report_mouse_t pointing_device_task_combined_user(report_mouse_t left_report, re
 }
 
 void keyboard_post_init_user(void) {
+    last_run = timer_read();
+
+    // display RGB at startup
     if (keep_rgb_off) {
       rgb_matrix_disable_noeeprom();
     }
+    rgb_matrix_enable_noeeprom();
 
     if (is_keyboard_left()) {
       pointing_device_set_cpi_on_side(true, 10000); //Set cpi on left side to a low value for slower scrolling.

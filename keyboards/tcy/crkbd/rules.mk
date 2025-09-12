@@ -7,5 +7,6 @@ OLED_ENABLE = no
 
 POINTING_DEVICE_ENABLE = yes
 
+# before flashing right or left toggle the expected pointing device
 POINTING_DEVICE_DRIVER = azoteq_iqs5xx
 # POINTING_DEVICE_DRIVER = pimoroni_trackball
