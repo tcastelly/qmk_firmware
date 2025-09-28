@@ -20,15 +20,10 @@
         "pid": "0x0000",
         "vid": "0xFEED"
     },
-    "split": {
+     "split": {
         "enabled": true,
         "serial": {
-            "pin": "GP1"
-        },
-        "transport": {
-            "sync": {
-                "matrix_state": true
-            }
+            "driver": "vendor"
         }
     },
     "matrix_pins": {

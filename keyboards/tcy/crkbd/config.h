@@ -1,6 +1,13 @@
 #pragma once
 
-#define USE_SERIAL          // enable hardware serial split
+#define USE_SERIAL               // enable hardware serial split
+#define SERIAL_USART_FULL_DUPLEX // Enable full duplex operation mode.
+#define SERIAL_USART_SPEED 500000
+#define SERIAL_USART_TX_PIN GP0  // USART TX pin
+#define SERIAL_USART_RX_PIN GP1  // USART RX pin
+
+// Has be to removed to enable full usart
+// #define SERIAL_USART_PIN_SWAP
 
 #define I2C1_SCL_PIN GP3
 #define I2C1_SDA_PIN GP2
@@ -32,7 +39,7 @@
 #define SPLIT_POINTING_ENABLE
 
 // #define POINTING_DEVICE_LEFT pimoroni_trackball
-// #define POINTING_DEVICE_RIGHT azoteq_touch
+#define POINTING_DEVICE_RIGHT azoteq_touch
 #define POINTING_DEVICE_COMBINED
 
 // accelaration mode
