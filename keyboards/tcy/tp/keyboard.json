@@ -31,6 +31,20 @@
       "enabled": true,
       "mouse_enabled": true
     },
+    "rgblight": {
+        "led_count": 2
+    },
+    "ws2812": {
+        "pin": "GP20",
+        "driver": "vendor"
+    },
+    "rgb_matrix": {
+        "driver": "ws2812",
+        "layout": [
+            {"x": 0, "y": 0, "flags": 2},
+            {"x": 0, "y": 1, "flags": 2}
+        ]
+    },
     "layouts": {
         "LAYOUT": {
             "layout": [
