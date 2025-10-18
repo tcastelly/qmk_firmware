@@ -30,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define I2C1_SDA_PIN GP2
 
 #define AZOTEQ_IQS5XX_TPS65
-#define AZOTEQ_IQS5XX_ROTATION_270
+#define AZOTEQ_IQS5XX_ROTATION_90
 
 #define AUDIO_PIN GP19
 #define AUDIO_PWM_DRIVER PWMD1
