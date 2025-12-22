@@ -10,13 +10,17 @@
 //   // (Due to technical reasons, high is off and low is on)
 //   writePinHigh(24);
 // }
+//
+static bool scrolling_mode = false;
+
+static bool lock_mode = false;
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT_split_3x6_3(
   //,---------------------------------------------------            ,-----------------------------------------------------.
       TD(TD_TAB),  KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,TD(TD_O),TD(TD_P), TD(TD_BSPC),
   //|--------+--------+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      TD(TD_ESC),  KC_A,   KC_S,    KC_D,    KC_F,    KC_G,                         KC_H,    KC_J,    KC_K,TD(TD_L),TD(TD_SCLN), KC_QUOT,
+      TD(TD_ESC),  TD(TD_A), KC_S,    KC_D,    KC_F,    KC_G,                         KC_H,    KC_J,    KC_K,TD(TD_L),TD(TD_SCLN), KC_QUOT,
   //|--------+---- ----+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       KC_LSFT,     KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, TD(TD_ENT),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
@@ -135,6 +139,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // Associate our tap dance key with its functionality
 tap_dance_action_t tap_dance_actions[] = {
+    [TD_A] = ACTION_TAP_DANCE_TAP_HOLD(KC_A, KC_LCTL),
     [TD_ESC] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC),
     [TD_ESC_OSX] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC_OSX),
     [TD_TAB] = ACTION_TAP_DANCE_TAP_HOLD(KC_TAB, KC_TILD),
@@ -207,9 +212,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case LOWER:
       if (record->event.pressed) {
         is_hold_tapdance_disabled = true;
+        lock_mode = true;
         layer_on(_LOWER);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
       } else {
+        lock_mode = false;
         layer_off(_LOWER);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
         is_hold_tapdance_disabled = false;
@@ -426,6 +433,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
        break;
 
     case TD(TD_O):  // list all tap dance keycodes with tap-hold configurations
+    case TD(TD_A):
     case TD(TD_ESC):
     case TD(TD_ESC_OSX):
     case TD(TD_TAB):
@@ -441,18 +449,28 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case TD(TD_LEFT_OSX):
     case TD(TD_RIGHT):
     case TD(TD_RIGHT_OSX):
-      if ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && !record->event.pressed) {
-          layer_off(_ESC);
-          layer_off(_ESC_OSX);
-          is_hold_tapdance_disabled = false;
-      }
+       if ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && !record->event.pressed) {
+         layer_off(_ESC);
+         layer_off(_ESC_OSX);
+         is_hold_tapdance_disabled = false;
+       }
 
-      action = &tap_dance_actions[TD_INDEX(keycode)];
-      if (!record->event.pressed && action->state.count && !action->state.finished) {
-          tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
-          tap_code16(tap_hold->tap);
-      }
-      break;
+       if (keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) {
+         scrolling_mode = record->event.pressed;
+       }
+
+       action = &tap_dance_actions[TD_INDEX(keycode)];
+       if (!record->event.pressed && action->state.count && !action->state.finished) {
+         tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
+         tap_code16(tap_hold->tap);
+       }
+       if ((keycode == TD(TD_A) || keycode == TD(TD_A_OSX)) && !touched_td && !record->event.pressed && action->state.finished) {
+         unregister_code(KC_LCTL);
+         tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
+         tap_code16(tap_hold->tap);
+       }
+       touched_td = true;
+       break;
   }
   return true;
 }
@@ -484,3 +502,43 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     return state;
 }
 #endif
+
+//
+// trackball
+//
+
+// Modify these values to adjust the scrolling speed
+#define SCROLL_DIVISOR_H 8.0
+#define SCROLL_DIVISOR_V 8.0
+
+// Variables to store accumulated scroll values
+float scroll_accumulated_h = 0;
+float scroll_accumulated_v = 0;
+
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    if (scrolling_mode) {
+        // Calculate and accumulate scroll values based on mouse movement and divisors
+        scroll_accumulated_h += (float)mouse_report.x / SCROLL_DIVISOR_H;
+        scroll_accumulated_v += (float)mouse_report.y / SCROLL_DIVISOR_V;
+
+        // Assign integer parts of accumulated scroll values to the mouse report
+        mouse_report.h = (int8_t)scroll_accumulated_h;
+        mouse_report.v = (int8_t)scroll_accumulated_v;
+
+        // Update accumulated scroll values by subtracting the integer parts
+        scroll_accumulated_h -= (int8_t)scroll_accumulated_h;
+        scroll_accumulated_v -= (int8_t)scroll_accumulated_v;
+
+        // Clear the X and Y values of the mouse report
+        mouse_report.x = 0;
+        mouse_report.y = 0;
+    }
+
+    if (lock_mode) {
+        mouse_report.h = 0;
+        mouse_report.v = 0;
+        mouse_report.x = 0;
+        mouse_report.y = 0;
+    }
+    return mouse_report;
+}

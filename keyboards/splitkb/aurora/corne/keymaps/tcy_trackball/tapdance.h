@@ -59,6 +59,7 @@ enum {
 enum {
     TD_ESC,
     TD_ESC_OSX,
+    TD_A,
     TD_TAB,
     TD_O,
     TD_P,
