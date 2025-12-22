@@ -445,6 +445,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     case TD(TD_O):  // list all tap dance keycodes with tap-hold configurations
     case TD(TD_A):
+    case TD(TD_A_OSX):
     case TD(TD_ESC):
     case TD(TD_ESC_OSX):
     case TD(TD_TAB):
