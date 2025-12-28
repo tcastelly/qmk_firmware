@@ -606,10 +606,6 @@ void matrix_scan_user(void) {
     }
 }
 
-oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-    return OLED_ROTATION_180;
-}
-
 bool oled_task_user(void) {
     switch (oled_mode) {
         case OLED_MINIMAL:
