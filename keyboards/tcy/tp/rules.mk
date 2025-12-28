@@ -8,3 +8,4 @@ POINTING_DEVICE_DRIVER = azoteq_iqs5xx
 AUDIO_ENABLE = yes
 AUDIO_DRIVER = pwm_hardware
 PS2_USE_USART = yes
+WPM_ENABLE = yes

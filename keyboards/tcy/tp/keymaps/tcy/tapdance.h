@@ -36,6 +36,8 @@ enum custom_keycodes {
 
   TOGGLE_BUZZ,
 
+  _RGB_TOG,
+
   TOGGLE_OLED,
   TOGGLE_OLED_WPM,
   TOGGLE_OLED_LAYOUT,

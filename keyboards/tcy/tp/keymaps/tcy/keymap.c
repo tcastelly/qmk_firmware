@@ -21,6 +21,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ps2_mouse.h"
 #include "tapdance.c"
 
+static bool keep_rgb_off = true;
+static bool is_rgb_off = true;
+
 #ifdef OLED_ENABLE
   #include "bongo.h"
 #endif
@@ -177,7 +180,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_ADJUST] = LAYOUT(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-      RGB_TOG, QWERTY , QWERTY_OSX  , QWERTY_GAMING, _______, _______,                 _______, _______, _______, _______, _______, QK_BOOT,
+      _RGB_TOG, QWERTY , QWERTY_OSX  , QWERTY_GAMING, _______, _______,                 _______, _______, _______, _______, _______, QK_BOOT,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
      TOGGLE_OLED, RGB_HUI, RGB_SAI, RGB_VAI, _______, _______,                _______,  _______, _______,  _______, _______, TOGGLE_BUZZ,
   //|--------+--------+-     -------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
@@ -293,6 +296,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         layer_off(_RAISE);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
         is_hold_tapdance_disabled = false;
+      }
+      return false;
+      break;
+
+    case _RGB_TOG:
+      if (record->event.pressed) {
+          if (rgb_matrix_is_enabled()) {
+              keep_rgb_off = true;
+              rgb_matrix_disable_noeeprom();
+              is_rgb_off = true;
+          } else {
+              rgb_matrix_enable_noeeprom();
+              keep_rgb_off = false;
+              is_rgb_off = false;
+          }
       }
       return false;
       break;
@@ -609,6 +627,15 @@ void matrix_scan_user(void) {
     } else {
       oled_mode = OLED_BONGO_LAYOUT;
     }
+
+    // 30 seconds
+    is_rgb_off = timer_elapsed32(key_timer) > 30000;
+
+    if (is_rgb_off) {
+      rgb_matrix_disable_noeeprom();
+    } else if (!keep_rgb_off) {
+      rgb_matrix_enable_noeeprom();
+    }
 }
 
 bool oled_task_user(void) {
@@ -662,6 +689,15 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
         mouse_report.x = 0;
         mouse_report.y = 0;
     }
+
+    bool has_moved = mouse_report.x > 0 || mouse_report.y > 0 || mouse_report.v > 0 || mouse_report.h > 0;
+
+    if (is_rgb_off && !keep_rgb_off && has_moved) {
+      key_timer = timer_read32();  // resets timer
+      rgb_matrix_enable_noeeprom();
+      is_rgb_off = false;
+    }
+
     return mouse_report;
 }
 
