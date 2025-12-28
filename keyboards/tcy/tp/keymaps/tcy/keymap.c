@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 enum oled_modes {
-  OLED_MINIMAL,
+  OLED_BONGO_LAYOUT,
   OLED_OFF,
 };
 
@@ -45,7 +45,7 @@ static bool disable_tp = false;
 
 static bool lock_mode = false;
 
-int8_t oled_mode = OLED_MINIMAL;
+int8_t oled_mode = OLED_BONGO_LAYOUT;
 
 int8_t buzz_mode = BUZZ_OFF;
 
@@ -524,7 +524,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                oled_mode = OLED_OFF;
                keep_oled_off = true;
            } else {
-               oled_mode = OLED_MINIMAL;
+               oled_mode = OLED_BONGO_LAYOUT;
                keep_oled_off = false;
            }
        }
@@ -593,6 +593,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 #ifdef OLED_ENABLE
 void matrix_scan_user(void) {
+    if (keep_oled_off) {
+        oled_off();
+        return;
+    }
+
     if (timer_elapsed32(key_timer) > 200) {
         disable_tp = false;
     } else {
@@ -601,14 +606,14 @@ void matrix_scan_user(void) {
 
     if (timer_elapsed32(key_timer) > 30000) { // 30 seconds
       oled_mode = OLED_OFF;
-    } else if (!keep_oled_off) {
-      oled_mode = OLED_MINIMAL;
+    } else {
+      oled_mode = OLED_BONGO_LAYOUT;
     }
 }
 
 bool oled_task_user(void) {
     switch (oled_mode) {
-        case OLED_MINIMAL:
+        case OLED_BONGO_LAYOUT:
             draw_bongo();
             break;
         default:
@@ -658,14 +663,6 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
         mouse_report.y = 0;
     }
     return mouse_report;
-}
-
-void keyboard_post_init_user(void) {
-  oled_off();
-  draw_bongo();
-#ifdef POINTING_DEVICE_ENABLE
-    pointing_device_set_cpi(350);
-#endif
 }
 
 // Fast approximation for square root
@@ -813,4 +810,25 @@ void ps2_mouse_moved_user(report_mouse_t *mouse_report) {
             tp_timer = timer_read32();  // resets timer
         }
     }
+}
+
+void keyboard_post_init_user(void) {
+  oled_off();
+  draw_bongo();
+
+#ifdef POINTING_DEVICE_ENABLE
+  pointing_device_set_cpi(350);
+#endif
+
+  rgb_matrix_enable_noeeprom();
+}
+
+
+//Lighting
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    for (uint8_t i = led_min; i < led_max; i++) {
+      rgb_matrix_set_color(i, 128, 0, 128);
+    }
+
+    return false;
 }

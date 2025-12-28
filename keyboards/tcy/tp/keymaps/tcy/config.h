@@ -73,3 +73,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MIN_ACCELERATION_SETTING         1;
 #define MAX_ACCELERATION_SETTING         6;
 #define DEFAULT_ACCELERATION_SETTING     5;
+
+#define OLED_UPDATE_INTERVAL 100
+#define OLED_UPDATE_PROCESS_LIMIT 4
