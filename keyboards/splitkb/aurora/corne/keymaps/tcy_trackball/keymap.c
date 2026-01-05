@@ -498,7 +498,7 @@ void keyboard_post_init_user(void) {
 layer_state_t layer_state_set_user(layer_state_t state) {
     switch (get_highest_layer(state)) {
         case _ESC_OSX:
-        case _QWERTY_OSX:
+        case _ESC:
             rgblight_sethsv_noeeprom(HSV_GREEN);
             break;
         case _QWERTY_GAMING:
@@ -509,6 +509,10 @@ layer_state_t layer_state_set_user(layer_state_t state) {
             break;
         case _QWERTY:
             rgblight_sethsv_noeeprom(HSV_RED);
+            break;
+        case _QWERTY_OSX:
+            rgblight_sethsv_noeeprom(HSV_MAGENTA);
+            break;
         default: // for any other layers, or the default layer
             break;
     }

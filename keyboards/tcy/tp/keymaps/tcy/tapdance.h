@@ -5,6 +5,8 @@ bool touched_td;
 
 uint8_t acceleration_setting = DEFAULT_ACCELERATION_SETTING;
 
+uint8_t global_current_layer;
+
 bool scrolling_mode = false;
 
 enum layer_names {

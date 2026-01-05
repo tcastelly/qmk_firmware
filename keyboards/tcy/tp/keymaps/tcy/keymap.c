@@ -69,6 +69,13 @@ uint8_t linear_reduction_setting        = 3;
 float   linear_reduction_values[7]      = {80.0f, 2.2f, 2.0f, 1.8f, 1.6f, 1.4f, 0.4f};
 //
 
+const uint8_t COLOR_RED[3]    = {255, 0, 0};
+const uint8_t COLOR_GREEN[3]  = {0, 255, 0};
+const uint8_t COLOR_BLUE[3]   = {0, 0, 255};
+const uint8_t COLOR_PURPLE[3] = {128, 0, 128};
+const uint8_t COLOR_YELLOW[3] = {255, 255, 0};
+const uint8_t COLOR_PINK[3] = {255, 0, 128};
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
@@ -862,9 +869,30 @@ void keyboard_post_init_user(void) {
 
 //Lighting
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
-    for (uint8_t i = led_min; i < led_max; i++) {
-      rgb_matrix_set_color(i, 128, 0, 128);
-    }
+  switch (global_current_layer) {
+    case _ESC:
+    case _ESC_OSX:
+      color = COLOR_GREEN;
+      break;
+    case _QWERTY_GAMING:
+      color = COLOR_YELLOW;
+      break;
+    case _ADJUST:
+      color = COLOR_BLUE;
+      break;
+    case _QWERTY:
+      color = COLOR_PURPLE;
+      break;
+    case _QWERTY_OSX:
+      color = COLOR_PINK;
+    default: // for any other layers, or the default layer
+      color = COLOR_RED;
+      break;
+  }
 
-    return false;
+  for (uint8_t i = led_min; i < led_max; i++) {
+    rgb_matrix_set_color(i, color[0], color[1], color[2]);
+  }
+
+  return false;
 }

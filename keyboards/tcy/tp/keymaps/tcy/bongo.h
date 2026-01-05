@@ -217,6 +217,8 @@ static void draw_bongo(void)
 layer_state_t layer_state_set_user(layer_state_t state) {
     uint8_t current_layer = get_highest_layer(state);
 
+    global_current_layer = current_layer;
+
     switch (current_layer) {
         case _QWERTY:
             strcpy(layout_str, "Q");
