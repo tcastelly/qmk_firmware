@@ -629,14 +629,17 @@ void matrix_scan_user(void) {
         disable_tp = true;
     }
 
-    if (timer_elapsed32(key_timer) > 30000) { // 30 seconds
+    // 30 seconds
+    int max_ms = 30000;
+
+    if (timer_elapsed32(key_timer) > max_ms) {
       oled_mode = OLED_OFF;
     } else {
       oled_mode = OLED_BONGO_LAYOUT;
     }
 
     // 30 seconds
-    is_rgb_off = timer_elapsed32(key_timer) > 30000;
+    is_rgb_off = timer_elapsed32(key_timer) > max_ms;
 
     if (is_rgb_off) {
       rgb_matrix_disable_noeeprom();
@@ -869,6 +872,8 @@ void keyboard_post_init_user(void) {
 
 //Lighting
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+  const uint8_t *color;
+
   switch (global_current_layer) {
     case _ESC:
     case _ESC_OSX:
@@ -885,6 +890,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
       break;
     case _QWERTY_OSX:
       color = COLOR_PINK;
+      break;
     default: // for any other layers, or the default layer
       color = COLOR_RED;
       break;
