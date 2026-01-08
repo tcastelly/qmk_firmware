@@ -891,7 +891,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     case _QWERTY_OSX:
       color = COLOR_PINK;
       break;
-    default: // for any other layers, or the default layer
+    default: 
       color = COLOR_RED;
       break;
   }

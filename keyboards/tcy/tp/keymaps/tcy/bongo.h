@@ -175,9 +175,43 @@ void eval_anim_state(void)
 
 static void draw_bongo(void)
 {
+
     eval_anim_state();
 
     oled_set_cursor(0, 0);
+
+    switch (global_current_layer) {
+        case _QWERTY:
+            strcpy(layout_str, "Q");
+            break;
+        case _QWERTY_OSX:
+            strcpy(layout_str, "Q-OSX");
+            break;
+        case _QWERTY_GAMING:
+            strcpy(layout_str, "Gaming");
+            break;
+        case _ESC:
+            strcpy(layout_str, "ESC");
+            break;
+        case _ESC_OSX:
+            strcpy(layout_str, "ESC-OSX");
+            break;
+        case _LOWER:
+            strcpy(layout_str, "Lower");
+            break;
+        case _RAISE:
+            strcpy(layout_str, "Raise");
+            break;
+        case _ADJUST:
+            strcpy(layout_str, "Adjust");
+            break;
+        case _ACCENTS_RALT:
+            strcpy(layout_str, "Accents");
+            break;
+        default:
+            strcpy(layout_str, "");
+            break;
+    }
 
     switch (anim_state)
     {
@@ -212,6 +246,13 @@ static void draw_bongo(void)
      oled_set_cursor(oled_max_chars() - 2, oled_max_lines() - 1);
      oled_write("[]", false);
    }
+
+   // set the cursor to the third line and first column
+   oled_set_cursor(0 , 2);
+
+   char buf[4];
+   snprintf(buf, sizeof(buf), "%u", acceleration_setting);
+   oled_write(buf, false);
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
@@ -220,33 +261,20 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     global_current_layer = current_layer;
 
     switch (current_layer) {
-        case _QWERTY:
-            strcpy(layout_str, "Q");
-            break;
-        case _QWERTY_OSX:
-            strcpy(layout_str, "Q-OSX");
-            break;
-        case _ESC:
-            strcpy(layout_str, "ESC");
-            break;
-        case _ESC_OSX:
-            strcpy(layout_str, "ESC-OSX");
-            break;
-        case _LOWER:
-            strcpy(layout_str, "Lower");
-            break;
-        case _RAISE:
-            strcpy(layout_str, "Raise");
-            break;
-        case _ADJUST:
-            strcpy(layout_str, "Adjust");
-            break;
-        case _ACCENTS_RALT:
-            strcpy(layout_str, "Accents");
-            break;
-        default:
-            strcpy(layout_str, "");
-            break;
+      case _QWERTY_OSX:
+        // OSX needs less speed
+        acceleration_setting = DEFAULT_ACCELERATION_SETTING;
+        acceleration_setting -= 1;
+        break;
+      case _ESC:
+      case _ESC_OSX:
+        if (scrolling_mode) {
+          acceleration_setting = MIN_ACCELERATION_SETTING;
+        }
+        break;
+      default:
+        acceleration_setting = DEFAULT_ACCELERATION_SETTING;
+        break;
     }
 
     return state;
