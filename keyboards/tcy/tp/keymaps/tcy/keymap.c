@@ -74,7 +74,7 @@ const uint8_t COLOR_GREEN[3]  = {0, 255, 0};
 const uint8_t COLOR_BLUE[3]   = {0, 0, 255};
 const uint8_t COLOR_PURPLE[3] = {128, 0, 128};
 const uint8_t COLOR_YELLOW[3] = {255, 255, 0};
-const uint8_t COLOR_PINK[3] = {255, 0, 128};
+const uint8_t COLOR_PINK[3] = {255, 80, 120};
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT(
