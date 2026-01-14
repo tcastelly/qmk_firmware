@@ -21,8 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ps2_mouse.h"
 #include "tapdance.c"
 
-static bool keep_rgb_off = true;
-static bool is_rgb_off = true;
+static bool is_rgb_off = false;
+static bool keep_rgb_off = false;
 
 #ifdef OLED_ENABLE
   #include "bongo.h"
@@ -856,6 +856,15 @@ void ps2_mouse_moved_user(report_mouse_t *mouse_report) {
             tp_timer = timer_read32();  // resets timer
         }
     }
+
+    bool has_moved = mouse_report->x > 0 || mouse_report->y > 0 || mouse_report->v > 0 || mouse_report->h > 0;
+
+    if (is_rgb_off && !keep_rgb_off && has_moved) {
+      key_timer = timer_read32();  // resets timer
+      rgb_matrix_enable_noeeprom();
+      is_rgb_off = false;
+    }
+
 }
 
 void keyboard_post_init_user(void) {
