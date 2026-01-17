@@ -1,3 +1,16 @@
 #pragma once
 
+#define MATRIX_DEBUG
+
+// Auto-detect handedness using GP3
+#define SPLIT_HAND_PIN GP3
+
+// Left (slave) half matrix
+#define MATRIX_COL_PINS { GP21, GP23, GP20, GP22, GP26, GP27, GP28, GP29 }
+#define MATRIX_ROW_PINS { GP4, GP5, GP6, GP7 }
+
+// Right (master) half matrix
+#define MATRIX_COL_PINS_RIGHT { GP21, GP23, GP20, GP22, GP26, GP27, GP28, GP29 }
+#define MATRIX_ROW_PINS_RIGHT { GP4, GP5, GP6, GP7 }
+
 #define EE_HANDS
