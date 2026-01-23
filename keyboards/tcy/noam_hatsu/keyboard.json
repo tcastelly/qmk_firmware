@@ -6,10 +6,9 @@
     "features": {
         "bootmagic": true,
         "command": false,
-        "console": true,
+        "console": false,
         "extrakey": true,
-        "mousekey": true,
-        "nkro": false
+        "mousekey": true
     },
     "development_board": "helios",
     "processor": "RP2040",
