@@ -6,6 +6,10 @@
 
 int max_timer_elapsed = 10;
 
+static uint16_t boot_timer;
+
+static bool boot_timer_active = false;
+
 //,-----------------------------------------------------.                    ,-----------------------------------------------------.
 //  TD(TD_TAB),  KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,TD(TD_O),TD(TD_P), TD(TD_BSPC),
 //|--------+--------+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
@@ -15,25 +19,25 @@ int max_timer_elapsed = 10;
 //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
 //                            KC_LCTL, LOWER, TD(TD_LALT), KC_LWIN,   KC_RCTL, RAISE, KC_SPC, TD(TD_RALT),
 //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-//|                                                 QK_BOOT, KC_DEL,   KC_DEL, QK_BOOT
+//|                                                 QK_BOOT, KC_DEL,   KC_DEL,QK_BOOT
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_QWERTY] = LAYOUT_split_3x8_2(
-        KC_LCTL, KC_LWIN, KC_T,    KC_R,    KC_E,    KC_W,    KC_Q,     TD(TD_TAB),   QK_BOOT,     TD(TD_LALT), KC_G,    KC_F,    KC_D,    KC_S,     KC_A,        TD(TD_ESC),
+        KC_LCTL, KC_LWIN, KC_T,    KC_R,    KC_E,    KC_W,    KC_Q,     TD(TD_TAB),   SAFE_BOOT,   TD(TD_LALT), KC_G,    KC_F,    KC_D,    KC_S,     KC_A,        TD(TD_ESC),
         KC_DEL,  LOWER,   KC_B,    KC_V,    KC_C,    KC_X,    KC_Z,     KC_LSFT,      TD(TD_RALT), KC_RCTL,     KC_Y,    KC_U,    KC_I,    TD(TD_O), TD(TD_BSPC), TD(TD_P),
-        QK_BOOT, RAISE,   KC_H,    KC_J,    KC_K,    TD(TD_L),KC_QUOT,  TD(TD_SCLN),  KC_RWIN,     KC_SPC,      KC_N,    KC_M,    KC_U,    KC_DOT,   TD(TD_ENT),  KC_SLSH,
+        SAFE_BOOT, RAISE, KC_H,    KC_J,    KC_K,    TD(TD_L),KC_QUOT,  TD(TD_SCLN),  KC_RWIN,     KC_SPC,      KC_N,    KC_M,    KC_COMM, KC_DOT,   TD(TD_ENT),  KC_SLSH,
                                             KC_PGDN, KC_PGUP,                                                            KC_LBRC, KC_RBRC
     ),
     [_QWERTY_OSX] = LAYOUT_split_3x8_2(
-        TD(TD_LCTL), KC_LWIN, KC_T,    KC_R,    KC_E,    KC_W,    KC_Q,     TD(TD_TAB),   QK_BOOT,         TD(TD_LGUI), KC_G,    KC_F,    KC_D,    KC_S,     KC_A,            TD(TD_ESC_OSX),
+        TD(TD_LCTL), KC_LWIN, KC_T,    KC_R,    KC_E,    KC_W,    KC_Q,     TD(TD_TAB),   SAFE_BOOT,         TD(TD_LGUI), KC_G,    KC_F,    KC_D,    KC_S,     KC_A,            TD(TD_ESC_OSX),
         KC_DEL,      LOWER,   KC_B,    KC_V,    KC_C,    KC_X,    KC_Z,     KC_LSFT,      TD(TD_RALT_OSX), KC_RCTL,     KC_Y,    KC_U,    KC_I,    TD(TD_O), TD(TD_BSPC_OSX), TD(TD_P),
-        QK_BOOT,     RAISE,   KC_H,    KC_J,    KC_K,    TD(TD_L),KC_QUOT,  TD(TD_SCLN),  KC_RWIN,         KC_SPC,      KC_N,    KC_M,    KC_U,    KC_DOT,     TD(TD_ENT),      KC_SLSH,
+        SAFE_BOOT,   RAISE,   KC_H,    KC_J,    KC_K,    TD(TD_L),KC_QUOT,  TD(TD_SCLN),  KC_RWIN,         KC_SPC,      KC_N,    KC_M,    KC_COMM, KC_DOT,     TD(TD_ENT),      KC_SLSH,
                                                 KC_PGDN, KC_PGUP,                                                                KC_LBRC, KC_RBRC
     ),
     [_QWERTY_GAMING] = LAYOUT_split_3x8_2(
-        KC_LCTL, KC_LWIN, KC_T,    KC_R,    KC_E,    KC_W,    KC_Q,     KC_TAB,       QK_BOOT, KC_LALT,     KC_G,    KC_F,    KC_D,    KC_S,     KC_A,    KC_ESC,
+        KC_LCTL, KC_LWIN, KC_T,    KC_R,    KC_E,    KC_W,    KC_Q,     KC_TAB,       SAFE_BOOT, KC_LALT,     KC_G,    KC_F,    KC_D,    KC_S,     KC_A,    KC_ESC,
         KC_DEL,  RAISE,   KC_B,    KC_V,    KC_C,    KC_X,    KC_Z,     KC_LSFT,      KC_RALT, KC_RCTL,     KC_Y,    KC_U,    KC_I,    KC_O,     KC_BSPC, KC_P,
-        QK_BOOT, LOWER,   KC_H,    KC_J,    KC_K,    KC_L,    KC_QUOT,  KC_SCLN,      KC_RWIN, KC_SPC,      KC_N,    KC_M,    KC_U,    KC_DOT,   KC_ENT,  KC_SLSH,
+        SAFE_BOOT, LOWER, KC_H,    KC_J,    KC_K,    KC_L,    KC_QUOT,  KC_SCLN,      KC_RWIN, KC_SPC,      KC_N,    KC_M,    KC_COMM, KC_DOT,   KC_ENT,  KC_SLSH,
                                             KC_PGDN, KC_PGUP,                                                        KC_LBRC, KC_RBRC
     ),
     [_LOWER] = LAYOUT_split_3x8_2(
@@ -105,8 +109,12 @@ void matrix_init_user(void) {
 
 }
 
+// This function runs constantly in the background
 void matrix_scan_user(void) {
-
+  if (boot_timer_active && timer_elapsed(boot_timer) >= 4000) {
+    boot_timer_active = false;
+    reset_keyboard(); 
+  }
 }
 
 void led_set_user(uint8_t usb_led) {
@@ -151,6 +159,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   tap_dance_action_t *action;
 
   switch (keycode) {
+    case SAFE_BOOT:
+      if (record->event.pressed) {
+        boot_timer = timer_read();
+        boot_timer_active = true;
+      } else {
+        boot_timer_active = false;
+      }
+      return false;
     case TEST:
         if (record->event.pressed) {
             layer_move(_TEST);

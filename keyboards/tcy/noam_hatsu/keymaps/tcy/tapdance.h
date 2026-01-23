@@ -19,6 +19,7 @@ enum custom_keycodes {
   QWERTY = SAFE_RANGE,
   QWERTY_OSX,
   QWERTY_GAMING,
+  SAFE_BOOT,
   TEST,
   LOWER,
   RAISE,
