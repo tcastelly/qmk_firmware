@@ -21,9 +21,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 // --- MCP23017 configuration (left half) ---
+/* i2c settings */
+
 #define I2C_DRIVER I2CD2
 #define I2C1_SCL_PIN B10
-#define I1C1_SDA_PIN B11
+#define I2C1_SDA_PIN B11
+#define I2C1_TIMINGR_PRESC 2U
+#define I2C1_TIMINGR_SCLDEL 1U
+#define I2C1_TIMINGR_SDADEL 0U
+#define I2C1_TIMINGR_SCLH 9U
+#define I2C1_TIMINGR_SCLL 26U
+#define I2C1_SCL_PAL_MODE 1
+#define I2C1_SDA_PAL_MODE 1
+
 #define F_SCL 100000
                                   
 #define MATRIX_ROWS 8
