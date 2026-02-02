@@ -1,5 +1,3 @@
-
-// SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
 
 #include_next <mcuconf.h>
@@ -8,5 +6,16 @@
 #define STM32_I2C_USE_I2C1 TRUE
 
 #undef STM32_I2C_USE_I2C2
-#define STM32_I2C_USE_I2C2 FALSE
+#define STM32_I2C_USE_I2C2 TRUE
 
+// DMA Settings
+#undef STM32_I2C_I2C2_RX_DMA_STREAM
+#define STM32_I2C_I2C2_RX_DMA_STREAM STM32_DMA_STREAM_ID(1, 5)
+#undef STM32_I2C_I2C2_TX_DMA_STREAM
+#define STM32_I2C_I2C2_TX_DMA_STREAM STM32_DMA_STREAM_ID(1, 4)
+#undef STM32_I2C_I2C2_DMA_PRIORITY
+#define STM32_I2C_I2C2_DMA_PRIORITY 1
+
+// IRQ Priority - Set this to 3 for F0 chips or 10 for F3 chips
+#undef STM32_I2C_I2C2_IRQ_PRIORITY
+#define STM32_I2C_I2C2_IRQ_PRIORITY 3
