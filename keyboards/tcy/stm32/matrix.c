@@ -22,7 +22,7 @@ static const ioline_t RIGHT_COLS[] = MATRIX_COL_PINS_MCU;
 static bool matrix_initialized = false;
 
 void matrix_init_custom(void) {
-    wait_ms(1000); 
+    wait_ms(500); 
     i2c2_init_custom(); // Initialize I2C2 (B10/B11) instead of I2C1
     wait_ms(100);
 
