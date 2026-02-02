@@ -23,16 +23,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // --- MCP23017 configuration (left half) ---
 /* i2c settings */
 
-#define I2C_DRIVER I2CD2
-#define I2C1_SCL_PIN B10
-#define I2C1_SDA_PIN B11
-#define I2C1_TIMINGR_PRESC 2U
-#define I2C1_TIMINGR_SCLDEL 1U
-#define I2C1_TIMINGR_SDADEL 0U
-#define I2C1_TIMINGR_SCLH 9U
-#define I2C1_TIMINGR_SCLL 26U
+// #define I2C_DRIVER I2CD2
+// #define I2C1_SCL_PIN B10
+// #define I2C1_SDA_PIN B11
+// #define I2C1_TIMINGR_PRESC 2U
+// #define I2C1_TIMINGR_SCLDEL 1U
+// #define I2C1_TIMINGR_SDADEL 0U
+// #define I2C1_TIMINGR_SCLH 9U
+// #define I2C1_TIMINGR_SCLL 26U
+// #define I2C1_SCL_PAL_MODE 1
+// #define I2C1_SDA_PAL_MODE 1
+
+#define I2C_DRIVER I2CD1
+#define I2C1_SCL_PIN B6
+#define I2C1_SDA_PIN B7
 #define I2C1_SCL_PAL_MODE 1
 #define I2C1_SDA_PAL_MODE 1
+#define I2C1_TIMINGR_PRESC 0x00U
+#define I2C1_TIMINGR_SCLDEL 0x03U
+#define I2C1_TIMINGR_SDADEL 0x01U
+#define I2C1_TIMINGR_SCLH 0x03U
+#define I2C1_TIMINGR_SCLL 0x09U
 
 #define F_SCL 100000
                                   
@@ -51,3 +62,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MATRIX_COL_PINS { A0, A1, A2, A3, A4, A5, B0, B1, B2, B3, B4, B5 }
 
 #define DIODE_DIRECTION COL2ROW
+
+# define AZOTEQ_IQS5XX_TPS43
+
