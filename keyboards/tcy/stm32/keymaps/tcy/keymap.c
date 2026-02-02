@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include QMK_KEYBOARD_H
 #include <math.h>
 #include "tapdance.c"
+#include "print.h" // For uprintf
+#include "i2c_master.h"
 
 static uint32_t key_timer = 0;
 
@@ -503,3 +505,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   return true;
 }
 
+void scan_i2c_bus(void) {
+    uprintf("Starting I2C scan...\n");
+    uint8_t dat = 0;
+    for (uint8_t address = 1; address < 128; address++) {
+        // We shift address left for the 7-bit + R/W format
+        // Use i2c_receive if i2c_read continues to fail
+        i2c_status_t status = i2c_receive(address << 1, &dat, 1, 100);
+        if (status == I2C_STATUS_SUCCESS) {
+            uprintf("Found device at address: 0x%02X\n", address);
+        }
+    }
+    uprintf("Scan complete.\n");
+}
+
+void keyboard_post_init_user(void) {
+    wait_ms(500); // Let the trackpad boot
+
+    scan_i2c_bus();
+}
