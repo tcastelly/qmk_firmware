@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // --- MCP23017 configuration (left half) ---
 /* i2c settings */
 
+// MCP as default 
 // #define I2C_DRIVER I2CD2
 // #define I2C1_SCL_PIN B10
 // #define I2C1_SDA_PIN B11
@@ -34,6 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // #define I2C1_SCL_PAL_MODE 1
 // #define I2C1_SDA_PAL_MODE 1
 
+// Trackpad as default
 #define I2C_DRIVER I2CD1
 #define I2C1_SCL_PIN B6
 #define I2C1_SDA_PIN B7
