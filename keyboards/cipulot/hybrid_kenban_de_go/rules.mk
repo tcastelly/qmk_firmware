@@ -23,3 +23,9 @@ OPT_DEFS += -Ofast -ffast-math -funroll-loops \
             -fno-tree-vectorize -fno-signed-zeros -fno-math-errno \
             -fno-common -fomit-frame-pointer -falign-functions=16 \
             -falign-loops=16 -falign-jumps=16 -fno-exceptions -fno-unwind-tables
+
+# This tells the compiler where to look for "socd_cleaner.h"
+USER_INCLUDES += users/cipulot/modules/getreuer/socd_cleaner
+
+# Link the source file
+COMMON_VPATH += users/cipulot/modules/getreuer/socd_cleaner
