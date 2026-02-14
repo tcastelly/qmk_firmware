@@ -28,7 +28,7 @@
 
 // EEPROM default initialization
 void eeconfig_init_kb(void) {
-    for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+    for (uint8_t row = 0; row < MATRIX_ROWS_PER_HAND; row++) {
         for (uint8_t col = 0; col < MATRIX_COLS; col++) {
             // Get pointer to key state in EEPROM
             eeprom_key_state_t *key_eeprom = &eeprom_hybrid_config.eeprom_key_state[row][col];
@@ -83,7 +83,7 @@ void keyboard_post_init_kb(void) {
 
     runtime_hybrid_config.bottoming_calibration = false;
 
-    for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+    for (uint8_t row = 0; row < MATRIX_ROWS_PER_HAND; row++) {
         for (uint8_t col = 0; col < MATRIX_COLS; col++) {
             // Get pointer to key state in runtime and EEPROM
             runtime_key_state_t *key_runtime = &runtime_hybrid_config.runtime_key_state[row][col];

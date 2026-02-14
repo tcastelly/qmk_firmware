@@ -86,12 +86,12 @@ typedef struct PACKED {
 // Runtime configuration structure definitions
 typedef struct PACKED {
     bool                bottoming_calibration;                       // Runtime board level flag for bottoming calibration
-    runtime_key_state_t runtime_key_state[MATRIX_ROWS][MATRIX_COLS]; // Per-key runtime state
+    runtime_key_state_t runtime_key_state[MATRIX_ROWS_PER_HAND][MATRIX_COLS]; // Per-key runtime state
 } runtime_hybrid_config_t;
 
 // EEPROM configuration structure definitions
 typedef struct PACKED {
-    eeprom_key_state_t eeprom_key_state[MATRIX_ROWS][MATRIX_COLS]; // Per-key EEPROM state
+    eeprom_key_state_t eeprom_key_state[MATRIX_ROWS_PER_HAND][MATRIX_COLS]; // Per-key EEPROM state
     socd_cleaner_t     eeprom_socd_opposing_pairs[4];              // SOCD cleaner pairs
 } eeprom_hybrid_config_t;
 

@@ -43,8 +43,8 @@
         "encoder": {
             "right": {
                 "rotary": [
-                    {"pin_a": "B15", "pin_b": "A8"},
-                    {"pin_a": "B13", "pin_b": "A8"}
+                    {"pin_a": "A8", "pin_b": "B15"},
+                    {"pin_a": "A8", "pin_b": "B13"}
                 ]
             }
         },

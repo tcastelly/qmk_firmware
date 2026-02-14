@@ -17,8 +17,8 @@
 #include "hybrid_switch_matrix.h"
 #include "matrix.h"
 
-extern matrix_row_t raw_matrix[MATRIX_ROWS]; // raw values
-extern matrix_row_t matrix[MATRIX_ROWS];     // debounced values
+extern matrix_row_t raw_matrix[MATRIX_ROWS_PER_HAND]; // raw values
+extern matrix_row_t matrix[MATRIX_ROWS_PER_HAND];     // debounced values
 
 // Custom matrix init function
 void matrix_init_custom(void) {

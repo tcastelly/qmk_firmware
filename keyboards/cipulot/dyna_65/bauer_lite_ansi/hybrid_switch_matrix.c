@@ -417,8 +417,10 @@ bool hybrid_update_key_rt(matrix_row_t *current_row, uint8_t col, uint16_t sw_va
     // Key outside active zone - force release if extremum dropped
     else if (sw_value < key_runtime->extremum) {
         key_runtime->extremum = sw_value;
-        *current_row &= ~(1 << col);
-        return true;
+        if (pressed) {
+            *current_row &= ~(1 << col);
+            return true;
+        }
     }
 
     return false;
@@ -451,15 +453,15 @@ void bulk_rescale_key_thresholds(runtime_key_state_t *key_runtime, eeprom_key_st
             break;
         case RESCALE_MODE_RT: // RT
             key_runtime->rescaled_rt_initial_deadzone_offset = rescale(key_runtime->rt_initial_deadzone_offset, key_runtime->noise_floor, key_eeprom->bottoming_calibration_reading);
-            key_runtime->rescaled_rt_actuation_offset        = rescale(key_runtime->rt_actuation_offset, key_runtime->noise_floor, key_eeprom->bottoming_calibration_reading);
-            key_runtime->rescaled_rt_release_offset          = rescale(key_runtime->rt_release_offset, key_runtime->noise_floor, key_eeprom->bottoming_calibration_reading);
+            key_runtime->rescaled_rt_actuation_offset        = rescale(key_runtime->rt_actuation_offset, 0, key_eeprom->bottoming_calibration_reading);
+            key_runtime->rescaled_rt_release_offset          = rescale(key_runtime->rt_release_offset, 0, key_eeprom->bottoming_calibration_reading);
             break;
         case RESCALE_MODE_ALL: // All thresholds
             key_runtime->rescaled_apc_actuation_threshold    = rescale(key_runtime->apc_actuation_threshold, key_runtime->noise_floor, key_eeprom->bottoming_calibration_reading);
             key_runtime->rescaled_apc_release_threshold      = rescale(key_runtime->apc_release_threshold, key_runtime->noise_floor, key_eeprom->bottoming_calibration_reading);
             key_runtime->rescaled_rt_initial_deadzone_offset = rescale(key_runtime->rt_initial_deadzone_offset, key_runtime->noise_floor, key_eeprom->bottoming_calibration_reading);
-            key_runtime->rescaled_rt_actuation_offset        = rescale(key_runtime->rt_actuation_offset, key_runtime->noise_floor, key_eeprom->bottoming_calibration_reading);
-            key_runtime->rescaled_rt_release_offset          = rescale(key_runtime->rt_release_offset, key_runtime->noise_floor, key_eeprom->bottoming_calibration_reading);
+            key_runtime->rescaled_rt_actuation_offset        = rescale(key_runtime->rt_actuation_offset, 0, key_eeprom->bottoming_calibration_reading);
+            key_runtime->rescaled_rt_release_offset          = rescale(key_runtime->rt_release_offset, 0, key_eeprom->bottoming_calibration_reading);
             break;
         default:
             bulk_rescale_key_thresholds(key_runtime, key_eeprom, RESCALE_MODE_ALL);

@@ -59,7 +59,7 @@ _Static_assert(AMUX_SEL_PINS_COUNT == EXPECTED_AMUX_SEL_PINS_COUNT, "AMUX_SEL_PI
 _Static_assert(ARRAY_SIZE(amux_n_col_sizes) == AMUX_COUNT, "AMUX_COL_CHANNELS_SIZES doesn't have the minimum number of elements required to specify the number of channels for all the multiplexers available");
 
 // Matrix switch value storage
-static uint16_t sw_value[MATRIX_ROWS][MATRIX_COLS];
+static uint16_t sw_value[MATRIX_ROWS_PER_HAND][MATRIX_COLS];
 
 // ADC multiplexer instance
 static adc_mux adcMux;
@@ -67,7 +67,7 @@ static adc_mux adcMux;
 // Initialize the row pins
 void init_row(void) {
     // Set all row pins as output and low
-    for (uint8_t idx = 0; idx < MATRIX_ROWS; idx++) {
+    for (uint8_t idx = 0; idx < MATRIX_ROWS_PER_HAND; idx++) {
         gpio_set_pin_output(row_pins[idx]);
         gpio_write_pin_low(row_pins[idx]);
     }
@@ -76,7 +76,7 @@ void init_row(void) {
 // Disable all the unused rows
 void disable_unused_row(uint8_t row) {
     // disable all the other rows apart from the current selected one
-    for (uint8_t idx = 0; idx < MATRIX_ROWS; idx++) {
+    for (uint8_t idx = 0; idx < MATRIX_ROWS_PER_HAND; idx++) {
         if (idx != row) {
             gpio_write_pin_low(row_pins[idx]);
         }
@@ -179,7 +179,7 @@ void hybrid_noise_floor_calibration(void) {
     }
 
     // Initialize all keys' noise floor to expected value
-    for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+    for (uint8_t row = 0; row < MATRIX_ROWS_PER_HAND; row++) {
         for (uint8_t col = 0; col < MATRIX_COLS; col++) {
             runtime_hybrid_config.runtime_key_state[row][col].noise_floor = EXPECTED_NOISE_FLOOR;
         }
@@ -195,7 +195,7 @@ void hybrid_noise_floor_calibration(void) {
             for (uint8_t col = 0; col < amux_n_col_sizes[amux]; col++) {
                 // Adjusted column index in the full matrix
                 uint8_t adjusted_col = col + col_offsets[amux];
-                for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+                for (uint8_t row = 0; row < MATRIX_ROWS_PER_HAND; row++) {
                     // Skip unused positions if specified
 #ifdef UNUSED_POSITIONS_LIST
                     if (is_unused_position(row, adjusted_col)) continue;
@@ -212,7 +212,7 @@ void hybrid_noise_floor_calibration(void) {
     }
 
     // Average the noise floor and rescale thresholds for all keys
-    for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+    for (uint8_t row = 0; row < MATRIX_ROWS_PER_HAND; row++) {
         for (uint8_t col = 0; col < MATRIX_COLS; col++) {
             // Get pointer to key state in runtime and EEPROM
             // Makes code more readable than having the expanded version multiple times
@@ -251,7 +251,7 @@ bool hybrid_matrix_scan(matrix_row_t current_matrix[]) {
         for (uint8_t col = 0; col < amux_n_col_sizes[amux]; col++) {
             // Adjusted column index in the full matrix
             uint8_t adjusted_col = col + col_offsets[amux];
-            for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+            for (uint8_t row = 0; row < MATRIX_ROWS_PER_HAND; row++) {
                 // Skip unused positions if specified
 #ifdef UNUSED_POSITIONS_LIST
                 if (is_unused_position(row, adjusted_col)) continue;
@@ -417,8 +417,10 @@ bool hybrid_update_key_rt(matrix_row_t *current_row, uint8_t col, uint16_t sw_va
     // Key outside active zone - force release if extremum dropped
     else if (sw_value < key_runtime->extremum) {
         key_runtime->extremum = sw_value;
-        *current_row &= ~(1 << col);
-        return true;
+        if (pressed) {
+            *current_row &= ~(1 << col);
+            return true;
+        }
     }
 
     return false;
@@ -451,15 +453,15 @@ void bulk_rescale_key_thresholds(runtime_key_state_t *key_runtime, eeprom_key_st
             break;
         case RESCALE_MODE_RT: // RT
             key_runtime->rescaled_rt_initial_deadzone_offset = rescale(key_runtime->rt_initial_deadzone_offset, key_runtime->noise_floor, key_eeprom->bottoming_calibration_reading);
-            key_runtime->rescaled_rt_actuation_offset        = rescale(key_runtime->rt_actuation_offset, key_runtime->noise_floor, key_eeprom->bottoming_calibration_reading);
-            key_runtime->rescaled_rt_release_offset          = rescale(key_runtime->rt_release_offset, key_runtime->noise_floor, key_eeprom->bottoming_calibration_reading);
+            key_runtime->rescaled_rt_actuation_offset        = rescale(key_runtime->rt_actuation_offset, 0, key_eeprom->bottoming_calibration_reading);
+            key_runtime->rescaled_rt_release_offset          = rescale(key_runtime->rt_release_offset, 0, key_eeprom->bottoming_calibration_reading);
             break;
         case RESCALE_MODE_ALL: // All thresholds
             key_runtime->rescaled_apc_actuation_threshold    = rescale(key_runtime->apc_actuation_threshold, key_runtime->noise_floor, key_eeprom->bottoming_calibration_reading);
             key_runtime->rescaled_apc_release_threshold      = rescale(key_runtime->apc_release_threshold, key_runtime->noise_floor, key_eeprom->bottoming_calibration_reading);
             key_runtime->rescaled_rt_initial_deadzone_offset = rescale(key_runtime->rt_initial_deadzone_offset, key_runtime->noise_floor, key_eeprom->bottoming_calibration_reading);
-            key_runtime->rescaled_rt_actuation_offset        = rescale(key_runtime->rt_actuation_offset, key_runtime->noise_floor, key_eeprom->bottoming_calibration_reading);
-            key_runtime->rescaled_rt_release_offset          = rescale(key_runtime->rt_release_offset, key_runtime->noise_floor, key_eeprom->bottoming_calibration_reading);
+            key_runtime->rescaled_rt_actuation_offset        = rescale(key_runtime->rt_actuation_offset, 0, key_eeprom->bottoming_calibration_reading);
+            key_runtime->rescaled_rt_release_offset          = rescale(key_runtime->rt_release_offset, 0, key_eeprom->bottoming_calibration_reading);
             break;
         default:
             bulk_rescale_key_thresholds(key_runtime, key_eeprom, RESCALE_MODE_ALL);
@@ -469,7 +471,7 @@ void bulk_rescale_key_thresholds(runtime_key_state_t *key_runtime, eeprom_key_st
 
 // Unified helper function to update a field across all keys (runtime-only)
 void update_keys_field(update_mode_t mode, size_t runtime_offset, size_t eeprom_offset, const void *value, size_t field_size) {
-    for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+    for (uint8_t row = 0; row < MATRIX_ROWS_PER_HAND; row++) {
         for (uint8_t col = 0; col < MATRIX_COLS; col++) {
             // Update runtime
             uint8_t *runtime_field = (uint8_t *)&runtime_hybrid_config.runtime_key_state[row][col] + runtime_offset;
@@ -522,7 +524,7 @@ bool forms_square(KeyCoord key1, KeyCoord key2, KeyCoord key3, KeyCoord key4) {
 
 // Print the switch matrix values for debugging
 void hybrid_print_matrix(void) {
-    for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+    for (uint8_t row = 0; row < MATRIX_ROWS_PER_HAND; row++) {
         for (uint8_t col = 0; col < MATRIX_COLS - 1; col++) {
             uprintf("%4d,", sw_value[row][col]);
         }
