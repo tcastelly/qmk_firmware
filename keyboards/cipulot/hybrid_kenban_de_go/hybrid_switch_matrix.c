@@ -67,7 +67,7 @@ static adc_mux adcMux;
 // Initialize the row pins
 void init_row(void) {
     // Set all row pins as output with highest speed and initialize low
-    for (uint8_t idx = 0; idx < MATRIX_ROWS; idx++) {
+    for (uint8_t idx = 0; idx < ARRAY_SIZE(row_pins); idx++) {
         palSetLineMode(row_pins[idx], PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
         gpio_write_pin_low(row_pins[idx]);
     }
@@ -76,7 +76,7 @@ void init_row(void) {
 // Disable all the unused rows
 void disable_unused_row(uint8_t row) {
     // disable all the other rows apart from the current selected one
-    for (uint8_t idx = 0; idx < MATRIX_ROWS; idx++) {
+    for (uint8_t idx = 0; idx < ARRAY_SIZE(row_pins); idx++) {
         if (idx != row) {
             gpio_write_pin_low(row_pins[idx]);
         }
@@ -180,7 +180,7 @@ void hybrid_noise_floor_calibration(void) {
     }
 
     // Initialize all keys' noise floor to expected value
-    for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+    for (uint8_t row = 0; row < ARRAY_SIZE(row_pins); row++) {
         for (uint8_t col = 0; col < MATRIX_COLS; col++) {
             runtime_hybrid_config.runtime_key_state[row][col].noise_floor = EXPECTED_NOISE_FLOOR;
         }
@@ -196,7 +196,7 @@ void hybrid_noise_floor_calibration(void) {
             for (uint8_t col = 0; col < amux_n_col_sizes[amux]; col++) {
                 // Adjusted column index in the full matrix
                 uint8_t adjusted_col = col + col_offsets[amux];
-                for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+                for (uint8_t row = 0; row < ARRAY_SIZE(row_pins); row++) {
                     // Skip unused positions if specified
 #ifdef UNUSED_POSITIONS_LIST
                     if (is_unused_position(row, adjusted_col)) continue;
@@ -213,7 +213,7 @@ void hybrid_noise_floor_calibration(void) {
     }
 
     // Average the noise floor and rescale thresholds for all keys
-    for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+    for (uint8_t row = 0; row < ARRAY_SIZE(row_pins); row++) {
         for (uint8_t col = 0; col < MATRIX_COLS; col++) {
             // Get pointer to key state in runtime and EEPROM
             // Makes code more readable than having the expanded version multiple times
@@ -252,7 +252,7 @@ bool hybrid_matrix_scan(matrix_row_t current_matrix[]) {
         for (uint8_t col = 0; col < amux_n_col_sizes[amux]; col++) {
             // Adjusted column index in the full matrix
             uint8_t adjusted_col = col + col_offsets[amux];
-            for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+            for (uint8_t row = 0; row < ARRAY_SIZE(row_pins); row++) {
                 // Skip unused positions if specified
 #ifdef UNUSED_POSITIONS_LIST
                 if (is_unused_position(row, adjusted_col)) continue;
@@ -470,19 +470,23 @@ void bulk_rescale_key_thresholds(runtime_key_state_t *key_runtime, eeprom_key_st
 
 // Unified helper function to update a field across all keys (runtime-only)
 void update_keys_field(update_mode_t mode, size_t runtime_offset, size_t eeprom_offset, const void *value, size_t field_size) {
-    for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+    for (uint8_t row = 0; row < ARRAY_SIZE(row_pins); row++) {
         for (uint8_t col = 0; col < MATRIX_COLS; col++) {
             // Update runtime
-            uint8_t *runtime_field = (uint8_t *)&runtime_hybrid_config.runtime_key_state[row][col] + runtime_offset;
-            memcpy(runtime_field, value, field_size);
+            if (runtime_offset + field_size <= sizeof(runtime_hybrid_config.runtime_key_state[row][col])) {
+                uint8_t *runtime_field = (uint8_t *)&runtime_hybrid_config.runtime_key_state[row][col] + runtime_offset;
+                memcpy(runtime_field, value, field_size);
+            }
 
             if (mode != HYBRID_UPDATE_RUNTIME_ONLY) {
                 // Determine EEPROM offset: shared or dual
                 size_t effective_eeprom_offset = (mode == HYBRID_UPDATE_SHARED_OFFSET) ? runtime_offset : eeprom_offset;
 
                 // Update EEPROM in-memory
-                uint8_t *eeprom_field = (uint8_t *)&eeprom_hybrid_config.eeprom_key_state[row][col] + effective_eeprom_offset;
-                memcpy(eeprom_field, value, field_size);
+                if (effective_eeprom_offset + field_size <= sizeof(eeprom_hybrid_config.eeprom_key_state[row][col])) {
+                    uint8_t *eeprom_field = (uint8_t *)&eeprom_hybrid_config.eeprom_key_state[row][col] + effective_eeprom_offset;
+                    memcpy(eeprom_field, value, field_size);
+                }
             }
         }
     }
@@ -523,7 +527,7 @@ bool forms_square(KeyCoord key1, KeyCoord key2, KeyCoord key3, KeyCoord key4) {
 
 // Print the switch matrix values for debugging
 void hybrid_print_matrix(void) {
-    for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+    for (uint8_t row = 0; row < ARRAY_SIZE(row_pins); row++) {
         for (uint8_t col = 0; col < MATRIX_COLS - 1; col++) {
             uprintf("%4d,", sw_value[row][col]);
         }
