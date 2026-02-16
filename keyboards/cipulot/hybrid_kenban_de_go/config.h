@@ -17,6 +17,7 @@
 #pragma once
 
 #define MATRIX_ROWS 8
+#define MATRIX_ROWS_PER_HAND (MATRIX_ROWS / 2)
 #define MATRIX_COLS 7
 
 #define DEFAULT_SWITCH_TYPE 0

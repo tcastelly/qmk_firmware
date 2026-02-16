@@ -59,16 +59,16 @@ _Static_assert(AMUX_SEL_PINS_COUNT == EXPECTED_AMUX_SEL_PINS_COUNT, "AMUX_SEL_PI
 _Static_assert(ARRAY_SIZE(amux_n_col_sizes) == AMUX_COUNT, "AMUX_COL_CHANNELS_SIZES doesn't have the minimum number of elements required to specify the number of channels for all the multiplexers available");
 
 // Matrix switch value storage
-static uint16_t sw_value[MATRIX_ROWS_PER_HAND][MATRIX_COLS];
+static uint16_t sw_value[MATRIX_ROWS][MATRIX_COLS];
 
 // ADC multiplexer instance
 static adc_mux adcMux;
 
 // Initialize the row pins
 void init_row(void) {
-    // Set all row pins as output and low
-    for (uint8_t idx = 0; idx < MATRIX_ROWS_PER_HAND; idx++) {
-        gpio_set_pin_output(row_pins[idx]);
+    // Set all row pins as output with highest speed and initialize low
+    for (uint8_t idx = 0; idx < MATRIX_ROWS; idx++) {
+        palSetLineMode(row_pins[idx], PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
         gpio_write_pin_low(row_pins[idx]);
     }
 }
@@ -76,7 +76,7 @@ void init_row(void) {
 // Disable all the unused rows
 void disable_unused_row(uint8_t row) {
     // disable all the other rows apart from the current selected one
-    for (uint8_t idx = 0; idx < MATRIX_ROWS_PER_HAND; idx++) {
+    for (uint8_t idx = 0; idx < MATRIX_ROWS; idx++) {
         if (idx != row) {
             gpio_write_pin_low(row_pins[idx]);
         }
@@ -85,14 +85,14 @@ void disable_unused_row(uint8_t row) {
 
 // Initialize the AMUXs
 void init_amux(void) {
-    // Set all AMUX enable pins as output and disable all AMUXs
+    // Set all AMUX enable pins as output with highest speed and disable all AMUXs
     for (uint8_t idx = 0; idx < AMUX_COUNT; idx++) {
-        gpio_set_pin_output(amux_en_pins[idx]);
+        palSetLineMode(amux_en_pins[idx], PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
         gpio_write_pin_low(amux_en_pins[idx]);
     }
-    // Set all AMUX selection pins as output
+    // Set all AMUX selection pins as output with highest speed
     for (uint8_t idx = 0; idx < AMUX_SEL_PINS_COUNT; idx++) {
-        gpio_set_pin_output(amux_sel_pins[idx]);
+        palSetLineMode(amux_sel_pins[idx], PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
     }
 }
 
@@ -122,12 +122,13 @@ void disable_unused_amux(uint8_t channel) {
 
 // Charge the peak hold capacitor
 void charge_capacitor(uint8_t row) {
-    // Set the row pin to high state to charge the capacitor
+    // Set the discharge pin to high-Z state
 #ifdef OPEN_DRAIN_SUPPORT
     gpio_write_pin_high(DISCHARGE_PIN);
 #else
     gpio_set_pin_input(DISCHARGE_PIN);
 #endif
+    // Set the row pin to high state to charge the capacitor
     gpio_write_pin_high(row_pins[row]);
 }
 
@@ -137,8 +138,8 @@ void discharge_capacitor(void) {
 #ifdef OPEN_DRAIN_SUPPORT
     gpio_write_pin_low(DISCHARGE_PIN);
 #else
-    gpio_write_pin_low(DISCHARGE_PIN);
     gpio_set_pin_output(DISCHARGE_PIN);
+    gpio_write_pin_low(DISCHARGE_PIN);
 #endif
 }
 
@@ -151,12 +152,12 @@ int hybrid_init(void) {
     // Dummy call to make sure that adcStart() has been called in the appropriate state
     adc_read(adcMux);
 
-    // Initialize the discharge pin
-    gpio_write_pin_low(DISCHARGE_PIN);
+    // Initialize the discharge pin with highest speed
 #ifdef OPEN_DRAIN_SUPPORT
-    gpio_set_pin_output_open_drain(DISCHARGE_PIN);
+    palSetLineMode(DISCHARGE_PIN, PAL_MODE_OUTPUT_OPENDRAIN | PAL_STM32_OSPEED_HIGHEST);
+    gpio_write_pin_high(DISCHARGE_PIN); // Start in high-Z state
 #else
-    gpio_set_pin_output(DISCHARGE_PIN);
+    gpio_set_pin_input(DISCHARGE_PIN); // Start in high-Z state
 #endif
 
     // Initialize row pins
@@ -179,7 +180,7 @@ void hybrid_noise_floor_calibration(void) {
     }
 
     // Initialize all keys' noise floor to expected value
-    for (uint8_t row = 0; row < MATRIX_ROWS_PER_HAND; row++) {
+    for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
         for (uint8_t col = 0; col < MATRIX_COLS; col++) {
             runtime_hybrid_config.runtime_key_state[row][col].noise_floor = EXPECTED_NOISE_FLOOR;
         }
@@ -195,7 +196,7 @@ void hybrid_noise_floor_calibration(void) {
             for (uint8_t col = 0; col < amux_n_col_sizes[amux]; col++) {
                 // Adjusted column index in the full matrix
                 uint8_t adjusted_col = col + col_offsets[amux];
-                for (uint8_t row = 0; row < MATRIX_ROWS_PER_HAND; row++) {
+                for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
                     // Skip unused positions if specified
 #ifdef UNUSED_POSITIONS_LIST
                     if (is_unused_position(row, adjusted_col)) continue;
@@ -212,7 +213,7 @@ void hybrid_noise_floor_calibration(void) {
     }
 
     // Average the noise floor and rescale thresholds for all keys
-    for (uint8_t row = 0; row < MATRIX_ROWS_PER_HAND; row++) {
+    for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
         for (uint8_t col = 0; col < MATRIX_COLS; col++) {
             // Get pointer to key state in runtime and EEPROM
             // Makes code more readable than having the expanded version multiple times
@@ -251,7 +252,7 @@ bool hybrid_matrix_scan(matrix_row_t current_matrix[]) {
         for (uint8_t col = 0; col < amux_n_col_sizes[amux]; col++) {
             // Adjusted column index in the full matrix
             uint8_t adjusted_col = col + col_offsets[amux];
-            for (uint8_t row = 0; row < MATRIX_ROWS_PER_HAND; row++) {
+            for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
                 // Skip unused positions if specified
 #ifdef UNUSED_POSITIONS_LIST
                 if (is_unused_position(row, adjusted_col)) continue;
@@ -292,7 +293,7 @@ bool hybrid_matrix_scan(matrix_row_t current_matrix[]) {
         }
     }
 
-    // Check if a square pattern exists and deactivate the last key in the pattern (ghost key
+    // Check if a square pattern exists and deactivate the last key in the pattern (ghost key)
     if (mx_keypress_count == 4) {
         // If four keypresses detected, check for square formation (2x2 grid pattern)
         if (forms_square(keypresses[0], keypresses[1], keypresses[2], keypresses[3])) {
@@ -314,13 +315,11 @@ uint16_t hybrid_readkey_raw(uint8_t channel, uint8_t row, uint8_t col) {
     // Select the AMUX channel and column
     select_amux_channel(channel, col);
 
-    // Ensure the row pin is low before starting
-    gpio_write_pin_low(row_pins[row]);
+    // Charge the peak hold capacitor (moved outside atomic block)
+    charge_capacitor(row);
 
     // Atomic block to prevent interruptions during the critical timing section
     ATOMIC_BLOCK_FORCEON {
-        // Charge the peak hold capacitor
-        charge_capacitor(row);
         // Waiting for the capacitor to charge
         wait_us(CHARGE_TIME);
         // Read the ADC value
@@ -328,7 +327,7 @@ uint16_t hybrid_readkey_raw(uint8_t channel, uint8_t row, uint8_t col) {
     }
     // Discharge peak hold capacitor
     discharge_capacitor();
-    // Waiting for the ghost capacitor to discharge fully
+    // Waiting for the capacitor to discharge fully
     wait_us(DISCHARGE_TIME);
 
     return sw_value;
@@ -471,7 +470,7 @@ void bulk_rescale_key_thresholds(runtime_key_state_t *key_runtime, eeprom_key_st
 
 // Unified helper function to update a field across all keys (runtime-only)
 void update_keys_field(update_mode_t mode, size_t runtime_offset, size_t eeprom_offset, const void *value, size_t field_size) {
-    for (uint8_t row = 0; row < MATRIX_ROWS_PER_HAND; row++) {
+    for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
         for (uint8_t col = 0; col < MATRIX_COLS; col++) {
             // Update runtime
             uint8_t *runtime_field = (uint8_t *)&runtime_hybrid_config.runtime_key_state[row][col] + runtime_offset;
@@ -524,7 +523,7 @@ bool forms_square(KeyCoord key1, KeyCoord key2, KeyCoord key3, KeyCoord key4) {
 
 // Print the switch matrix values for debugging
 void hybrid_print_matrix(void) {
-    for (uint8_t row = 0; row < MATRIX_ROWS_PER_HAND; row++) {
+    for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
         for (uint8_t col = 0; col < MATRIX_COLS - 1; col++) {
             uprintf("%4d,", sw_value[row][col]);
         }
