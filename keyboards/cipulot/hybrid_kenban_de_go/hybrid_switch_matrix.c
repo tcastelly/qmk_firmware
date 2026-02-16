@@ -196,6 +196,14 @@ void hybrid_noise_floor_calibration(void) {
             for (uint8_t col = 0; col < amux_n_col_sizes[amux]; col++) {
                 // Adjusted column index in the full matrix
                 uint8_t adjusted_col = col + col_offsets[amux];
+
+                // FIX: Column 1 stabilization delay.
+                // Prevents the "LOWER" key (Row 3) from electrically blinding
+                // the "Q" key (Row 0) during high-speed scanning.
+                select_amux_channel(amux, col);
+                wait_us(30);
+                // ------------------------
+                
                 for (uint8_t row = 0; row < ARRAY_SIZE(row_pins); row++) {
                     // Skip unused positions if specified
 #ifdef UNUSED_POSITIONS_LIST
@@ -252,6 +260,14 @@ bool hybrid_matrix_scan(matrix_row_t current_matrix[]) {
         for (uint8_t col = 0; col < amux_n_col_sizes[amux]; col++) {
             // Adjusted column index in the full matrix
             uint8_t adjusted_col = col + col_offsets[amux];
+
+            // FIX: Column 1 stabilization delay.
+            // Prevents the "LOWER" key (Row 3) from electrically blinding
+            // the "Q" key (Row 0) during high-speed scanning.
+            select_amux_channel(amux, col);
+            wait_us(30);
+            // ------------------------
+            
             for (uint8_t row = 0; row < ARRAY_SIZE(row_pins); row++) {
                 // Skip unused positions if specified
 #ifdef UNUSED_POSITIONS_LIST
