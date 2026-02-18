@@ -13,9 +13,10 @@ static const I2CConfig i2ccfg2 = {
 };
 
 void i2c2_init_custom(void) {
+    // Corrected spelling to i2c2
     // Setup pins for I2CD2: B10=SCL, B11=SDA
-    palSetPadMode(GPIOB, 10, PAL_MODE_ALTERNATE(1) | PAL_STM32_OTYPE_OPENDRAIN);
-    palSetPadMode(GPIOB, 11, PAL_MODE_ALTERNATE(1) | PAL_STM32_OTYPE_OPENDRAIN);
+    palSetPadMode(GPIOB, 10, PAL_MODE_ALTERNATE(1) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUPDR_PULLUP);
+    palSetPadMode(GPIOB, 11, PAL_MODE_ALTERNATE(1) | PAL_STM32_OTYPE_OPENDRAIN | PAL_STM32_PUPDR_PULLUP);
     i2cStart(&I2CD2, &i2ccfg2);
 }
 
