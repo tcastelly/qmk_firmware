@@ -36,16 +36,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // #define I2C1_SDA_PAL_MODE 1
 
 // Trackpad as default
-#define I2C_DRIVER I2CD1
-#define I2C1_SCL_PIN B6
-#define I2C1_SDA_PIN B7
-#define I2C1_SCL_PAL_MODE 1
-#define I2C1_SDA_PAL_MODE 1
-#define I2C1_TIMINGR_PRESC 0x00U
-#define I2C1_TIMINGR_SCLDEL 0x03U
-#define I2C1_TIMINGR_SDADEL 0x01U
-#define I2C1_TIMINGR_SCLH 0x03U
-#define I2C1_TIMINGR_SCLL 0x09U
+// #define I2C_DRIVER I2CD1
+// #define I2C1_SCL_PIN B6
+// #define I2C1_SDA_PIN B7
+// #define I2C1_SCL_PAL_MODE 1
+// #define I2C1_SDA_PAL_MODE 1
+// #define I2C1_TIMINGR_PRESC 0x00U
+// #define I2C1_TIMINGR_SCLDEL 0x03U
+// #define I2C1_TIMINGR_SDADEL 0x01U
+// #define I2C1_TIMINGR_SCLH 0x03U
+// #define I2C1_TIMINGR_SCLL 0x09U
 
 #define F_SCL 100000
                                   
@@ -65,5 +65,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define DIODE_DIRECTION COL2ROW
 
-# define AZOTEQ_IQS5XX_TPS43
+// # define AZOTEQ_IQS5XX_TPS43
 
+// PS/2 Configuration
+#define PS2_DATA_PIN  B11
+#define PS2_CLOCK_PIN B10
+#define PS2_MOUSE_DEBUG // This might give us more info in the console
+#define PS2_INT_SCLK   10           // Line 10
+
+/* Interrupt settings */
+// For STM32F072, B10 uses EXTI Line 10
+#define PS2_MOUSE_X_SAMPLES 3
+#define PS2_INT_SCLK   10
+#define PS2_INT_GPIOA  GPIOB
+#define PS2_INT_EXTICR 2
+/* Allow the driver to process packets even if the sync bit is missing */
+#define PS2_MOUSE_SYNC_MASK 0x08
+#define PS2_MOUSE_SYNC_BIT  0x08
+
+#define PS2_DELAY 100
+#define PS2_MOUSE_RESOLUTION 1
+
+/* Increase the timeout to ensure we don't drop packets mid-stream */
+#define PS2_MOUSE_INIT_DELAY 1000
+#define POINTING_DEVICE_TASK_EVERY_MS 1
