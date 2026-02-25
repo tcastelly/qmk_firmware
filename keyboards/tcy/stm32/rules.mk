@@ -1,7 +1,7 @@
 CONSOLE_ENABLE = yes
 CUSTOM_MATRIX = lite
 
-# SRC += matrix.c i2c2_handler.c
+ SRC += matrix.c i2c2_handler.c
 SRC += ps2.c
 
 POINTING_DEVICE_ENABLE = yes

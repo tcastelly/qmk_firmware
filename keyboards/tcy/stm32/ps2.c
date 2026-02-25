@@ -281,7 +281,7 @@ fail:
  * Init
  * ============================================================ */
 
-void matrix_init_custom(void) {
+void ps2_init(void) {
 
     /* Enable SYSCFG clock (required for EXTI routing).
      * I2C2/USART3 clocks are NOT touched here — PB8/PB9 have
@@ -332,7 +332,7 @@ void matrix_init_custom(void) {
  *   PRIMASK = 0  (interrupts enabled)
  * ============================================================ */
 
-void matrix_scan_custom(void) {
+void ps2_scan(void) {
 
     static bool late_init_done = false;
     if (!late_init_done) {
