@@ -7,7 +7,12 @@
 #include "wait.h"
 #include "print.h"
 #include "platforms/chibios/gpio.h"
-#include "i2c2_handler.h" // Switched from i2c_master.h to your custom handler
+#include "i2c2_handler.h"
+
+#ifdef AUDIO_ENABLE
+#include "audio.h"
+float layer_sound_on[][2] = SONG(STARTUP_SOUND);
+#endif
 
 void ps2_init(void);
 void ps2_scan(void);
@@ -19,6 +24,7 @@ void ps2_scan(void);
 #define MCP23017_GPIO_A  0x12 
 #define MCP23017_GPIO_B  0x13 
 #define MCP23017_IOCON   0x0A
+
 
 static const ioline_t RIGHT_ROWS[] = MATRIX_ROW_PINS_MCU;
 static const ioline_t RIGHT_COLS[] = MATRIX_COL_PINS_MCU;
@@ -63,7 +69,7 @@ void matrix_init_custom(void) {
 
 bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     if (!matrix_initialized) return false;
-    
+
     // --- Run PS/2 Receiver Logic ---
     ps2_scan();
 

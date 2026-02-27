@@ -4,6 +4,10 @@
 #include "ch.h"
 #include "hal.h"
 
+#ifdef AUDIO_ENABLE
+#include "audio.h"
+float layer_sound_on[][2] = SONG(STARTUP_SOUND);
+#endif
 
 /* ============================================================
  * Pin Selection
@@ -317,7 +321,7 @@ void ps2_init(void) {
 
 
 /* ============================================================
- * Debug + Late Init Guard
+ * Scan: debug + pin guard
  *
  * Expected register values (pinset 1 — PB8/PB9):
  *   MODER   bits 16-19 = 0000  (PB8/PB9 input)
@@ -334,6 +338,7 @@ void ps2_init(void) {
 
 void ps2_scan(void) {
 
+    /* ── Late init: re-apply full config on first tick after QMK boot ── */
     static bool late_init_done = false;
     if (!late_init_done) {
         RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
@@ -347,6 +352,22 @@ void ps2_scan(void) {
         late_init_done = true;
     }
 
+    /* ── Per-tick pin guard ─────────────────────────────────────────────
+     * Something in QMK/ChibiOS periodically restores AF mode on the PS/2
+     * pins (observed: MODER=0000A080 with AFRH=0, meaning AF mode but no
+     * specific AF assigned). Forcing MODER and AFRH every tick is cheap
+     * (just register writes) and guarantees the pins stay as plain input.
+     * ─────────────────────────────────────────────────────────────────── */
+    GPIOB->MODER &= ~(3U << (PS2_CLK_NR * 2));          /* CLK: force input */
+    GPIOB->MODER &= ~(3U << (PS2_DAT_NR * 2));          /* DAT: force input */
+    GPIOB->AFRH  &= ~(0xFU << ((PS2_CLK_NR - 8) * 4)); /* CLK: clear AF    */
+    GPIOB->AFRH  &= ~(0xFU << ((PS2_DAT_NR - 8) * 4)); /* DAT: clear AF    */
+
+    /* ── Debug output every 500 ms ─────────────────────────────────────
+     * Enabled by: #define PS2_MOUSE_DEBUG in config.h
+     * Disable in production to reduce USB console overhead.
+     * ─────────────────────────────────────────────────────────────────── */
+#ifdef PS2_MOUSE_DEBUG
     static uint16_t timer = 0;
     if (timer_elapsed(timer) > 500) {
         uprintf(
@@ -363,6 +384,7 @@ void ps2_scan(void) {
         );
         timer = timer_read();
     }
+#endif
 }
 
 
@@ -401,9 +423,34 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
     prev_buttons     =  b0 & 0x07;
 
     /* Merge PS/2 on top of Azoteq */
-    mouse_report.x       = (int8_t)CLAMP((int16_t)mouse_report.x + x,   -127, 127);
-    mouse_report.y       = (int8_t)CLAMP((int16_t)mouse_report.y + (-y), -127, 127);
+    mouse_report.x       = (int8_t)CLAMP((int16_t)mouse_report.x + x,    -127, 127);
+    mouse_report.y       = (int8_t)CLAMP((int16_t)mouse_report.y + (-y),  -127, 127);
     mouse_report.buttons |= buttons;
 
     return mouse_report;
+}
+
+
+/* ============================================================
+ * Matrix hooks
+ * ============================================================ */
+
+void matrix_init_custom(void) {
+    ps2_init();
+}
+
+bool matrix_scan_custom(void) {
+    ps2_scan();
+
+    /* ── Beep every second (uncomment to enable) ────────────
+    static uint16_t beep_timer = 0;
+    if (timer_elapsed(beep_timer) > 1000) {
+        #ifdef AUDIO_ENABLE
+        PLAY_SONG(layer_sound_on);
+        #endif
+        beep_timer = timer_read();
+    }
+    ─────────────────────────────────────────────────────── */
+
+    return false;
 }
