@@ -4,11 +4,6 @@
 #include "ch.h"
 #include "hal.h"
 
-#ifdef AUDIO_ENABLE
-#include "audio.h"
-float layer_sound_on[][2] = SONG(STARTUP_SOUND);
-#endif
-
 /* ============================================================
  * Pin Selection
  * Change PS2_PINSET to switch pin pair — nothing else to edit.
@@ -400,7 +395,7 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
     chSysLock();
     if (!packet_ready) {
         chSysUnlock();
-        return mouse_report;   /* No PS/2 data: return Azoteq report as-is */
+        return pointing_device_task_user(mouse_report);   /* No PS/2 data: return Azoteq report as-is */
     }
     uint8_t b0   = ready_packet[0];
     uint8_t b1   = ready_packet[1];
@@ -409,25 +404,31 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
     chSysUnlock();
 
     /* Reject packets with overflow bits set — data is unreliable */
-    if (b0 & 0xC0) return mouse_report;
+    if (b0 & 0xC0) return pointing_device_task_user(mouse_report);
 
     int8_t x = (int8_t)b1;
     int8_t y = (int8_t)b2;
     if (b0 & 0x10) x -= 256;   /* X sign extension */
     if (b0 & 0x20) y -= 256;   /* Y sign extension */
 
-    /* Debounce buttons: only report a button as pressed if it was
-     * pressed in both this packet and the previous one.           */
+    /* Button debounce: report press immediately, debounce release only.
+     * A press is reported as soon as it appears in a packet.
+     * A release is only confirmed after two consecutive packets with
+     * the button cleared — prevents spurious releases on quick clicks. */
     static uint8_t prev_buttons = 0;
-    uint8_t buttons  = (b0 & 0x07) & prev_buttons;
-    prev_buttons     =  b0 & 0x07;
+    uint8_t raw_buttons = b0 & 0x07;
+    uint8_t buttons = raw_buttons | (prev_buttons & raw_buttons);  /* press immediately */
+    prev_buttons = raw_buttons;                                     /* release debounced */
 
     /* Merge PS/2 on top of Azoteq */
-    mouse_report.x       = (int8_t)CLAMP((int16_t)mouse_report.x + x,    -127, 127);
-    mouse_report.y       = (int8_t)CLAMP((int16_t)mouse_report.y + (-y),  -127, 127);
+    mouse_report.x = (int8_t)CLAMP((int16_t)mouse_report.x + x,   -127, 127);
+    mouse_report.y = (int8_t)CLAMP((int16_t)mouse_report.y + (-y), -127, 127);
+
+    /* Merge PS/2 buttons — remapping handled in pointing_device_task_user() in keymap.c
+     * NOTE: use (layer_state | default_layer_state) there for correct layer detection. */
     mouse_report.buttons |= buttons;
 
-    return mouse_report;
+    return pointing_device_task_user(mouse_report);
 }
 
 
@@ -441,16 +442,6 @@ void matrix_init_custom(void) {
 
 bool matrix_scan_custom(void) {
     ps2_scan();
-
-    /* ── Beep every second (uncomment to enable) ────────────
-    static uint16_t beep_timer = 0;
-    if (timer_elapsed(beep_timer) > 1000) {
-        #ifdef AUDIO_ENABLE
-        PLAY_SONG(layer_sound_on);
-        #endif
-        beep_timer = timer_read();
-    }
-    ─────────────────────────────────────────────────────── */
 
     return false;
 }

@@ -20,7 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <math.h>
 #include "tapdance.c"
 #include "print.h" // For uprintf
-// #include "i2c_master.h"
+#include "audio.h"
+
+float layer_sound_on[][2] = SONG(STARTUP_SOUND);
 
 static uint32_t key_timer = 0;
 
@@ -527,4 +529,16 @@ void keyboard_post_init_user(void) {
 
 void board_init(void) {
   SYSCFG->CFGR1 |= SYSCFG_CFGR1_I2C1_DMA_RMP;
+}
+
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    if (mouse_report.buttons & MOUSE_BTN1) {  // left click
+      audio_play_melody(&layer_sound_on, 3, false);  // non-blocking
+      if (IS_LAYER_ON(_QWERTY) || IS_LAYER_ON(_ESC) || IS_LAYER_ON(_ESC_OSX)) {
+        mouse_report.buttons &= ~MOUSE_BTN1;  // remove left
+        mouse_report.buttons |=  MOUSE_BTN2;  // add right
+      }
+    }
+
+    return mouse_report;
 }

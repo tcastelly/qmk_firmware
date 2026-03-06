@@ -1,21 +1,20 @@
 #ifndef TAPDANCE_H
 #define TAPDANCE_H
-
 bool touched_td;
 
 bool scrolling_mode = false;
 
 enum layer_names {
-    _QWERTY,
-    _QWERTY_OSX,
-    _QWERTY_GAMING,
-    _LOWER,
-    _RAISE,
-    _ADJUST,
-    _ESC,
-    _ESC_OSX,
-    _NUM_PADS,
-    _ACCENTS_RALT
+    _QWERTY,       // 0
+    _QWERTY_OSX,   // 1
+    _QWERTY_GAMING,// 2
+    _LOWER,        // 3
+    _RAISE,        // 4
+    _ADJUST,       // 5
+    _ESC,          // 6
+    _ESC_OSX,      // 7
+    _NUM_PADS,     // 8
+    _ACCENTS_RALT  // 9
 };
 
 enum custom_keycodes {
