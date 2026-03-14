@@ -9,11 +9,6 @@
 #include "platforms/chibios/gpio.h"
 #include "i2c2_handler.h"
 
-#ifdef AUDIO_ENABLE
-#include "audio.h"
-float layer_sound_on[][2] = SONG(STARTUP_SOUND);
-#endif
-
 void ps2_init(void);
 void ps2_scan(void);
 
@@ -25,33 +20,39 @@ void ps2_scan(void);
 #define MCP23017_GPIO_B  0x13 
 #define MCP23017_IOCON   0x0A
 
-
 static const ioline_t RIGHT_ROWS[] = MATRIX_ROW_PINS_MCU;
 static const ioline_t RIGHT_COLS[] = MATRIX_COL_PINS_MCU;
 static bool matrix_initialized = false;
 
+// Global variable to store the state of the GPA6 mouse button
+uint8_t mcp_click_state = 0;
+
 void matrix_init_custom(void) {
     // --- Initialize PS/2 Trackpoint ---
-    ps2_init();
+    // ps2_init();
 
     wait_ms(500); 
     i2c2_init_custom(); // Initialize I2C2 (B10/B11) instead of I2C1
     wait_ms(100);
 
-    // 1. Configure MCP23017 (Left Side) - Active High for 10k resistors
+    // 1. Configure MCP23017 (Left Side)
     uint8_t iocon = 0b00100000;
-    // Note: Addresses are shifted left for the 7-bit + R/W format
     if (i2c2_write_reg(MCP23017_I2C_ADDRESS << 1, MCP23017_IOCON, &iocon, 1, 10) == I2C_STATUS_SUCCESS) {
-        // Port A (Cols) = Outputs, Port B (Rows) = Inputs
-        uint8_t iodir_a = 0x00; 
-        uint8_t iodir_b = 0xFF; 
+        
+        // Port A: Pins 0-5 are Outputs (Cols), Pin 6 is Input (Mouse Switch)
+        // 0x40 = 0b01000000
+        uint8_t iodir_a = 0x40; 
+        uint8_t iodir_b = 0xFF; // Port B (Rows) = Inputs
         i2c2_write_reg(MCP23017_I2C_ADDRESS << 1, MCP23017_IODIR_A, &iodir_a, 1, 10);
         i2c2_write_reg(MCP23017_I2C_ADDRESS << 1, MCP23017_IODIR_B, &iodir_b, 1, 10);
         
-        // No pull-ups (external 10k resistors used)
-        uint8_t gppu = 0x00; 
-        i2c2_write_reg(MCP23017_I2C_ADDRESS << 1, MCP23017_GPPU_A, &gppu, 1, 10);
-        i2c2_write_reg(MCP23017_I2C_ADDRESS << 1, 0x0D, &gppu, 1, 10);
+        // Disable internal pull-ups for Port A (GPA6 uses external 10k pull-down)
+        uint8_t gppu_a = 0x00; 
+        i2c2_write_reg(MCP23017_I2C_ADDRESS << 1, MCP23017_GPPU_A, &gppu_a, 1, 10);
+        
+        // Port B uses external 10k resistors (no internal pull-ups)
+        uint8_t gppu_b = 0x00; 
+        i2c2_write_reg(MCP23017_I2C_ADDRESS << 1, 0x0D, &gppu_b, 1, 10);
         
         matrix_initialized = true;
         print("MCP23017 on I2C2 Init: Success\n");
@@ -71,10 +72,17 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     if (!matrix_initialized) return false;
 
     // --- Run PS/2 Receiver Logic ---
-    ps2_scan();
+    // ps2_scan();
 
     matrix_row_t scanned_matrix[MATRIX_ROWS]; 
     memset(scanned_matrix, 0, sizeof(scanned_matrix));
+
+    // --- CATCH THE CLICK FROM GPA6 (Active High via VCC) ---
+    uint8_t port_a_read = 0;
+    if (i2c2_read_reg(MCP23017_I2C_ADDRESS << 1, MCP23017_GPIO_A, &port_a_read, 1, 10) == I2C_STATUS_SUCCESS) {
+        // Pressed = pin sees VCC = bit is 1. If high, mcp_click_state = 1.
+        mcp_click_state = (port_a_read & (1 << 6)) ? 1 : 0;
+    }
 
     // --- SCAN RIGHT SIDE (MCU) - Direct GPIO ---
     for (uint8_t row = 0; row < 4; row++) {
@@ -103,6 +111,7 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
                 }
             }
         }
+        // Ensure we don't accidentally drive GPA6 High while resetting columns
         uint8_t low = 0x00;
         i2c2_write_reg(MCP23017_I2C_ADDRESS << 1, MCP23017_GPIO_A, &low, 1, 10);
     }

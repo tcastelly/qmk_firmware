@@ -1,17 +1,18 @@
 # ── Matrix ──────────────────────────────────────────────────
 CUSTOM_MATRIX = lite
 
-# Left half MCP23017 handler (uncomment when in use)
-# SRC += matrix.c i2c2_handler.c
+# Left half MCP23017 handler
+SRC += matrix.c i2c2_handler.c
 
 # ── PS/2 trackpoint (custom driver) ─────────────────────────
-SRC += ps2.c
+# SRC += ps2.c
 PS2_ENABLE = no
 
 
 # ── Pointing device ──────────────────────────────────────────
 POINTING_DEVICE_ENABLE = yes
 POINTING_DEVICE_DRIVER = azoteq_iqs5xx
+
 
 # MOUSE_ENABLE: required for mouse report USB HID descriptor.
 MOUSE_ENABLE = yes
@@ -30,12 +31,6 @@ I2C_ENABLE = yes
 #   AUDIO_ENABLE = yes
 #   AUDIO_DRIVER = pwm_hardware  (uses TIM1_CH1 on PA8)
 # Pin and timer config is in config.h.
-AUDIO_ENABLE = yes
+# AUDIO_ENABLE = no
 AUDIO_DRIVER = pwm_hardware
-
-
-# ── Debug ────────────────────────────────────────────────────
-# CONSOLE_ENABLE: enables uprintf() for debug logs over USB.
-# Disable in production to save flash space.
-CONSOLE_ENABLE = yes
 

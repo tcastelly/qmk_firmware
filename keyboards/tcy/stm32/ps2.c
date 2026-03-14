@@ -311,6 +311,7 @@ void ps2_init(void) {
     ps2_send(0xEA);       /* Stream Mode               */
     wait_ms(10);
     uint8_t ack = ps2_send(0xF4);  /* Enable Reporting */
+    (void)ack;                     /* Explicitly ignore unused variable warning */
     uprintf("PS2 Init ACK: %02X\n", ack);
 }
 

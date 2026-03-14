@@ -39,9 +39,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MATRIX_ROW_PINS { B0, B1, B2, B3, A0, A1, A2, A3 }
 #define MATRIX_COL_PINS { A0, A1, A2, A3, A4, A5, B0, B1, B2, B3, B4, B5 }
 
-#define DIODE_DIRECTION COL2ROW
-
-
 /* ── I2C1 — Azoteq IQS572 trackpad ─────────────────────────
  * MANDATORY lines for I2C1:
  *   I2C_DRIVER, I2C1_SCL_PIN, I2C1_SDA_PIN,

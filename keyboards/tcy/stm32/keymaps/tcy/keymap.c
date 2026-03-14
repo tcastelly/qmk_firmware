@@ -20,9 +20,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <math.h>
 #include "tapdance.c"
 #include "print.h" // For uprintf
-#include "audio.h"
 
+#ifdef AUDIO_ENABLE
+#include "audio.h"
 float layer_sound_on[][2] = SONG(STARTUP_SOUND);
+#endif
+
+// Reach into matrix.c to get the button state
+extern uint8_t mcp_click_state; 
 
 static uint32_t key_timer = 0;
 
@@ -507,36 +512,60 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   return true;
 }
 
-// void scan_i2c_bus(void) {
-//     uprintf("Starting I2C scan...\n");
-//     uint8_t dat = 0;
-//     for (uint8_t address = 1; address < 128; address++) {
-//         // We shift address left for the 7-bit + R/W format
-//         // Use i2c_receive if i2c_read continues to fail
-//         i2c_status_t status = i2c_receive(address << 1, &dat, 1, 100);
-//         if (status == I2C_STATUS_SUCCESS) {
-//             uprintf("Found device at address: 0x%02X\n", address);
-//         }
-//     }
-//     uprintf("Scan complete.\n");
-// }
+void scan_i2c_bus(void) {
+#ifdef CONSOLE_ENABLE
+  uprintf("Starting I2C scan...\n");
+  uint8_t dat = 0;
+  for (uint8_t address = 1; address < 128; address++) {
+    // We shift address left for the 7-bit + R/W format
+    // Use i2c_receive if i2c_read continues to fail
+    i2c_status_t status = i2c_receive(address << 1, &dat, 1, 100);
+    if (status == I2C_STATUS_SUCCESS) {
+      uprintf("Found device at address: 0x%02X\n", address);
+    }
+  }
+  uprintf("Scan complete.\n");
+#endif
+}
 
 void keyboard_post_init_user(void) {
     wait_ms(500); // Let the trackpad boot
 
-    // scan_i2c_bus();
+    scan_i2c_bus();
 }
 
 void board_init(void) {
   SYSCFG->CFGR1 |= SYSCFG_CFGR1_I2C1_DMA_RMP;
 }
 
+
+void play_audio(void) {
+#ifdef AUDIO_ENABLE
+  audio_play_melody(&layer_sound_on, 3, false);  // non-blocking
+#endif
+}
+
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    // Manually inject the MCP button into the report before processing logic
+    if (mcp_click_state) {
+      mouse_report.buttons |= MOUSE_BTN2;
+    }
+
+    // toggle buttons
+    // used by PS/2 (PS/2 trigger left click by default)
     if (mouse_report.buttons & MOUSE_BTN1) {  // left click
-      audio_play_melody(&layer_sound_on, 3, false);  // non-blocking
+      play_audio();
       if (IS_LAYER_ON(_QWERTY) || IS_LAYER_ON(_ESC) || IS_LAYER_ON(_ESC_OSX)) {
         mouse_report.buttons &= ~MOUSE_BTN1;  // remove left
         mouse_report.buttons |=  MOUSE_BTN2;  // add right
+      }
+    } else if (mouse_report.buttons & MOUSE_BTN2) {  // right click
+      // used by MCP
+      // MCP trigger right click by default
+      play_audio();
+      if (IS_LAYER_ON(_QWERTY) || IS_LAYER_ON(_ESC) || IS_LAYER_ON(_ESC_OSX)) {
+        mouse_report.buttons &= ~MOUSE_BTN2;  // remove left
+        mouse_report.buttons |=  MOUSE_BTN1;  // add right
       }
     }
 
