@@ -1,5 +1,6 @@
 #include "quantum.h"
 #include "pointing_device.h"
+#include "ps2_acceleration.c"
 #include "print.h"
 #include "ch.h"
 #include "hal.h"
@@ -63,6 +64,10 @@ static volatile bool    packet_ready = false;
 static volatile uint8_t  ps2_data     = 0;
 static volatile uint8_t  ps2_bitcount = 0;
 static volatile uint32_t clock_interrupt_count = 0;
+
+/* Exposed for ps2_acceleration.c — PS/2 button state only, excludes Azoteq.
+ * Allows pointing_device_task_user to distinguish PS/2 vs Azoteq clicks. */
+uint8_t ps2_buttons_state = 0;
 
 
 /* ============================================================
@@ -280,7 +285,7 @@ fail:
  * Init
  * ============================================================ */
 
-void ps2_init(void) {
+void ps2_stm32_init(void) {
 
     /* Enable SYSCFG clock (required for EXTI routing).
      * I2C2/USART3 clocks are NOT touched here — PB8/PB9 have
@@ -332,7 +337,7 @@ void ps2_init(void) {
  *   PRIMASK = 0  (interrupts enabled)
  * ============================================================ */
 
-void ps2_scan(void) {
+void ps2_stm32_scan(void) {
 
     /* ── Late init: re-apply full config on first tick after QMK boot ── */
     static bool late_init_done = false;
@@ -421,13 +426,17 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
     uint8_t buttons = raw_buttons | (prev_buttons & raw_buttons);  /* press immediately */
     prev_buttons = raw_buttons;                                     /* release debounced */
 
+    /* Expose PS/2 button state for ps2_acceleration.c / keymap use.
+     * This allows distinguishing PS/2 clicks from Azoteq clicks. */
+    ps2_buttons_state = buttons;
+
     /* Merge PS/2 on top of Azoteq */
     mouse_report.x = (int8_t)CLAMP((int16_t)mouse_report.x + x,   -127, 127);
     mouse_report.y = (int8_t)CLAMP((int16_t)mouse_report.y + (-y), -127, 127);
-
-    /* Merge PS/2 buttons — remapping handled in pointing_device_task_user() in keymap.c
-     * NOTE: use (layer_state | default_layer_state) there for correct layer detection. */
     mouse_report.buttons |= buttons;
+
+
+    mouse_report = ps2_acceleration_task(mouse_report);
 
     return pointing_device_task_user(mouse_report);
 }
@@ -435,14 +444,13 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
 
 /* ============================================================
  * Matrix hooks
- * ============================================================ */
 
 void matrix_init_custom(void) {
-    ps2_init();
+    ps2_stm32_init();
 }
 
 bool matrix_scan_custom(void) {
-    ps2_scan();
-
+    ps2_stm32_scan();
     return false;
 }
+ * ============================================================ */

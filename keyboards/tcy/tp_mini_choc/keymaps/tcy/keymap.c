@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include QMK_KEYBOARD_H
 
+#include "audio.h"
 #include "layout_42.h"
 #include "tcy.h"
 
@@ -36,5 +37,33 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
-    return tcy_pointing_device_task(mouse_report);
+    // for scrolling
+    mouse_report = tcy_pointing_device_task(mouse_report);
+
+    // Manually inject the MCP button into the report before processing logic
+    if (mcp_click_state) {
+      mouse_report.buttons |= MOUSE_BTN2;
+    }
+
+    // clicked from ps2
+    // bool ps2_click = ps2_buttons_state & 0x01;   // left click from PS2
+
+    // toggle buttons
+    // used by PS/2 (PS/2 trigger left click by default) and trackpad
+    if (mouse_report.buttons & MOUSE_BTN1) {  // left click
+      if (IS_LAYER_ON(_ESC) || IS_LAYER_ON(_ESC_OSX)) {
+        mouse_report.buttons &= ~MOUSE_BTN1;  // remove left
+        mouse_report.buttons |=  MOUSE_BTN2;  // add right
+      }
+    } else if (mouse_report.buttons & MOUSE_BTN2) {  // right click
+      // used by MCP
+      // MCP trigger right click by default
+      if (IS_LAYER_ON(_ESC) || IS_LAYER_ON(_ESC_OSX)) {
+        mouse_report.buttons &= ~MOUSE_BTN2;  // remove left
+        mouse_report.buttons |=  MOUSE_BTN1;  // add right
+      }
+    }
+
+    return mouse_report;
 }
+

@@ -1,13 +1,13 @@
 {
     "manufacturer": "Thomas CASTELLY",
-    "keyboard_name": "tcy/stm32",
+    "keyboard_name": "tcy/tp_mini_choc",
     "maintainer": "tcastelly",
     "processor": "STM32F072",
     "bootloader": "stm32-dfu",
     "diode_direction": "COL2ROW",
     "features": {
         "bootmagic": true,
-        "audio": false,
+        "audio": true,
         "command": false,
         "console": false,
         "extrakey": true,

@@ -1,5 +1,12 @@
 #include QMK_KEYBOARD_H
+
 #include "tapdance.h"
+
+bool is_kc_caps  = false;
+
+bool touched_td = false;
+
+bool scrolling_mode = false;
 
 bool is_hold_tapdance_disabled = false;
 
@@ -118,17 +125,18 @@ int cur_dance (tap_dance_state_t *state) {
     return 8;
 }
 
-//instanalize an instance of 'tap' for the 'x' tap dance.
-static tap xtap_state = {
-  .is_press_action = true,
-  .state = 0
-};
+// One state variable per tap dance — avoids cross-contamination when
+// multiple tap dances are active simultaneously (e.g. hold RALT + double-hold LALT)
+static tap ralt_tap_state = { .is_press_action = true, .state = 0 };
+static tap lalt_tap_state = { .is_press_action = true, .state = 0 };
+static tap lgui_tap_state = { .is_press_action = true, .state = 0 };
+static tap lctl_tap_state = { .is_press_action = true, .state = 0 };
 
 void td_ralt_finished (tap_dance_state_t *state, void *user_data) {
-  xtap_state.state = cur_dance(state);
+  ralt_tap_state.state = cur_dance(state);
   is_hold_tapdance_disabled = false;
 
-  switch (xtap_state.state) {
+  switch (ralt_tap_state.state) {
       case SINGLE_TAP:
       case SINGLE_HOLD:
           register_code(KC_RALT);
@@ -145,7 +153,7 @@ void td_ralt_finished (tap_dance_state_t *state, void *user_data) {
 void td_ralt_reset (tap_dance_state_t *state, void *user_data) {
     is_hold_tapdance_disabled = false;
 
-    switch (xtap_state.state) {
+    switch (ralt_tap_state.state) {
         case SINGLE_TAP:
         case SINGLE_HOLD:
             unregister_code(KC_RALT);
@@ -157,14 +165,14 @@ void td_ralt_reset (tap_dance_state_t *state, void *user_data) {
             unregister_code(KC_LCTL);
             break;
     }
-    xtap_state.state = 0;
+    ralt_tap_state.state = 0;
 }
 
 void td_ralt_osx_finished (tap_dance_state_t *state, void *user_data) {
-  xtap_state.state = cur_dance(state);
+  ralt_tap_state.state = cur_dance(state);
   is_hold_tapdance_disabled = false;
 
-  switch (xtap_state.state) {
+  switch (ralt_tap_state.state) {
       case SINGLE_TAP:
       case SINGLE_HOLD:
           register_code(KC_RALT);
@@ -181,7 +189,7 @@ void td_ralt_osx_finished (tap_dance_state_t *state, void *user_data) {
 void td_ralt_osx_reset (tap_dance_state_t *state, void *user_data) {
     is_hold_tapdance_disabled = false;
 
-    switch (xtap_state.state) {
+    switch (ralt_tap_state.state) {
         case SINGLE_TAP:
         case SINGLE_HOLD:
             unregister_code(KC_RALT);
@@ -193,14 +201,14 @@ void td_ralt_osx_reset (tap_dance_state_t *state, void *user_data) {
             unregister_code(KC_LGUI);
             break;
     }
-    xtap_state.state = 0;
+    ralt_tap_state.state = 0;
 }
 
 void td_lalt_finished (tap_dance_state_t *state, void *user_data) {
-  xtap_state.state = cur_dance(state);
+  lalt_tap_state.state = cur_dance(state);
   is_hold_tapdance_disabled = false;
 
-  switch (xtap_state.state) {
+  switch (lalt_tap_state.state) {
       case SINGLE_TAP:
       case SINGLE_HOLD:
           register_code(KC_LALT);
@@ -216,7 +224,7 @@ void td_lalt_finished (tap_dance_state_t *state, void *user_data) {
 void td_lalt_reset (tap_dance_state_t *state, void *user_data) {
     is_hold_tapdance_disabled = false;
 
-    switch (xtap_state.state) {
+    switch (lalt_tap_state.state) {
         case SINGLE_TAP:
         case SINGLE_HOLD:
             unregister_code(KC_LALT);
@@ -227,14 +235,14 @@ void td_lalt_reset (tap_dance_state_t *state, void *user_data) {
             layer_off(_NUM_PADS);
             break;
     }
-    xtap_state.state = 0;
+    lalt_tap_state.state = 0;
 }
 
 void td_lgui_finished (tap_dance_state_t *state, void *user_data) {
-  xtap_state.state = cur_dance(state);
+  lgui_tap_state.state = cur_dance(state);
   is_hold_tapdance_disabled = false;
 
-  switch (xtap_state.state) {
+  switch (lgui_tap_state.state) {
       case SINGLE_TAP:
       case SINGLE_HOLD:
           register_code(KC_LGUI);
@@ -250,7 +258,7 @@ void td_lgui_finished (tap_dance_state_t *state, void *user_data) {
 void td_lgui_reset (tap_dance_state_t *state, void *user_data) {
     is_hold_tapdance_disabled = false;
 
-    switch (xtap_state.state) {
+    switch (lgui_tap_state.state) {
         case SINGLE_TAP:
         case SINGLE_HOLD:
             unregister_code(KC_LGUI);
@@ -261,14 +269,14 @@ void td_lgui_reset (tap_dance_state_t *state, void *user_data) {
             layer_off(_NUM_PADS);
             break;
     }
-    xtap_state.state = 0;
+    lgui_tap_state.state = 0;
 }
 
 void td_lctl_finished (tap_dance_state_t *state, void *user_data) {
-  xtap_state.state = cur_dance(state);
+  lctl_tap_state.state = cur_dance(state);
   is_hold_tapdance_disabled = false;
 
-  switch (xtap_state.state) {
+  switch (lctl_tap_state.state) {
       case SINGLE_TAP:
       case SINGLE_HOLD:
           register_code(KC_LCTL);
@@ -284,7 +292,7 @@ void td_lctl_finished (tap_dance_state_t *state, void *user_data) {
 void td_lctl_reset (tap_dance_state_t *state, void *user_data) {
     is_hold_tapdance_disabled = false;
 
-    switch (xtap_state.state) {
+    switch (lctl_tap_state.state) {
         case SINGLE_TAP:
         case SINGLE_HOLD:
             unregister_code(KC_LCTL);
@@ -295,5 +303,5 @@ void td_lctl_reset (tap_dance_state_t *state, void *user_data) {
             unregister_code(KC_LALT);
             break;
     }
-    xtap_state.state = 0;
+    lctl_tap_state.state = 0;
 }

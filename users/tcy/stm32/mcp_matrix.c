@@ -9,8 +9,8 @@
 #include "platforms/chibios/gpio.h"
 #include "i2c2_handler.h"
 
-void ps2_init(void);
-void ps2_scan(void);
+void ps2_stm32_init(void);
+void ps2_stm32_scan(void);
 
 #define MCP23017_I2C_ADDRESS 0x20
 #define MCP23017_IODIR_A 0x00 
@@ -29,7 +29,9 @@ uint8_t mcp_click_state = 0;
 
 void matrix_init_custom(void) {
     // --- Initialize PS/2 Trackpoint ---
-    // ps2_init();
+#ifdef PS2_CUSTOM_ENABLE
+    ps2_stm32_init();
+#endif
 
     wait_ms(500); 
     i2c2_init_custom(); // Initialize I2C2 (B10/B11) instead of I2C1
@@ -72,7 +74,9 @@ bool matrix_scan_custom(matrix_row_t current_matrix[]) {
     if (!matrix_initialized) return false;
 
     // --- Run PS/2 Receiver Logic ---
-    // ps2_scan();
+#ifdef PS2_CUSTOM_ENABLE
+    ps2_stm32_scan();
+#endif
 
     matrix_row_t scanned_matrix[MATRIX_ROWS]; 
     memset(scanned_matrix, 0, sizeof(scanned_matrix));
