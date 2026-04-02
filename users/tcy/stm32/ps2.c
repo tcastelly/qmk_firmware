@@ -51,10 +51,15 @@ static volatile uint8_t  packet[3];
 static volatile uint8_t  packet_idx     = 0;
 static volatile uint32_t packet_last_ms = 0;
 
-/* Double-buffer: ISR fills `packet[]`, publishes to `ready_packet[]`
- * only when a full 3-byte set is complete.                           */
-static volatile uint8_t ready_packet[3];
-static volatile bool    packet_ready = false;
+/* 2-deep FIFO: prevents packet loss during rapid double clicks.
+ * ISR writes to fifo_buf[fifo_head], task_kb reads from fifo_buf[fifo_tail].
+ * If both slots are full the oldest is overwritten (motion packets only —
+ * button packets arrive far slower than the FIFO can drain).         */
+#define PS2_FIFO_SIZE 2
+static volatile uint8_t fifo_buf[PS2_FIFO_SIZE][3];
+static volatile uint8_t fifo_head  = 0;   /* ISR writes here   */
+static volatile uint8_t fifo_tail  = 0;   /* task_kb reads here */
+static volatile uint8_t fifo_count = 0;   /* packets in FIFO   */
 
 
 /* ============================================================
@@ -178,12 +183,17 @@ static void ps2_interrupt_handler(void *arg) {
             packet[packet_idx++] = ps2_data;
 
             if (packet_idx >= 3) {
-                /* Publish completed packet to double-buffer */
-                ready_packet[0] = packet[0];
-                ready_packet[1] = packet[1];
-                ready_packet[2] = packet[2];
-                packet_ready    = true;
-                packet_idx      = 0;
+                /* Publish to FIFO — overwrite oldest if full */
+                fifo_buf[fifo_head][0] = packet[0];
+                fifo_buf[fifo_head][1] = packet[1];
+                fifo_buf[fifo_head][2] = packet[2];
+                fifo_head = (fifo_head + 1) % PS2_FIFO_SIZE;
+                if (fifo_count < PS2_FIFO_SIZE) {
+                    fifo_count++;
+                } else {
+                    fifo_tail = (fifo_tail + 1) % PS2_FIFO_SIZE;
+                }
+                packet_idx = 0;
             }
         }
     }
@@ -398,15 +408,24 @@ void ps2_stm32_scan(void) {
 
 report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
 
+    /* held_buttons persists across calls — keeps button pressed even when
+     * no PS/2 packets arrive (trackpoint only sends packets when moving). */
+    static uint8_t held_buttons = 0;
+    static uint8_t prev_buttons = 0;
+
     chSysLock();
-    if (!packet_ready) {
+    if (fifo_count == 0) {
         chSysUnlock();
-        return pointing_device_task_user(mouse_report);   /* No PS/2 data: return Azoteq report as-is */
+        /* No new packet — re-emit held button state so long press works */
+        ps2_buttons_state     = held_buttons;
+        mouse_report.buttons |= held_buttons;
+        return pointing_device_task_user(mouse_report);
     }
-    uint8_t b0   = ready_packet[0];
-    uint8_t b1   = ready_packet[1];
-    uint8_t b2   = ready_packet[2];
-    packet_ready = false;
+    uint8_t b0 = fifo_buf[fifo_tail][0];
+    uint8_t b1 = fifo_buf[fifo_tail][1];
+    uint8_t b2 = fifo_buf[fifo_tail][2];
+    fifo_tail  = (fifo_tail + 1) % PS2_FIFO_SIZE;
+    fifo_count--;
     chSysUnlock();
 
     /* Reject packets with overflow bits set — data is unreliable */
@@ -421,10 +440,12 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
      * A press is reported as soon as it appears in a packet.
      * A release is only confirmed after two consecutive packets with
      * the button cleared — prevents spurious releases on quick clicks. */
-    static uint8_t prev_buttons = 0;
     uint8_t raw_buttons = b0 & 0x07;
     uint8_t buttons = raw_buttons | (prev_buttons & raw_buttons);  /* press immediately */
     prev_buttons = raw_buttons;                                     /* release debounced */
+
+    /* Update held state — persists until explicitly released */
+    held_buttons = buttons;
 
     /* Expose PS/2 button state for ps2_acceleration.c / keymap use.
      * This allows distinguishing PS/2 clicks from Azoteq clicks. */
@@ -434,7 +455,6 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
     mouse_report.x = (int8_t)CLAMP((int16_t)mouse_report.x + x,   -127, 127);
     mouse_report.y = (int8_t)CLAMP((int16_t)mouse_report.y + (-y), -127, 127);
     mouse_report.buttons |= buttons;
-
 
     mouse_report = ps2_acceleration_task(mouse_report);
 
