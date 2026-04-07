@@ -1,5 +1,6 @@
 
 #include "stdio.h"
+#include "tcy.h"
 
 bool is_kc_caps  = false;
 
@@ -28,16 +29,16 @@ static void draw_minimal(void)
   char buf[32];  // temporary buffer for formatted string
   switch (current_layer) {
       case _QWERTY:
-          snprintf(buf, sizeof(buf), "Q             %d", acceleration_setting);
+          snprintf(buf, sizeof(buf), "Q             %d", ps2_acceleration_setting);
           break;
       case _QWERTY_OSX:
-          snprintf(buf, sizeof(buf), "Q-OSX         %d", acceleration_setting);
+          snprintf(buf, sizeof(buf), "Q-OSX         %d", ps2_acceleration_setting);
           break;
       case _ESC:
-          snprintf(buf, sizeof(buf), "ESC           %d", acceleration_setting);
+          snprintf(buf, sizeof(buf), "ESC           %d", ps2_acceleration_setting);
           break;
       case _ESC_OSX:
-          snprintf(buf, sizeof(buf), "ESC-OSX       %d", acceleration_setting);
+          snprintf(buf, sizeof(buf), "ESC-OSX       %d", ps2_acceleration_setting);
           break;
       case _LOWER:
           snprintf(buf, sizeof(buf), "Lower          ");
@@ -65,28 +66,5 @@ static void draw_minimal(void)
   } else {
     oled_write_P(PSTR( "               "), false);
   }
-}
-
-layer_state_t layer_state_set_user(layer_state_t state) {
-    current_layer = get_highest_layer(state);
-
-    switch (current_layer) {
-      case _QWERTY_OSX:
-        // OSX needs less speed
-        acceleration_setting = DEFAULT_ACCELERATION_SETTING;
-        acceleration_setting -= 1;
-        break;
-      case _ESC:
-      case _ESC_OSX:
-        if (scrolling_mode) {
-          acceleration_setting = MIN_ACCELERATION_SETTING;
-        }
-        break;
-      default:
-        acceleration_setting = DEFAULT_ACCELERATION_SETTING;
-        break;
-    }
-
-    return state;
 }
 

@@ -21,6 +21,7 @@ float layer_sound_on[][2] = SONG(STARTUP_SOUND);
 
 #ifdef OLED_ENABLE
 enum oled_modes {
+  OLED_BONGO,
   OLED_MINIMAL,
   OLED_OFF,
 };
@@ -29,6 +30,8 @@ int8_t oled_mode = OLED_MINIMAL;
 #endif
 
 uint8_t ps2_acceleration_setting = PS2_DEFAULT_ACCELERATION_SETTING;
+
+uint8_t current_layer = 0;
 
 // Reach into matrix.c to get the button state
 extern uint8_t mcp_click_state; 
@@ -160,9 +163,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case KC_LSFT:
       if (record->event.pressed) {
           ps2_acceleration_setting = PS2_MAX_ACCELERATION_SETTING;
+#ifdef POINTING_DEVICE_ENABLE
+         pointing_device_set_cpi(POINTING_DEVICE_MAX_CPI);
+#endif
           is_hold_tapdance_disabled = true;
       } else {
           ps2_acceleration_setting = PS2_DEFAULT_ACCELERATION_SETTING;
+#ifdef POINTING_DEVICE_ENABLE
+         pointing_device_set_cpi(POINTING_DEVICE_DEFAULT_CPI);
+#endif
           is_hold_tapdance_disabled = false;
 
           // OSX needs less speed
@@ -367,6 +376,28 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
        return false;
        break;
 
+#ifdef OLED_ENABLE
+     case TOGGLE_OLED:
+       if (record->event.pressed) {
+           if (oled_mode != OLED_OFF) {
+               oled_mode = OLED_OFF;
+               keep_oled_off = true;
+           } else {
+#ifdef OLED_ENABLE_MINIMAL
+               oled_mode = OLED_MINIMAL;
+#endif
+
+#ifndef OLED_ENABLE_MINIMAL
+               oled_mode = OLED_BONGO;
+#endif
+
+               keep_oled_off = false;
+           }
+       }
+       return false;
+       break;
+#endif
+
 #ifdef AUDIO_ENABLE
      case TOGGLE_BUZZ:
        if (record->event.pressed) {
@@ -451,7 +482,7 @@ void keyboard_post_init_user(void) {
 #endif
 
 #ifdef POINTING_DEVICE_ENABLE
-    pointing_device_set_cpi(350);
+    pointing_device_set_cpi(POINTING_DEVICE_DEFAULT_CPI);
 #endif
 }
 
@@ -520,14 +551,47 @@ report_mouse_t tcy_pointing_device_task(report_mouse_t mouse_report) {
 #ifdef OLED_ENABLE
 bool oled_task_user(void) {
     switch (oled_mode) {
+        case OLED_BONGO:
+            draw_bongo();
+            break;
+        default:
         case OLED_MINIMAL:
             draw_minimal();
             break;
         default:
         case OLED_OFF:
+#ifdef OLED_ENABLE_MINIMAL
             _oled_off();
+#endif
+
+#ifndef OLED_ENABLE_MINIMAL
+            oled_off();
+#endif
             break;
     }
     return false;
 }
 #endif
+
+layer_state_t layer_state_set_user(layer_state_t state) {
+    current_layer = get_highest_layer(state);
+
+    switch (current_layer) {
+      case _QWERTY_OSX:
+        // OSX needs less speed
+        ps2_acceleration_setting = PS2_DEFAULT_ACCELERATION_SETTING;
+        ps2_acceleration_setting -= 1;
+        break;
+      case _ESC:
+      case _ESC_OSX:
+        if (scrolling_mode) {
+          ps2_acceleration_setting = PS2_MIN_ACCELERATION_SETTING;
+        }
+        break;
+      default:
+        ps2_acceleration_setting = PS2_DEFAULT_ACCELERATION_SETTING;
+        break;
+    }
+
+    return state;
+}

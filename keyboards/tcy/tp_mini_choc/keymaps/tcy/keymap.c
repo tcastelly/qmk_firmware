@@ -64,6 +64,12 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
       }
     }
 
+    uprintf(
+        "I2C DPI=%u | PS2_DPI=%u\n",
+        pointing_device_get_cpi(),
+        ps2_acceleration_setting
+        );
+
     return mouse_report;
 }
 
