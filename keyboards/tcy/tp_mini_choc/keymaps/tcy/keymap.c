@@ -54,6 +54,9 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
       if (IS_LAYER_ON(_ESC) || IS_LAYER_ON(_ESC_OSX)) {
         mouse_report.buttons &= ~MOUSE_BTN1;  // remove left
         mouse_report.buttons |=  MOUSE_BTN2;  // add right
+      } else if (IS_LAYER_ON(_LOWER)) {
+        mouse_report.buttons &= ~MOUSE_BTN1;  // remove left
+        mouse_report.buttons |=  MOUSE_BTN3;  // add right
       }
     } else if (mouse_report.buttons & MOUSE_BTN2) {  // right click
       // used by MCP
@@ -61,6 +64,9 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
       if (IS_LAYER_ON(_ESC) || IS_LAYER_ON(_ESC_OSX)) {
         mouse_report.buttons &= ~MOUSE_BTN2;  // remove left
         mouse_report.buttons |=  MOUSE_BTN1;  // add right
+      } else if (IS_LAYER_ON(_RAISE)) {
+        mouse_report.buttons &= ~MOUSE_BTN2;  // remove left
+        mouse_report.buttons |=  MOUSE_BTN3;  // add right
       }
     }
 
