@@ -39,7 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Must also match STM32_EXTI_USE_EXTIx in mcuconf.h.
  * ─────────────────────────────────────────────────────────── */
-#define PS2_PINSET 1
+#define PS2_PINSETS { 1 }
 #define PS2_MOUSE_DEBUG
 #define PS2_DELAY  40
 
