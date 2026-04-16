@@ -233,13 +233,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       // to be used with RALT already pressed
      case ACCENT_A_GRAVE_RALT:
        if (record->event.pressed) {
-           register_code(KC_GRV);
-       } else {
-           unregister_code(KC_GRV);
+           tap_code(KC_GRV);
+           
            unregister_code(KC_RALT);
-           register_code(KC_A);
-           unregister_code(KC_A);
-
+           tap_code(KC_A);
+           
            // will be unregister by `td_ralt_reset`
            register_code(KC_RALT);
        }
@@ -248,13 +246,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
      case ACCENT_I_CIRC_RALT:
        if (record->event.pressed) {
-           register_code(KC_6);
-       } else {
-           unregister_code(KC_6);
+           tap_code(KC_6);
+           
            unregister_code(KC_RALT);
-           register_code(KC_I);
-           unregister_code(KC_I);
-
+           tap_code(KC_I);
+           
            // will be unregister by `td_ralt_reset`
            register_code(KC_RALT);
        }
@@ -263,13 +259,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
      case ACCENT_O_CIRC_RALT:
        if (record->event.pressed) {
-           register_code(KC_6);
-       } else {
-           unregister_code(KC_6);
+           tap_code(KC_6);
+           
            unregister_code(KC_RALT);
-           register_code(KC_O);
-           unregister_code(KC_O);
-
+           tap_code(KC_O);
+           
            // will be unregister by `td_ralt_reset`
            register_code(KC_RALT);
        }
@@ -278,13 +272,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
      case ACCENT_U_AIGU_RALT:
        if (record->event.pressed) {
-           register_code(KC_GRV);
-       } else {
-           unregister_code(KC_GRV);
+           tap_code(KC_GRV);
+           
            unregister_code(KC_RALT);
-           register_code(KC_U);
-           unregister_code(KC_U);
-
+           tap_code(KC_U);
+           
            // will be unregister by `td_ralt_reset`
            register_code(KC_RALT);
        }
@@ -293,13 +285,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
      case ACCENT_C_RALT:
        if (record->event.pressed) {
-           register_code(KC_COMM);
-       } else {
-           unregister_code(KC_COMM);
-           unregister_code(KC_RALT);
-
-           // will be unregister by `td_ralt_reset`
-           register_code(KC_RALT);
+           tap_code(KC_COMM);
+           // (No RALT unregister/register needed here since tap_code handles the comma cleanly)
        }
        touched_td = true;
        break;
