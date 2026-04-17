@@ -1,0 +1,11 @@
+SRC += users/tcy/stm32/pmw3360.c
+
+PMW3360_CUSTOM_ENABLE = yes
+
+ifeq ($(PMW3360_CUSTOM_ENABLE), yes)
+    OPT_DEFS += -DPMW3360_CUSTOM_ENABLE
+endif
+
+
+SPI_DRIVER_REQUIRED = yes
+

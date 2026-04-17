@@ -3,12 +3,13 @@ OPT_DEFS += -include users/tcy/stm32/config_mcp_matrix.h
 
 -include users/$(KEYMAP)/stm32/rules.mk
 -include users/$(KEYMAP)/stm32/rules_mcp.mk
+-include users/$(KEYMAP)/stm32/rules_pmw3360.mk
 -include users/$(KEYMAP)/stm32/rules_ps2.mk
 
 # ── Pointing device ──────────────────────────────────────────
 POINTING_DEVICE_ENABLE = yes
-POINTING_DEVICE_DRIVER = azoteq_iqs5xx
-
+# POINTING_DEVICE_DRIVER = azoteq_iqs5xx
+POINTING_DEVICE_DRIVER = pmw3360
 
 # ── Audio ────────────────────────────────────────────────────
 # MANDATORY lines for PWM audio:

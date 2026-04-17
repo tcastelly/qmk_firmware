@@ -1,6 +1,16 @@
 #include QMK_KEYBOARD_H
+#include "i2c_master.h"
+#include "spi_master.h"
 #include "tapdance.h"
 #include "print.h"
+
+#ifdef PMW3360_CUSTOM_ENABLE
+#include "pmw3360.h"
+#endif
+
+#ifdef POINTING_DEVICE_ENABLE
+#include "pointing_device.h"
+#endif
 
 #ifdef AUDIO_ENABLE
 #include "audio.h"
@@ -459,6 +469,16 @@ void scan_i2c_bus(void) {
 }
 
 void keyboard_post_init_user(void) {
+#ifdef PMW3360_CUSTOM_ENABLE
+    uprintf("Starting SPI and PMW3360...\n");
+
+    spi_init();
+
+    pmw3360_init();
+
+    pmw3360_set_cpi(1600);
+#endif
+
     wait_ms(500); // Let the trackpad boot
 
     scan_i2c_bus();
@@ -469,7 +489,7 @@ void keyboard_post_init_user(void) {
 #endif
 
 #ifdef POINTING_DEVICE_ENABLE
-    pointing_device_set_cpi(POINTING_DEVICE_DEFAULT_CPI);
+//    pointing_device_set_cpi(POINTING_DEVICE_DEFAULT_CPI);
 #endif
 }
 
@@ -582,3 +602,4 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 
     return state;
 }
+

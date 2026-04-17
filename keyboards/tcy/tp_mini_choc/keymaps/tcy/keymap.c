@@ -19,9 +19,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include QMK_KEYBOARD_H
 
+#ifdef AUDIO_ENABLE
 #include "audio.h"
+#endif
 #include "layout_42.h"
 #include "tcy.h"
+
+#ifdef PMW3360_CUSTOM_ENABLE
+#include "pmw3360.h"
+#endif
+
+#ifndef constrain
+#define constrain(amt, low, high) ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
+#endif
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_QWERTY]        = LAYOUT_qwerty,
@@ -37,6 +47,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+#ifdef PMW3360_CUSTOM_ENABLE
+    int16_t ball_dx = 0;
+    int16_t ball_dy = 0;
+    pmw3360_read_burst(&ball_dx, &ball_dy);
+
+    if (ball_dx != 0 || ball_dy != 0) {
+        uprintf("RAW BALL: dx=%d, dy=%d\n", ball_dx, ball_dy);
+    }
+#endif
+
+    // Merge ball movement with the trackpad movement.
+    // The constrain() macro ensures we don't overflow the -127 to +127 HID limit.
+    mouse_report.x = constrain(mouse_report.x + ball_dx, -127, 127);
+    mouse_report.y = constrain(mouse_report.y + ball_dy, -127, 127);
+
     // for scrolling
     mouse_report = tcy_pointing_device_task(mouse_report);
 
@@ -70,12 +95,15 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
       }
     }
 
-    uprintf(
-        "I2C DPI=%u | PS2_DPI=%u\n",
-        pointing_device_get_cpi(),
-        ps2_acceleration_setting
-        );
-
+    #ifdef CONSOLE_ENABLE
+    static uint16_t log_timer = 0;
+    if (timer_elapsed(log_timer) > 1000) {
+        uprintf("DPI=%u | PS2_ACCEL=%u\n",
+                 pointing_device_get_cpi(),
+                 ps2_acceleration_setting);
+        log_timer = timer_read();
+    }
+#endif
     return mouse_report;
 }
 

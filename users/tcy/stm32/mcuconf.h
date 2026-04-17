@@ -43,6 +43,10 @@
 #undef STM32_SPI_USE_SPI1
 #define STM32_SPI_USE_SPI1 TRUE
 
+#define STM32_SPI_SPI1_RX_DMA_STREAM STM32_DMA_STREAM_ID(1, 2)
+#define STM32_SPI_SPI1_TX_DMA_STREAM STM32_DMA_STREAM_ID(1, 3)
+#define STM32_SPI_SPI1_DMA_PRIORITY 1
+
 /* ── PWM ────────────────────────────────────────────────────
  * TIM1 — MANDATORY for PKLCS1212E4001 audio buzzer
  *   Pin: PA8 (TIM1_CH1, AF2)
@@ -54,21 +58,24 @@
 /* ── EXTI ────────────────────────────────────────────────────
  * MANDATORY for PS/2 trackpoint CLK interrupt
  *
- * PS2_PINSET 1 → PB8  = EXTI8  → uncomment EXTI8,  comment EXTI10
- * PS2_PINSET 2 → PB10 = EXTI10 → uncomment EXTI10, comment EXTI8
+ * PS2_PINSETS 1 = PB8  = EXTI8  → uncomment EXTI8,  comment EXTI10
+ * PS2_PINSETS 2 = PB10 = EXTI10 → uncomment EXTI10, comment EXTI8
+ * PS2_PINSETS 3 = PA4  (CLK) / PA5  (DAT)  — SPI1 pins, not 5V tolerant
  *
  * Must match PS2_PINSET in config.h.
  * ─────────────────────────────────────────────────────────── */
 #undef STM32_EXTI_REQUIRED
 #define STM32_EXTI_REQUIRED TRUE
 
-#if PS2_PINSET == 1
-    #undef STM32_EXTI_USE_EXTI8
-    #define STM32_EXTI_USE_EXTI8 TRUE   /* PB8 CLK → EXTI8 */
-#else
-    #undef STM32_EXTI_USE_EXTI10
-    #define STM32_EXTI_USE_EXTI10 TRUE  /* PB10 CLK → EXTI10 */
-#endif
+/* ── PS/2 EXTI lines — must match PS2_PINSETS in config.h ── */
+#undef STM32_EXTI_USE_EXTI8
+#define STM32_EXTI_USE_EXTI8  TRUE   /* pinset 1 — PB8  */
+
+#undef STM32_EXTI_USE_EXTI10
+#define STM32_EXTI_USE_EXTI10 TRUE   /* pinset 2 — PB10 */
+
+#undef STM32_EXTI_USE_EXTI4
+#define STM32_EXTI_USE_EXTI4  FALSE   /* pinset 3 — PA4  */
 
 /* ── SERIAL ─────────────────────────────────────────────────
  * USART3 disabled — it shares PB10/PB11 with I2C2.

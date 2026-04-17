@@ -27,6 +27,9 @@
 #undef SPI_USE_WAIT
 #define SPI_USE_WAIT TRUE
 
+#undef SPI_USE_MUTUAL_EXCLUSION
+#define SPI_USE_MUTUAL_EXCLUSION TRUE
+
 /* ── PWM ────────────────────────────────────────────────────
  * MANDATORY for:
  *   - PKLCS1212E4001 buzzer   (TIM1_CH1 on PA8)
