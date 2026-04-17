@@ -1,4 +1,8 @@
-SRC += users/tcy/stm32/pmw3360.c
+SRC += users/tcy/stm32/pmw3360_srom_v04.c
+# SRC += users/tcy/stm32/pmw3360.c
+SRC += drivers/sensors/pmw33xx_common.c
+SRC += drivers/sensors/pmw3360.c
+VPATH += drivers/sensors
 
 PMW3360_CUSTOM_ENABLE = yes
 

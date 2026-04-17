@@ -67,6 +67,44 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PMW33XX_CS_PIN  A4
 #define PMW33XX_CPI     1600
 
+#ifndef __ASSEMBLER__
+  #include "drivers/sensors/pmw3360.h"
+
+  // Immediately overwrite them with correct PMW3360 values
+  #undef REG_Config1
+  #define REG_Config1 0x3f
+  #undef REG_Config2
+  #define REG_Config2 0x11
+  #undef REG_Angle_Tune
+  #define REG_Angle_Tune 0x42
+  #undef REG_Inverse_Product_ID
+  #define REG_Inverse_Product_ID 0x01
+  #undef REG_Lift_Config
+  #define REG_Lift_Config 0x4e
+  #undef REG_SROM_ID
+  #define REG_SROM_ID 0x2a
+  #undef REG_SROM_Enable
+  #define REG_SROM_Enable 0x13
+  #undef REG_SROM_Load_Burst
+  #define REG_SROM_Load_Burst 0x62
+  #undef REG_Motion_Burst
+  #define REG_Motion_Burst 0x50
+  #undef REG_Power_Up_Reset
+  #define REG_Power_Up_Reset 0x3a
+#endif
+
+// Official Driver Requirements
+#define PMW33XX_CPI 1600
+#define PMW33XX_CPI_MIN 100
+#define PMW33XX_CPI_MAX 12000
+#define PMW33XX_CPI_STEP 100
+#define PMW33XX_LIFTOFF_DISTANCE 0x02
+#define ROTATIONAL_TRANSFORM_ANGLE 0
+
+#ifndef CONSTRAIN
+#    define CONSTRAIN(amt, low, high) ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
+#endif
+
 
 /* ── Audio — PKLCS1212E4001 piezo buzzer ────────────────────
  * MANDATORY lines for PWM audio:

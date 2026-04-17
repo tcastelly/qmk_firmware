@@ -26,7 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "tcy.h"
 
 #ifdef PMW3360_CUSTOM_ENABLE
-#include "pmw3360.h"
+#include "drivers/sensors/pmw3360.h"
+#include "drivers/sensors/pmw33xx_common.h"
 #endif
 
 #ifndef constrain
@@ -48,19 +49,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 #ifdef PMW3360_CUSTOM_ENABLE
-    int16_t ball_dx = 0;
-    int16_t ball_dy = 0;
-    pmw3360_read_burst(&ball_dx, &ball_dy);
+    pmw33xx_report_t report = pmw33xx_read_burst(0);
 
-    if (ball_dx != 0 || ball_dy != 0) {
-        uprintf("RAW BALL: dx=%d, dy=%d\n", ball_dx, ball_dy);
-    }
+    mouse_report.x += report.delta_x;
+    mouse_report.y += report.delta_y;
 #endif
-
-    // Merge ball movement with the trackpad movement.
-    // The constrain() macro ensures we don't overflow the -127 to +127 HID limit.
-    mouse_report.x = constrain(mouse_report.x + ball_dx, -127, 127);
-    mouse_report.y = constrain(mouse_report.y + ball_dy, -127, 127);
 
     // for scrolling
     mouse_report = tcy_pointing_device_task(mouse_report);

@@ -5,7 +5,7 @@
 #include "print.h"
 
 #ifdef PMW3360_CUSTOM_ENABLE
-#include "pmw3360.h"
+#include "drivers/sensors/pmw33xx_common.h"
 #endif
 
 #ifdef POINTING_DEVICE_ENABLE
@@ -470,13 +470,9 @@ void scan_i2c_bus(void) {
 
 void keyboard_post_init_user(void) {
 #ifdef PMW3360_CUSTOM_ENABLE
-    uprintf("Starting SPI and PMW3360...\n");
-
-    spi_init();
-
-    pmw3360_init();
-
-    pmw3360_set_cpi(1600);
+    pmw33xx_init(0);
+    pmw33xx_set_cpi(0, PMW33XX_CPI);
+    wait_ms(500);
 #endif
 
     wait_ms(500); // Let the trackpad boot
