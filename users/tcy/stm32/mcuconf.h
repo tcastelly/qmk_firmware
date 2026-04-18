@@ -75,7 +75,7 @@
 #define STM32_EXTI_USE_EXTI10 TRUE   /* pinset 2 — PB10 */
 
 #undef STM32_EXTI_USE_EXTI4
-#define STM32_EXTI_USE_EXTI4  FALSE   /* pinset 3 — PA4  */
+#define STM32_EXTI_USE_EXTI4  TRUE   /* pinset 3 — PA4  */
 
 /* ── SERIAL ─────────────────────────────────────────────────
  * USART3 disabled — it shares PB10/PB11 with I2C2.
