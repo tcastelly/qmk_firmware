@@ -23,15 +23,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "users/tcy/rp2040/config.h"
 
 #define AZOTEQ_IQS5XX_TPS65
-#define AZOTEQ_IQS5XX_ROTATION_270
-
-#define OLED_ENABLE_MINIMAL
-
-// Does not work
-// #define OLED_DISPLAY_WIDTH 96
-// #define OLED_DISPLAY_HEIGHT 16
-
-// Use this instead
-#define OLED_WIDTH 96
-#define OLED_HEIGHT 16
+#define AZOTEQ_IQS5XX_ROTATION_90
 

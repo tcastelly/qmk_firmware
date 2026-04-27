@@ -32,11 +32,8 @@ enum oled_modes {
   OLED_OFF,
 };
 
-
 // prevent the oled to comeback on after typing
 bool keep_oled_off = false;
-#include "oled_bongo.c"
-#endif
 
 #ifdef OLED_ENABLE_MINIMAL
 int8_t oled_mode = OLED_MINIMAL;
@@ -45,8 +42,9 @@ int8_t oled_mode = OLED_MINIMAL;
 
 #ifndef OLED_ENABLE_MINIMAL
 int8_t oled_mode = OLED_BONGO;
+#include "oled_bongo.c"
 #endif
-
+#endif
 
 uint8_t ps2_acceleration_setting = PS2_DEFAULT_ACCELERATION_SETTING;
 
@@ -491,9 +489,17 @@ void keyboard_post_init_user(void) {
 
     scan_i2c_bus();
 
-#ifdef OLED_ENABLE_MINIMAL
+    pointing_device_set_cpi(350);
+
+#ifdef OLED_ENABLE
   oled_off();
+#ifdef OLED_ENABLE_MINIMAL
   draw_minimal();
+#endif
+#endif
+
+#ifdef RGB_MATRIX_ENABLE
+  rgb_matrix_enable_noeeprom();
 #endif
 }
 
@@ -555,25 +561,86 @@ report_mouse_t tcy_pointing_device_task(report_mouse_t mouse_report) {
 }
 
 #ifdef OLED_ENABLE
-bool oled_task_user(void) {
-    switch (oled_mode) {
-        case OLED_BONGO:
-            draw_bongo();
-            break;
-        case OLED_MINIMAL:
-            draw_minimal();
-            break;
-        default:
-        case OLED_OFF:
+void matrix_scan_user(void) {
+    if (keep_oled_off) {
+        oled_off();
+        return;
+    }
+
+    if (timer_elapsed32(key_timer) > 200) {
+        disable_tp = false;
+    } else {
+        disable_tp = true;
+    }
+
+    // 30 seconds
+    int max_ms = 30000;
+
+    if (timer_elapsed32(key_timer) > max_ms) {
+      oled_mode = OLED_OFF;
+    } else {
 #ifdef OLED_ENABLE_MINIMAL
-            _oled_off();
+      oled_mode = OLED_MINIMAL;
 #endif
 
 #ifndef OLED_ENABLE_MINIMAL
-            oled_off();
+      oled_mode = OLED_BONGO;
 #endif
-            break;
     }
+
+    // 30 seconds
+    is_rgb_off = timer_elapsed32(key_timer) > max_ms;
+
+#ifdef RGB_MATRIX_ENABLE
+    if (is_rgb_off) {
+      rgb_matrix_disable_noeeprom();
+    } else if (!keep_rgb_off) {
+      rgb_matrix_enable_noeeprom();
+    }
+#endif
+}
+
+bool oled_task_user(void) {
+    static bool is_screen_on = true;
+
+    switch (oled_mode) {
+#ifndef OLED_ENABLE_MINIMAL
+        case OLED_BONGO:
+            if (!is_screen_on) {
+                oled_on();
+                is_screen_on = true;
+            }
+            draw_bongo();
+            break;
+#endif
+
+#ifdef OLED_ENABLE_MINIMAL
+        case OLED_MINIMAL:
+            if (!is_screen_on) {
+                oled_on();
+                is_screen_on = true;
+            }
+            draw_minimal();
+            break;
+#endif
+
+        case OLED_OFF:
+        default:
+            if (is_screen_on) {
+                oled_clear();
+
+#ifdef OLED_ENABLE_MINIMAL
+                _oled_off();
+#else
+                oled_off(); 
+#endif
+                is_screen_on = false;
+            }
+
+            // Return true to tell QMK to stop trying to render updates
+            return true;
+    }
+
     return false;
 }
 #endif
