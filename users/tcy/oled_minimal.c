@@ -1,10 +1,5 @@
-
 #include "stdio.h"
 #include "tcy.h"
-
-bool is_kc_caps  = false;
-
-static uint8_t current_layer = 0;
 
 static void _oled_off(void)
 {

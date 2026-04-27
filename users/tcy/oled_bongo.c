@@ -32,8 +32,6 @@ uint8_t pressed_keys_index = 0;
 bool key_down = 0;
 char layout_str[10];
 
-bool is_kc_caps  = false;
-
 static const char PROGMEM idle_draw[IDLE_FRAMES][ANIM_SIZE] =
 {
     {
@@ -206,17 +204,6 @@ static void draw_bongo(void)
 
     // print layout
     oled_set_cursor(0, line_i);
-    oled_write(layout_str, false);
-
-   if (is_kc_caps) {
-     oled_set_cursor(oled_max_chars() - 2, oled_max_lines() - 1);
-     oled_write("[]", false);
-   }
-}
-
-layer_state_t layer_state_set_user(layer_state_t state) {
-    uint8_t current_layer = get_highest_layer(state);
-
     switch (current_layer) {
         case _QWERTY:
             strcpy(layout_str, "Q");
@@ -246,7 +233,11 @@ layer_state_t layer_state_set_user(layer_state_t state) {
             strcpy(layout_str, "");
             break;
     }
+    oled_write(layout_str, false);
 
-    return state;
+   if (is_kc_caps) {
+     oled_set_cursor(oled_max_chars() - 2, oled_max_lines() - 1);
+     oled_write("[]", false);
+   }
 }
 

@@ -1,3 +1,1 @@
 -include users/$(KEYMAP)/rules.mk
-
-SRC += users/tcy/oled_minimal.c

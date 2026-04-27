@@ -25,10 +25,6 @@ int8_t buzz_mode = BUZZ_OFF;
 float layer_sound_on[][2] = SONG(STARTUP_SOUND);
 #endif
 
-#ifdef OLED_ENABLE_MINIMAL
-#include "oled_minimal.c"
-#endif
-
 #ifdef OLED_ENABLE
 enum oled_modes {
   OLED_BONGO,
@@ -36,8 +32,21 @@ enum oled_modes {
   OLED_OFF,
 };
 
-int8_t oled_mode = OLED_MINIMAL;
+
+// prevent the oled to comeback on after typing
+bool keep_oled_off = false;
+#include "oled_bongo.c"
 #endif
+
+#ifdef OLED_ENABLE_MINIMAL
+int8_t oled_mode = OLED_MINIMAL;
+#include "oled_minimal.c"
+#endif
+
+#ifndef OLED_ENABLE_MINIMAL
+int8_t oled_mode = OLED_BONGO;
+#endif
+
 
 uint8_t ps2_acceleration_setting = PS2_DEFAULT_ACCELERATION_SETTING;
 
@@ -486,16 +495,7 @@ void keyboard_post_init_user(void) {
   oled_off();
   draw_minimal();
 #endif
-
-#ifdef POINTING_DEVICE_ENABLE
-//    pointing_device_set_cpi(POINTING_DEVICE_DEFAULT_CPI);
-#endif
 }
-
-void board_init(void) {
-  SYSCFG->CFGR1 |= SYSCFG_CFGR1_I2C1_DMA_RMP;
-}
-
 
 void play_audio(void) {
 #ifdef AUDIO_ENABLE
@@ -560,7 +560,6 @@ bool oled_task_user(void) {
         case OLED_BONGO:
             draw_bongo();
             break;
-        default:
         case OLED_MINIMAL:
             draw_minimal();
             break;

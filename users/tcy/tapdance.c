@@ -62,7 +62,9 @@ void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *use
     }
 }
 
-// START tap-hold
+// START tap-hold layout
+// is_hold_tapdance_disabled is OWNED exclusively by this pair.
+// No other tap dance should ever read or write it.
 void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_data) {
     touched_td = false;
 
@@ -78,27 +80,20 @@ void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_dat
 void tap_dance_tap_hold_reset_layout(tap_dance_state_t *state, void *user_data) {
     is_hold_tapdance_disabled = false;
 }
-// END tap-hold
+// END tap-hold layout
 
 
 // START default tap-dance
 int cur_dance (tap_dance_state_t *state) {
     if (state->count == 1) {
-        //key has not been interrupted, but they key is still held. Means you want to send a 'HOLD'.
         if (state->interrupted || !state->pressed) {
             return SINGLE_TAP;
         }
-        //key has not been interrupted, but they key is still held. Means you want to send a 'HOLD'.
         else {
             return SINGLE_HOLD;
         }
     }
     else if (state->count == 2) {
-        /*
-         * DOUBLE_SINGLE_TAP is to distinguish between typing "pepper", and actually wanting a double tap
-         * action when hitting 'pp'. Suggested use case for this return value is when you want to send two
-         * keystrokes of the key, and not the 'double tap' action/macro.
-         */
         if (state->interrupted) {
             return DOUBLE_SINGLE_TAP;
         }
@@ -121,38 +116,43 @@ int cur_dance (tap_dance_state_t *state) {
         }
     }
 
-    //magic number. At some point this method will expand to work for more presses
     return 8;
 }
 
 // One state variable per tap dance — avoids cross-contamination when
 // multiple tap dances are active simultaneously (e.g. hold RALT + double-hold LALT)
-static tap ralt_tap_state = { .is_press_action = true, .state = 0 };
-static tap lalt_tap_state = { .is_press_action = true, .state = 0 };
-static tap lgui_tap_state = { .is_press_action = true, .state = 0 };
-static tap lctl_tap_state = { .is_press_action = true, .state = 0 };
+static tap ralt_tap_state     = { .is_press_action = true, .state = 0 };
+// dedicated state for OSX variant — was incorrectly sharing ralt_tap_state
+static tap ralt_osx_tap_state = { .is_press_action = true, .state = 0 };
+static tap lalt_tap_state     = { .is_press_action = true, .state = 0 };
+static tap lgui_tap_state     = { .is_press_action = true, .state = 0 };
+static tap lctl_tap_state     = { .is_press_action = true, .state = 0 };
 
 void td_ralt_finished (tap_dance_state_t *state, void *user_data) {
-  ralt_tap_state.state = cur_dance(state);
-  is_hold_tapdance_disabled = false;
+    ralt_tap_state.state = cur_dance(state);
+    // is_hold_tapdance_disabled is owned by the layout tap dance only
+    // touching it here or in _reset would clear it while LOWER/RAISE is still held.
 
-  switch (ralt_tap_state.state) {
-      case SINGLE_TAP:
-      case SINGLE_HOLD:
-          register_code(KC_RALT);
-          layer_on(_ACCENTS_RALT);
-          break;
+    // guard with state->pressed — quick tap must not spuriously
+    // fire KC_RALT + layer_on to the OS
+    if (state->pressed) {
+        switch (ralt_tap_state.state) {
+            case SINGLE_TAP:
+            case SINGLE_HOLD:
+                register_code(KC_RALT);
+                layer_on(_ACCENTS_RALT);
+                break;
 
-      case DOUBLE_SINGLE_TAP:
-      case DOUBLE_HOLD:
-          register_code(KC_LCTL);
-          break;
-  }
+            case DOUBLE_SINGLE_TAP:
+            case DOUBLE_HOLD:
+                register_code(KC_LCTL);
+                break;
+        }
+    }
 }
 
 void td_ralt_reset (tap_dance_state_t *state, void *user_data) {
-    is_hold_tapdance_disabled = false;
-
+    // do NOT touch is_hold_tapdance_disabled here
     switch (ralt_tap_state.state) {
         case SINGLE_TAP:
         case SINGLE_HOLD:
@@ -169,27 +169,31 @@ void td_ralt_reset (tap_dance_state_t *state, void *user_data) {
 }
 
 void td_ralt_osx_finished (tap_dance_state_t *state, void *user_data) {
-  ralt_tap_state.state = cur_dance(state);
-  is_hold_tapdance_disabled = false;
+    // use dedicated OSX state variable
+    ralt_osx_tap_state.state = cur_dance(state);
+    // do NOT touch is_hold_tapdance_disabled here
 
-  switch (ralt_tap_state.state) {
-      case SINGLE_TAP:
-      case SINGLE_HOLD:
-          register_code(KC_RALT);
-          layer_on(_ACCENTS_RALT);
-          break;
+    // guard with state->pressed
+    if (state->pressed) {
+        switch (ralt_osx_tap_state.state) {
+            case SINGLE_TAP:
+            case SINGLE_HOLD:
+                register_code(KC_RALT);
+                layer_on(_ACCENTS_RALT);
+                break;
 
-      case DOUBLE_SINGLE_TAP:
-      case DOUBLE_HOLD:
-          register_code(KC_LGUI);
-          break;
-  }
+            case DOUBLE_SINGLE_TAP:
+            case DOUBLE_HOLD:
+                register_code(KC_LGUI);
+                break;
+        }
+    }
 }
 
 void td_ralt_osx_reset (tap_dance_state_t *state, void *user_data) {
-    is_hold_tapdance_disabled = false;
-
-    switch (ralt_tap_state.state) {
+    // use dedicated OSX state variable
+    // do NOT touch is_hold_tapdance_disabled here
+    switch (ralt_osx_tap_state.state) {
         case SINGLE_TAP:
         case SINGLE_HOLD:
             unregister_code(KC_RALT);
@@ -201,29 +205,31 @@ void td_ralt_osx_reset (tap_dance_state_t *state, void *user_data) {
             unregister_code(KC_LGUI);
             break;
     }
-    ralt_tap_state.state = 0;
+    ralt_osx_tap_state.state = 0;
 }
 
 void td_lalt_finished (tap_dance_state_t *state, void *user_data) {
-  lalt_tap_state.state = cur_dance(state);
-  is_hold_tapdance_disabled = false;
+    lalt_tap_state.state = cur_dance(state);
+    // do NOT touch is_hold_tapdance_disabled here
 
-  switch (lalt_tap_state.state) {
-      case SINGLE_TAP:
-      case SINGLE_HOLD:
-          register_code(KC_LALT);
-          break;
+    // guard with state->pressed
+    if (state->pressed) {
+        switch (lalt_tap_state.state) {
+            case SINGLE_TAP:
+            case SINGLE_HOLD:
+                register_code(KC_LALT);
+                break;
 
-      case DOUBLE_SINGLE_TAP:
-      case DOUBLE_HOLD:
-          layer_on(_NUM_PADS);
-          break;
-  }
+            case DOUBLE_SINGLE_TAP:
+            case DOUBLE_HOLD:
+                layer_on(_NUM_PADS);
+                break;
+        }
+    }
 }
 
 void td_lalt_reset (tap_dance_state_t *state, void *user_data) {
-    is_hold_tapdance_disabled = false;
-
+    // do NOT touch is_hold_tapdance_disabled here
     switch (lalt_tap_state.state) {
         case SINGLE_TAP:
         case SINGLE_HOLD:
@@ -239,25 +245,27 @@ void td_lalt_reset (tap_dance_state_t *state, void *user_data) {
 }
 
 void td_lgui_finished (tap_dance_state_t *state, void *user_data) {
-  lgui_tap_state.state = cur_dance(state);
-  is_hold_tapdance_disabled = false;
+    lgui_tap_state.state = cur_dance(state);
+    // do NOT touch is_hold_tapdance_disabled here
 
-  switch (lgui_tap_state.state) {
-      case SINGLE_TAP:
-      case SINGLE_HOLD:
-          register_code(KC_LGUI);
-          break;
+    // guard with state->pressed
+    if (state->pressed) {
+        switch (lgui_tap_state.state) {
+            case SINGLE_TAP:
+            case SINGLE_HOLD:
+                register_code(KC_LGUI);
+                break;
 
-      case DOUBLE_SINGLE_TAP:
-      case DOUBLE_HOLD:
-          layer_on(_NUM_PADS);
-          break;
-  }
+            case DOUBLE_SINGLE_TAP:
+            case DOUBLE_HOLD:
+                layer_on(_NUM_PADS);
+                break;
+        }
+    }
 }
 
 void td_lgui_reset (tap_dance_state_t *state, void *user_data) {
-    is_hold_tapdance_disabled = false;
-
+    // do NOT touch is_hold_tapdance_disabled here
     switch (lgui_tap_state.state) {
         case SINGLE_TAP:
         case SINGLE_HOLD:
@@ -273,25 +281,26 @@ void td_lgui_reset (tap_dance_state_t *state, void *user_data) {
 }
 
 void td_lctl_finished (tap_dance_state_t *state, void *user_data) {
-  lctl_tap_state.state = cur_dance(state);
-  is_hold_tapdance_disabled = false;
+    lctl_tap_state.state = cur_dance(state);
+    // do NOT touch is_hold_tapdance_disabled here
 
-  switch (lctl_tap_state.state) {
-      case SINGLE_TAP:
-      case SINGLE_HOLD:
-          register_code(KC_LCTL);
-          break;
+    // guard with state->pressed
+    if (state->pressed) {
+        switch (lctl_tap_state.state) {
+            case SINGLE_TAP:
+            case SINGLE_HOLD:
+                register_code(KC_LCTL);
+                break;
 
-      case DOUBLE_SINGLE_TAP:
-      case DOUBLE_HOLD:
-          register_code(KC_LALT);
-          break;
-  }
+            case DOUBLE_SINGLE_TAP:
+            case DOUBLE_HOLD:
+                register_code(KC_LALT);
+                break;
+        }
+    }
 }
 
 void td_lctl_reset (tap_dance_state_t *state, void *user_data) {
-    is_hold_tapdance_disabled = false;
-
     switch (lctl_tap_state.state) {
         case SINGLE_TAP:
         case SINGLE_HOLD:
