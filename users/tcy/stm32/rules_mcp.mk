@@ -1,10 +1,8 @@
-OPT_DEFS += -include users/tcy/stm32/config_i2c1.h
-
 # ── Matrix ──────────────────────────────────────────────────
 CUSTOM_MATRIX = lite
 
 # Left half MCP23017 handler
-SRC += users/tcy/stm32/mcp_matrix.c users/tcy/stm32/i2c2_handler.c
+SRC += users/tcy/stm32/mcp_matrix.c
 
 
 # ── I2C ─────────────────────────────────────────────────────

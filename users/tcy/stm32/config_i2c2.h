@@ -1,9 +1,10 @@
-/* ── I2C2 — MCP23017 left half ──────────────────────────────
+/* ── I2C2 — NOT USED  ──────────────────────────────
+ * These defines are informational.
+ * This file has to be imported only to define I2C2 as primary for QMK
+ * Right now I2C1 is primary and I2C2 is handled manually by i2c2_handler.c
+ *
  * NOTE: I2C2 uses PB10/PB11 which conflict with PS2_PINSET 2.
  * When I2C2 is needed, set PS2_PINSET 1 (PB8/PB9) in ps2.c.
- *
- * These defines are informational — I2C2 driver is configured
- * in mcuconf.h. Uncomment if QMK needs explicit I2C2 defines.
  * ─────────────────────────────────────────────────────────── */
 #define I2C_DRIVER       I2CD2
 #define I2C2_SCL_PIN     B10

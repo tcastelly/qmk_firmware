@@ -1,4 +1,5 @@
-/* ── I2C1 — Azoteq IQS572 trackpad ─────────────────────────
+/* ── I2C1 — Imported by rules.mk  ─────────────────────────
+ * QMK will use I2C1 as default for pointing device like Azoteq
  * MANDATORY lines for I2C1:
  *   I2C_DRIVER, I2C1_SCL_PIN, I2C1_SDA_PIN,
  *   I2C1_SCL_PAL_MODE, I2C1_SDA_PAL_MODE,
