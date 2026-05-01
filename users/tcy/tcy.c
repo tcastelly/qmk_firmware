@@ -61,6 +61,9 @@ static bool keep_rgb_off = false;
 
 static bool lock_mode = false;
 
+static uint16_t bootloader_timer = 0;
+static bool bootloader_active = false;
+
 // Associate our tap dance key with its functionality
 tap_dance_action_t tap_dance_actions[] = {
     [TD_A] = ACTION_TAP_DANCE_TAP_HOLD(KC_A, KC_LCTL),
@@ -141,10 +144,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     case LOWER:
       if (record->event.pressed) {
+        bootloader_timer = timer_read();
+        bootloader_active = true;
+
         is_hold_tapdance_disabled = true;
+        lock_mode = true;
         layer_on(_LOWER);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
       } else {
+        bootloader_active = false;
+        bootloader_timer = 0;
+
+        lock_mode = false;
         layer_off(_LOWER);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
         is_hold_tapdance_disabled = false;
@@ -154,10 +165,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     case RAISE:
       if (record->event.pressed) {
+        bootloader_timer = timer_read();
+        bootloader_active = true;
+
         is_hold_tapdance_disabled = true;
         layer_on(_RAISE);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
       } else {
+        bootloader_active = false;
+        bootloader_timer = 0;
+
         layer_off(_RAISE);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
         is_hold_tapdance_disabled = false;
@@ -559,6 +576,12 @@ report_mouse_t tcy_pointing_device_task(report_mouse_t mouse_report) {
 
 #ifdef OLED_ENABLE
 void matrix_scan_user(void) {
+    // Boot into DFU if LOWER or RAISE held for 5 seconds
+    if (bootloader_active && timer_elapsed(bootloader_timer) >= 5000) {
+        bootloader_active = false;
+        reset_keyboard();
+    }
+
     if (keep_oled_off) {
         oled_off();
         return;
@@ -642,6 +665,16 @@ bool oled_task_user(void) {
 }
 #endif
 
+#ifndef OLED_ENABLE
+void matrix_scan_user(void) {
+    // Boot into DFU if LOWER or RAISE held for 5 seconds
+    if (bootloader_active && timer_elapsed(bootloader_timer) >= 5000) {
+        bootloader_active = false;
+        reset_keyboard();
+    }
+}
+#endif
+
 layer_state_t layer_state_set_user(layer_state_t state) {
     current_layer = get_highest_layer(state);
 
@@ -664,4 +697,3 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 
     return state;
 }
-
