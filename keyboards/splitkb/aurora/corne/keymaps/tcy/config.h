@@ -1,0 +1,5 @@
+#pragma once
+
+#define SPLIT_LAYER_STATE_ENABLE
+#define SPLIT_ACTIVITY_ENABLE
+#define SPLIT_TRANSPORT_MIRROR

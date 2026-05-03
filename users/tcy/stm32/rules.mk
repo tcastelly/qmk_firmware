@@ -6,3 +6,6 @@ SRC += users/tcy/stm32/i2c1.c
 
 # handle i2c2 manually
 SRC += users/tcy/stm32/i2c2_handler.c
+
+# custrom matrix to handle ps2 nor mcp
+SRC += users/tcy/stm32/matrix.c

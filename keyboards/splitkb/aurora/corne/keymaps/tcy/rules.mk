@@ -1,0 +1,2 @@
+-include users/tcy/rp2040/rules.mk
+-include users/tcy/rules.mk

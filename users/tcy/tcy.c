@@ -12,6 +12,14 @@
 #include "pointing_device.h"
 #endif
 
+uint8_t COLOR_RED[3]    = {255, 0, 0};
+uint8_t COLOR_GREEN[3]  = {0, 255, 0};
+uint8_t COLOR_BLUE[3]   = {0, 0, 255};
+uint8_t COLOR_PURPLE[3] = {128, 0, 128};
+uint8_t COLOR_YELLOW[3] = {255, 255, 0};
+uint8_t COLOR_PINK[3] = {255, 80, 120};
+uint8_t COLOR_ORANGE[3] = {50, 15, 0};
+
 #ifdef AUDIO_ENABLE
 #include "audio.h"
 
@@ -182,6 +190,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return false;
       break;
 
+#ifdef RGB_MATRIX_ENABLE
+    case TOGGLE_RGB:
+      if (record->event.pressed) {
+          if (rgb_matrix_is_enabled()) {
+              rgb_matrix_disable_noeeprom();
+          } else {
+              rgb_matrix_enable_noeeprom();
+          }
+      }
+      return false;
+      break;
+#endif
+
+
     case KC_CAPS:
         if (record->event.pressed) {
           is_kc_caps = !is_kc_caps;
@@ -194,14 +216,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case KC_LSFT:
       if (record->event.pressed) {
           ps2_acceleration_setting = PS2_MAX_ACCELERATION_SETTING;
+#ifndef POINTING_DEVICE_COMBINED
 #ifdef POINTING_DEVICE_ENABLE
          pointing_device_set_cpi(POINTING_DEVICE_MAX_CPI);
+#endif
 #endif
           is_hold_tapdance_disabled = true;
       } else {
           ps2_acceleration_setting = PS2_DEFAULT_ACCELERATION_SETTING;
+#ifndef POINTING_DEVICE_COMBINED
 #ifdef POINTING_DEVICE_ENABLE
          pointing_device_set_cpi(POINTING_DEVICE_DEFAULT_CPI);
+#endif
 #endif
           is_hold_tapdance_disabled = false;
 
@@ -503,7 +529,14 @@ void keyboard_post_init_user(void) {
 
     scan_i2c_bus();
 
-    pointing_device_set_cpi(350);
+#ifdef POINTING_DEVICE_COMBINED
+    pointing_device_set_cpi_on_side(true, POINTING_LEFT_DEVICE_DEFAULT_CPI);   // left  (scroll, low CPI)
+    pointing_device_set_cpi_on_side(false, POINTING_RIGHT_DEVICE_DEFAULT_CPI); // right (cursor, higher CPI)
+#endif
+
+#ifndef POINTING_DEVICE_COMBINED
+    pointing_device_set_cpi(POINTING_DEVICE_DEFAULT_CPI);
+#endif
 
 #ifdef OLED_ENABLE
   oled_off();

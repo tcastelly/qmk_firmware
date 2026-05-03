@@ -21,13 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "tcy.h"
 #include "ps2_acceleration.h"
 
-const uint8_t COLOR_RED[3]    = {255, 0, 0};
-const uint8_t COLOR_GREEN[3]  = {0, 255, 0};
-const uint8_t COLOR_BLUE[3]   = {0, 0, 255};
-const uint8_t COLOR_PURPLE[3] = {128, 0, 128};
-const uint8_t COLOR_YELLOW[3] = {255, 255, 0};
-const uint8_t COLOR_PINK[3] = {255, 80, 120};
-
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_QWERTY]        = LAYOUT_qwerty,
     [_QWERTY_OSX]    = LAYOUT_qwerty_osx,
@@ -55,6 +48,8 @@ void ps2_mouse_moved_user(report_mouse_t *mouse_report) {
 
 // Lighting
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+  if (!rgb_matrix_is_enabled()) return false;
+
   const uint8_t *color;
 
   switch (current_layer) {
