@@ -65,7 +65,7 @@ static uint32_t key_timer = 0;
 
 static bool is_rgb_off = false;
 
-static bool keep_rgb_off = false;
+bool keep_rgb_off = false;
 
 static bool lock_mode = false;
 
@@ -193,11 +193,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #ifdef RGB_MATRIX_ENABLE
     case TOGGLE_RGB:
       if (record->event.pressed) {
-          if (rgb_matrix_is_enabled()) {
-              rgb_matrix_disable_noeeprom();
-          } else {
-              rgb_matrix_enable_noeeprom();
-          }
+        if (rgb_matrix_is_enabled()) {
+          keep_rgb_off = true;
+          rgb_matrix_disable_noeeprom();
+          is_rgb_off = true;
+        } else {
+          rgb_matrix_enable_noeeprom();
+          keep_rgb_off = false;
+          is_rgb_off = false;
+        }
       }
       return false;
       break;

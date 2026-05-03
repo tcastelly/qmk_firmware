@@ -48,7 +48,7 @@ void ps2_mouse_moved_user(report_mouse_t *mouse_report) {
 
 // Lighting
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
-  if (!rgb_matrix_is_enabled()) return false;
+  if (keep_rgb_off) return false;
 
   const uint8_t *color;
 

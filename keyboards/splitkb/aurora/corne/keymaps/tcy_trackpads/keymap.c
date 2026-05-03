@@ -5,7 +5,7 @@
 
 //Lighting
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
-    if (!rgb_matrix_is_enabled()) return false;
+    if (keep_rgb_off) return false;
 
     for (uint8_t i = led_min; i < led_max; i++) {
       rgb_matrix_set_color(i, COLOR_ORANGE[0], COLOR_ORANGE[1], COLOR_ORANGE[2]);

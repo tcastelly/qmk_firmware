@@ -10,6 +10,8 @@ uint8_t current_layer;
 
 void play_audio(void);
 
+bool keep_rgb_off;
+
 report_mouse_t tcy_pointing_device_task(report_mouse_t mouse_report);
 
 uint8_t COLOR_RED[3];
