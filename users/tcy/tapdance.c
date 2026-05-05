@@ -78,6 +78,8 @@ void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_dat
 }
 
 void tap_dance_tap_hold_reset_layout(tap_dance_state_t *state, void *user_data) {
+    tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
+    layer_off(tap_hold->hold);
     is_hold_tapdance_disabled = false;
 }
 // END tap-hold layout
@@ -148,11 +150,11 @@ void td_ralt_finished (tap_dance_state_t *state, void *user_data) {
 }
 
 void td_ralt_reset (tap_dance_state_t *state, void *user_data) {
+    layer_off(_ACCENTS_RALT);
     switch (ralt_tap_state.state) {
         case SINGLE_TAP:
         case SINGLE_HOLD:
             unregister_code(KC_RALT);
-            layer_off(_ACCENTS_RALT);
             break;
 
         case DOUBLE_SINGLE_TAP:
@@ -185,11 +187,11 @@ void td_ralt_osx_finished (tap_dance_state_t *state, void *user_data) {
 void td_ralt_osx_reset (tap_dance_state_t *state, void *user_data) {
     // use dedicated OSX state variable
     // do NOT touch is_hold_tapdance_disabled here
+    layer_off(_ACCENTS_RALT);
     switch (ralt_osx_tap_state.state) {
         case SINGLE_TAP:
         case SINGLE_HOLD:
             unregister_code(KC_RALT);
-            layer_off(_ACCENTS_RALT);
             break;
 
         case DOUBLE_SINGLE_TAP:
