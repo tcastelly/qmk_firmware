@@ -70,6 +70,7 @@ bool keep_rgb_off = false;
 static bool lock_mode = false;
 
 static uint16_t bootloader_timer = 0;
+
 static bool bootloader_active = false;
 
 // Associate our tap dance key with its functionality
@@ -121,6 +122,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   tap_dance_action_t *action;
 
   key_timer = timer_read32();  // resets timer
+                               //
+  bootloader_active = false;
 
 #ifdef AUDIO_ENABLE
   if (!record->event.pressed && buzz_mode == BUZZ_ON) {
