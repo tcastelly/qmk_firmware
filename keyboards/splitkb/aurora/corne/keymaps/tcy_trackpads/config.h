@@ -13,5 +13,3 @@
 
 #define RGB_MATRIX_TIMEOUT 30000
 #define RGB_MATRIX_SLEEP
-
-#define MASTER_RIGHT
