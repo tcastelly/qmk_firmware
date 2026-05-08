@@ -22,7 +22,7 @@ static void draw_minimal(void)
   oled_set_cursor(6, 0);       // Set cursor to origin
                                //
   char buf[32];  // temporary buffer for formatted string
-  switch (current_layer) {
+  switch (get_highest_layer(layer_state)) {
       case _QWERTY:
           snprintf(buf, sizeof(buf), "Q             %d", ps2_acceleration_setting);
           break;

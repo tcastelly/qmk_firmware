@@ -433,6 +433,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            if (oled_mode != OLED_OFF) {
                oled_mode = OLED_OFF;
                keep_oled_off = true;
+               layer_on(_OLED_OFF_SIGNAL);   // signal slave via synced layer state
            } else {
 #ifdef OLED_ENABLE_MINIMAL
                oled_mode = OLED_MINIMAL;
@@ -443,6 +444,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #endif
 
                keep_oled_off = false;
+               layer_off(_OLED_OFF_SIGNAL);  // signal slave: OLED back on
            }
        }
        return false;
@@ -614,7 +616,6 @@ report_mouse_t tcy_pointing_device_task(report_mouse_t mouse_report) {
     return mouse_report;
 }
 
-#ifdef OLED_ENABLE
 void matrix_scan_user(void) {
     // Boot into DFU if LOWER or RAISE held for 5 seconds
     if (bootloader_active && timer_elapsed(bootloader_timer) >= 5000) {
@@ -622,23 +623,38 @@ void matrix_scan_user(void) {
         reset_keyboard();
     }
 
-    if (keep_oled_off) {
-        oled_off();
-        return;
-    }
-
+#if defined(PS2_ENABLE) || defined(PS2_CUSTOM_ENABLE)
     if (timer_elapsed32(key_timer) > 200) {
         disable_tp = false;
     } else {
         disable_tp = true;
     }
+#endif
 
+#ifdef OLED_ENABLE
+    if (keep_oled_off) {
+        layer_on(_OLED_OFF_SIGNAL);   // signal slave via synced layer state
+        oled_off();
+        return;
+    } else {
+        layer_off(_OLED_OFF_SIGNAL);   // signal slave via synced layer state
+    }
+        
     // 30 seconds
     int max_ms = 30000;
 
-    if (timer_elapsed32(key_timer) > max_ms) {
+    // On the slave, key_timer is never updated (process_record_user only runs
+    // on master). Use last_input_activity_elapsed() which is synced via
+    // SPLIT_ACTIVITY_ENABLE so the slave always knows when activity occurred.
+    uint32_t elapsed = is_keyboard_master()
+        ? timer_elapsed32(key_timer)
+        : last_input_activity_elapsed();
+
+    if (elapsed > max_ms) {
       oled_mode = OLED_OFF;
+      layer_on(_OLED_OFF_SIGNAL);   // signal slave via synced layer state
     } else {
+       layer_off(_OLED_OFF_SIGNAL);   // signal slave via synced layer state
 #ifdef OLED_ENABLE_MINIMAL
       oled_mode = OLED_MINIMAL;
 #endif
@@ -648,20 +664,31 @@ void matrix_scan_user(void) {
 #endif
     }
 
-    // 30 seconds
-    is_rgb_off = timer_elapsed32(key_timer) > max_ms;
+    // RGB is only on the master (right side) — slave must not touch it
+    if (is_keyboard_master()) {
+      is_rgb_off = elapsed > max_ms;
 
 #ifdef RGB_MATRIX_ENABLE
-    if (is_rgb_off) {
-      rgb_matrix_disable_noeeprom();
-    } else if (!keep_rgb_off) {
-      rgb_matrix_enable_noeeprom();
-    }
+      if (is_rgb_off) {
+        rgb_matrix_disable_noeeprom();
+      } else if (!keep_rgb_off) {
+        rgb_matrix_enable_noeeprom();
+      }
 #endif
+    }
 }
 
 bool oled_task_user(void) {
     static bool is_screen_on = true;
+
+    if (!is_keyboard_master() && IS_LAYER_ON(_OLED_OFF_SIGNAL)) {
+#ifdef OLED_ENABLE_MINIMAL
+      _oled_off();
+#else
+      oled_off(); 
+#endif
+      return false;
+    }
 
     switch (oled_mode) {
 #ifndef OLED_ENABLE_MINIMAL

@@ -6,16 +6,17 @@ extern bool scrolling_mode;
 extern bool is_hold_tapdance_disabled;
 
 enum layer_names {
-    _QWERTY,        // 0
-    _QWERTY_OSX,    // 1
-    _QWERTY_GAMING, // 2
-    _LOWER,         // 3
-    _RAISE,         // 4
-    _ADJUST,        // 5
-    _ESC,           // 6
-    _ESC_OSX,       // 7
-    _NUM_PADS,      // 8
-    _ACCENTS_RALT   // 9
+    _QWERTY,         // 0
+    _QWERTY_OSX,     // 1
+    _QWERTY_GAMING,  // 2
+    _LOWER,          // 3
+    _RAISE,          // 4
+    _ADJUST,         // 5
+    _ESC,            // 6
+    _ESC_OSX,        // 7
+    _NUM_PADS,       // 8
+    _ACCENTS_RALT,   // 9
+    _OLED_OFF_SIGNAL // 10
 };
 
 enum custom_keycodes {

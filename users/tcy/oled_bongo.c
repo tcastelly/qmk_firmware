@@ -204,7 +204,7 @@ static void draw_bongo(void)
 
     // print layout
     oled_set_cursor(0, line_i);
-    switch (current_layer) {
+    switch (get_highest_layer(layer_state)) {
         case _QWERTY:
             strcpy(layout_str, "Q");
             break;

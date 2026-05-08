@@ -1,0 +1,28 @@
+#pragma once
+
+#define I2C1_SCL_PIN GP3
+#define I2C1_SDA_PIN GP2
+
+// Left (slave) half matrix
+// #define MATRIX_COL_PINS { GP29, GP28, GP27, GP26, GP22, GP20 }
+// #define MATRIX_ROW_PINS { GP4, GP5, GP6, GP7 }
+
+// Right (master) half matrix
+#define MATRIX_COL_PINS_RIGHT { GP20, GP22, GP26, GP27, GP28, GP29 }
+#define MATRIX_ROW_PINS_RIGHT { GP4, GP5, GP6, GP7 }
+
+// Auto-detect handedness using GP23
+#define SPLIT_HAND_PIN GP23
+
+#define OLED_TIMEOUT 30000
+
+#define AZOTEQ_IQS5XX_TPS65
+#define AZOTEQ_IQS5XX_ROTATION_270
+
+#undef RGB_MATRIX_MAXIMUM_BRIGHTNESS
+#define RGB_MATRIX_MAXIMUM_BRIGHTNESS 100
+
+#define SPLIT_ACTIVITY_ENABLE
+#define SPLIT_MODS_ENABLE
+#define SPLIT_RGB_MATRIX_ENABLE
+#define SPLIT_WPM_ENABLE
