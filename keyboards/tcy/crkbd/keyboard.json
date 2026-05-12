@@ -45,6 +45,9 @@
     "rgb_matrix": {
         "driver": "ws2812",
         "split_count": [27, 27],
+        "animations": {
+          "breathing": true
+        },
         "layout": [
             {"x": 139, "y": 16, "flags": 2},
             {"x": 174, "y": 13, "flags": 2},

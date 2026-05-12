@@ -42,8 +42,11 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     if (keep_rgb_off) return false;
 
-    for (uint8_t i = led_min; i < led_max; i++) {
-      rgb_matrix_set_color(i, COLOR_PURPLE[0], COLOR_PURPLE[1], COLOR_PURPLE[2]);
+     static bool initialized = false;
+    if (!initialized) {
+        rgb_matrix_mode_noeeprom(RGB_MATRIX_BREATHING);
+        rgb_matrix_sethsv_noeeprom(COLOR_PURPLE[0], COLOR_PURPLE[1], COLOR_PURPLE[2]); 
+        initialized = true;
     }
 
     return false;
