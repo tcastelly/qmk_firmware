@@ -32,8 +32,6 @@ extern bool scrolling_mode;
 #define DEFAULT_ACCELERATION_SETTING 2
 #endif
 
-bool    disable_tp                      = false;
-
 // default value 250
 uint16_t mouse_rotation_angle           = 250;
 

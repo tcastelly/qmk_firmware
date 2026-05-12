@@ -8,6 +8,8 @@ uint8_t ps2_acceleration_setting;
 
 uint8_t current_layer;
 
+bool disable_tp;
+
 void play_audio(void);
 
 bool keep_rgb_off;

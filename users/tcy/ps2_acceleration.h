@@ -7,7 +7,6 @@
  * Settings (Exposed for keymap/menu manipulation)
  * ============================================================ */
 
-extern bool disable_tp;
 extern uint16_t mouse_rotation_angle;
 
 extern uint8_t drag_scroll_speed_setting;

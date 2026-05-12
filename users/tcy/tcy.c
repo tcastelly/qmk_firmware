@@ -15,7 +15,7 @@
 uint8_t COLOR_RED[3]    = {255, 0, 0};
 uint8_t COLOR_GREEN[3]  = {0, 255, 0};
 uint8_t COLOR_BLUE[3]   = {0, 0, 255};
-uint8_t COLOR_PURPLE[3] = {128, 0, 128};
+uint8_t COLOR_PURPLE[3] = {191, 255, 100};
 uint8_t COLOR_YELLOW[3] = {255, 255, 0};
 uint8_t COLOR_PINK[3] = {255, 80, 120};
 uint8_t COLOR_ORANGE[3] = {50, 15, 0};
@@ -53,6 +53,8 @@ int8_t oled_mode = OLED_BONGO;
 #include "oled_bongo.c"
 #endif
 #endif
+
+bool disable_tp = false;
 
 uint8_t ps2_acceleration_setting = PS2_DEFAULT_ACCELERATION_SETTING;
 
@@ -518,7 +520,7 @@ void scan_i2c_bus(void) {
   for (uint8_t address = 1; address < 128; address++) {
     // We shift address left for the 7-bit + R/W format
     // Use i2c_receive if i2c_read continues to fail
-    i2c_status_t status = i2c_receive(address << 1, &dat, 1, 100);
+    i2c_status_t status = i2c_receive(address << 1, &dat, 1, 10);
     if (status == I2C_STATUS_SUCCESS) {
       uprintf("Found device at address: 0x%02X\n", address);
     }
@@ -631,15 +633,6 @@ void matrix_scan_user(void) {
     }
 #endif
 
-#ifdef OLED_ENABLE
-    if (keep_oled_off) {
-        layer_on(_OLED_OFF_SIGNAL);   // signal slave via synced layer state
-        oled_off();
-        return;
-    } else {
-        layer_off(_OLED_OFF_SIGNAL);   // signal slave via synced layer state
-    }
-        
     // 30 seconds
     int max_ms = 30000;
 
@@ -650,6 +643,15 @@ void matrix_scan_user(void) {
         ? timer_elapsed32(key_timer)
         : last_input_activity_elapsed();
 
+#ifdef OLED_ENABLE
+    if (keep_oled_off) {
+        layer_on(_OLED_OFF_SIGNAL);   // signal slave via synced layer state
+        oled_off();
+        return;
+    } else {
+        layer_off(_OLED_OFF_SIGNAL);   // signal slave via synced layer state
+    }
+        
     if (elapsed > max_ms) {
       oled_mode = OLED_OFF;
       layer_on(_OLED_OFF_SIGNAL);   // signal slave via synced layer state
@@ -663,6 +665,7 @@ void matrix_scan_user(void) {
       oled_mode = OLED_BONGO;
 #endif
     }
+#endif
 
     // RGB is only on the master (right side) — slave must not touch it
     if (is_keyboard_master()) {
@@ -678,6 +681,7 @@ void matrix_scan_user(void) {
     }
 }
 
+#ifdef OLED_ENABLE
 bool oled_task_user(void) {
     static bool is_screen_on = true;
 
@@ -729,16 +733,6 @@ bool oled_task_user(void) {
     }
 
     return false;
-}
-#endif
-
-#ifndef OLED_ENABLE
-void matrix_scan_user(void) {
-    // Boot into DFU if LOWER or RAISE held for 5 seconds
-    if (bootloader_active && timer_elapsed(bootloader_timer) >= 5000) {
-        bootloader_active = false;
-        reset_keyboard();
-    }
 }
 #endif
 
