@@ -354,13 +354,26 @@ void ps2_stm32_scan(void) {
         late_init_done = true;
     }
 
-    /* Per-tick pin guard for all devices */
+    /* Per-tick pin guard + EXTI watchdog for all devices */
     for (uint8_t i = 0; i < PS2_NUM_DEVICES; i++) {
         uint8_t pinset = ps2_pinset_list[i];
         if (pinset == 0 || pinset > PS2_MAX_PINSET) continue;
         const ps2_pin_config_t *cfg = &ps2_pin_configs[pinset];
         ps2_pin_guard(cfg->gpio, cfg->clk_nr, cfg->use_afrl);
         ps2_pin_guard(cfg->gpio, cfg->dat_nr, cfg->use_afrl);
+        /* Restore EXTI if the I2C driver cleared the interrupt mask (iStop/iStart side-effect) */
+        if (i < PS2_MAX_HANDLERS &&
+            (!(EXTI->IMR  & (1U << cfg->clk_nr)) ||
+             !(EXTI->FTSR & (1U << cfg->clk_nr)))) {
+            SYSCFG->EXTICR[cfg->exticr_idx] =
+                (SYSCFG->EXTICR[cfg->exticr_idx] & ~(0xFU << cfg->exticr_shift)) |
+                (cfg->port_id << cfg->exticr_shift);
+            ps2_pin_input_pullup(cfg->gpio, cfg->clk_nr, cfg->use_afrl);
+            palSetLineCallback(PAL_LINE(cfg->gpio, cfg->clk_nr), ps2_handlers[i], NULL);
+            palEnableLineEvent(PAL_LINE(cfg->gpio, cfg->clk_nr), PAL_EVENT_MODE_FALLING_EDGE);
+            uprintf("PS2 dev%d: EXTI%d re-armed (IMR=%08lX FTSR=%08lX)\n",
+                    i, cfg->clk_nr, EXTI->IMR, EXTI->FTSR);
+        }
     }
 
 #ifdef PS2_MOUSE_DEBUG
@@ -374,11 +387,12 @@ void ps2_stm32_scan(void) {
             (void)port;
             uprintf(
                 "dev%d CLK(P%c%d)=%d DAT(P%c%d)=%d | "
-                "MODER=%08lX EXTICR=%08lX | Clocks=%lu\n",
+                "MODER=%08lX EXTICR=%08lX IMR=%08lX | Clocks=%lu\n",
                 i, port, cfg->clk_nr, ps2_pin_read(cfg->gpio, cfg->clk_nr),
                    port, cfg->dat_nr, ps2_pin_read(cfg->gpio, cfg->dat_nr),
                 cfg->gpio->MODER,
                 SYSCFG->EXTICR[cfg->exticr_idx],
+                EXTI->IMR,
                 ps2_state[i].clock_interrupt_count
             );
         }
