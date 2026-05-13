@@ -561,6 +561,15 @@ void keyboard_post_init_user(void) {
 #endif
 }
 
+#ifdef POINTING_DEVICE_ENABLE
+void pointing_device_init_kb(void) {
+    pointing_device_init_user();
+    /* Force SUCCESS so pointing_device_task() runs PS/2 processing even when
+     * the Azoteq hotswap module is absent and its init returns false. */
+    pointing_device_set_status(POINTING_DEVICE_STATUS_SUCCESS);
+}
+#endif
+
 void play_audio(void) {
 #ifdef AUDIO_ENABLE
   audio_play_melody(&layer_sound_on, 3, false);  // non-blocking

@@ -82,6 +82,13 @@ typedef struct {
     /* Button state */
     uint8_t held_buttons;
     uint8_t prev_buttons;
+
+    /* Set when 0xAA (self-test OK) is received — trackpoint reset, needs 0xF4 */
+    volatile bool needs_reinit;
+
+    /* Keepalive: re-send 0xF4 if CLK stays frozen (catches missed resets) */
+    uint32_t keepalive_last_clk;
+    uint32_t keepalive_since_ms;
 } ps2_device_state_t;
 
 static ps2_device_state_t ps2_state[PS2_NUM_DEVICES];
@@ -162,7 +169,12 @@ static void ps2_interrupt_handler(void *arg) {
         }
         dev->packet_last_ms = now;
 
-        if (dev->packet_idx == 0) {
+        if (dev->ps2_data == 0xAA) {
+            /* Device reset (0xAA self-test OK) — drop any partial packet, flag reinit.
+             * Must be checked before packet_idx so it fires even mid-packet. */
+            dev->packet_idx  = 0;
+            dev->needs_reinit = true;
+        } else if (dev->packet_idx == 0) {
             if ((dev->ps2_data & 0x08) && !(dev->ps2_data & 0xC0)) {
                 dev->packet[0]  = dev->ps2_data;
                 dev->packet_idx = 1;
@@ -312,6 +324,7 @@ void ps2_stm32_init(void) {
         const ps2_pin_config_t *cfg = &ps2_pin_configs[pinset];
         palSetLineCallback(PAL_LINE(cfg->gpio, cfg->clk_nr), ps2_handlers[i], NULL);
         palEnableLineEvent(PAL_LINE(cfg->gpio, cfg->clk_nr), PAL_EVENT_MODE_FALLING_EDGE);
+        ps2_state[i].keepalive_since_ms = timer_read32();
     }
 
     __enable_irq();
@@ -369,10 +382,37 @@ void ps2_stm32_scan(void) {
                 (SYSCFG->EXTICR[cfg->exticr_idx] & ~(0xFU << cfg->exticr_shift)) |
                 (cfg->port_id << cfg->exticr_shift);
             ps2_pin_input_pullup(cfg->gpio, cfg->clk_nr, cfg->use_afrl);
+            /* Fully disable first: clears EXTI->PR (prevents phantom edge on re-arm),
+             * also satisfies ChibiOS's "disable before re-enable" requirement. */
+            palDisableLineEvent(PAL_LINE(cfg->gpio, cfg->clk_nr));
+            EXTI->PR = (1U << cfg->clk_nr); /* belt-and-suspenders: flush pending */
             palSetLineCallback(PAL_LINE(cfg->gpio, cfg->clk_nr), ps2_handlers[i], NULL);
             palEnableLineEvent(PAL_LINE(cfg->gpio, cfg->clk_nr), PAL_EVENT_MODE_FALLING_EDGE);
             uprintf("PS2 dev%d: EXTI%d re-armed (IMR=%08lX FTSR=%08lX)\n",
                     i, cfg->clk_nr, EXTI->IMR, EXTI->FTSR);
+        }
+
+        /* Re-enable reporting if trackpoint sent 0xAA (device self-reset) */
+        if (i < PS2_MAX_HANDLERS && ps2_state[i].needs_reinit) {
+            ps2_state[i].needs_reinit = false;
+            ps2_state[i].packet_idx   = 0;
+            uprintf("PS2 dev%d: device reset (0xAA), re-enabling reporting\n", i);
+            wait_ms(5);  /* let device finish sending 0x00 device-ID byte */
+            ps2_send_to(i, 0xF4);
+            ps2_state[i].keepalive_since_ms = timer_read32();
+        }
+
+        /* Keepalive: if CLK frozen >2s, device may be stuck after a missed reset */
+        if (i < PS2_MAX_HANDLERS) {
+            uint32_t clk = ps2_state[i].clock_interrupt_count;
+            if (clk != ps2_state[i].keepalive_last_clk) {
+                ps2_state[i].keepalive_last_clk = clk;
+                ps2_state[i].keepalive_since_ms = timer_read32();
+            } else if (timer_elapsed32(ps2_state[i].keepalive_since_ms) > 2000) {
+                ps2_state[i].keepalive_since_ms = timer_read32();
+                uprintf("PS2 dev%d: keepalive 0xF4 (Clocks=%lu)\n", i, clk);
+                ps2_send_to(i, 0xF4);
+            }
         }
     }
 
@@ -387,12 +427,13 @@ void ps2_stm32_scan(void) {
             (void)port;
             uprintf(
                 "dev%d CLK(P%c%d)=%d DAT(P%c%d)=%d | "
-                "MODER=%08lX EXTICR=%08lX IMR=%08lX | Clocks=%lu\n",
+                "MODER=%08lX EXTICR=%08lX IMR=%08lX FTSR=%08lX | Clocks=%lu\n",
                 i, port, cfg->clk_nr, ps2_pin_read(cfg->gpio, cfg->clk_nr),
                    port, cfg->dat_nr, ps2_pin_read(cfg->gpio, cfg->dat_nr),
                 cfg->gpio->MODER,
                 SYSCFG->EXTICR[cfg->exticr_idx],
                 EXTI->IMR,
+                EXTI->FTSR,
                 ps2_state[i].clock_interrupt_count
             );
         }
