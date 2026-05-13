@@ -221,17 +221,10 @@ void td_lalt_finished (tap_dance_state_t *state, void *user_data) {
 
 void td_lalt_reset (tap_dance_state_t *state, void *user_data) {
     // do NOT touch is_hold_tapdance_disabled here
-    switch (lalt_tap_state.state) {
-        case SINGLE_TAP:
-        case SINGLE_HOLD:
-            unregister_code(KC_LALT);
-            break;
-
-        case DOUBLE_SINGLE_TAP:
-        case DOUBLE_HOLD:
-            layer_off(_NUM_PADS);
-            break;
-    }
+    // Both calls are no-ops when not active; calling unconditionally prevents
+    // any state mismatch from leaving KC_LALT registered or _NUM_PADS stuck on.
+    unregister_code(KC_LALT);
+    layer_off(_NUM_PADS);
     lalt_tap_state.state = 0;
 }
 
