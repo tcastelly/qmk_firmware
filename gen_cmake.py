@@ -1,5 +1,7 @@
+import glob
 import json
 import os
+import re
 
 db = json.load(open('compile_commands.json'))
 includes_ordered, includes, defines, force_includes, sources = [], set(), set(), [], []
@@ -34,11 +36,51 @@ for entry in db:
             if val and not val.startswith('__') and not val.endswith('='):
                 defines.add(val)
         elif a == '-include' and i+1 < len(args):
-            path = args[i+1]
-            if not path.startswith('.build/'):
-                force_includes.append(path)
+            force_includes.append(args[i+1])
             i += 1
         i += 1
+
+# Add .c files pulled in via generated #include wrappers (e.g. default_keyboard.c).
+# Those compile-units are in .build/ (filtered above) but #include files from
+# keyboards/ and users/ that we still need in the CMake target so CLion sees them.
+existing_sources = set(sources)
+for entry in db:
+    if not entry['file'].startswith('.build/'):
+        continue
+    keymap_c = None
+    user_dirs = set()
+    for a in entry['arguments']:
+        m = re.match(r'-DKEYMAP_C="([^"]+)"', a)
+        if m:
+            keymap_c = m.group(1)
+        m = re.match(r'-I(users/\w+)$', a)
+        if m:
+            user_dirs.add(m.group(1))
+    if keymap_c:
+        kb_match = re.match(r'(keyboards/.+)/keymaps/', keymap_c)
+        if kb_match:
+            for path in glob.glob(kb_match.group(1) + '/**/*.c', recursive=True):
+                if path not in existing_sources:
+                    sources.append(path)
+                    existing_sources.add(path)
+    for udir in user_dirs:
+        for path in glob.glob(udir + '/*.c'):
+            if path not in existing_sources:
+                sources.append(path)
+                existing_sources.add(path)
+
+# Remove .c files that are #include-d by other sources (not standalone compilation units).
+included_c_files = set()
+for src in existing_sources:
+    try:
+        with open(src) as fh:
+            for line in fh:
+                m = re.search(r'#include\s+"([^"]+\.c)"', line)
+                if m:
+                    included_c_files.add(os.path.normpath(os.path.join(os.path.dirname(src), m.group(1))))
+    except OSError:
+        pass
+sources = [s for s in sources if os.path.normpath(s) not in included_c_files]
 
 # Find ChibiOS config headers in include path order
 found_configs = {}
