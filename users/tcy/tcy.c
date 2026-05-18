@@ -357,77 +357,52 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
        touched_td = true;
        break;
 
-     case ACCENT_A_GRAVE:
-       if (record->event.pressed) {
-           register_code(KC_RALT);
-           register_code(KC_GRV);
-       } else {
-           unregister_code(KC_GRV);
-           unregister_code(KC_RALT);
-           register_code(KC_A);
-           unregister_code(KC_A);
-       }
-       touched_td = true;
-       break;
+      case ACCENT_A_GRAVE:
+          if (record->event.pressed) {
+              register_code(KC_RALT);
+              register_code(KC_GRV);
+          } else {
+              unregister_code(KC_GRV);
+              unregister_code(KC_RALT);
+              register_code(KC_A);
+              unregister_code(KC_A);
+          }
+          touched_td = true;
+          break;
 
-     case JET_RNM:
-       if (record->event.pressed) {
-           register_code(KC_LSFT);
-           register_code(KC_F6);
-
-           unregister_code(KC_LSFT);
-           unregister_code(KC_F6);
-       }
+      case JET_RNM:
+          if (record->event.pressed) {
+              // Use tap_code16 with weak mods so we don't disturb any
+              // "real" modifier the user may already be holding
+              // (e.g. LALT via TD_LALT, LCTL via TD_LCTL). See IA_FIX.md.
+              tap_code16(S(KC_F6));
+          }
        return false;
-       break;
 
-     case JET_FIND:
-       if (record->event.pressed) {
-           register_code(KC_LALT);
-           register_code(KC_F1);
+      case JET_FIND:
+          if (record->event.pressed) {
+              tap_code16(LALT(KC_F1));
+              tap_code(KC_1);
+          }
+          return false;
 
-           unregister_code(KC_F1);
-           unregister_code(KC_LALT);
-           tap_code(KC_1);
-       }
-       return false;
-       break;
+      case JET_OPTI:
+          if (record->event.pressed) {
+              tap_code16(LCTL(LALT(KC_O)));
+          }
+          return false;
 
-     case JET_OPTI:
-       if (record->event.pressed) {
-           register_code(KC_LCTL);
-           register_code(KC_LALT);
+      case  JET_FORMAT:
+          if (record->event.pressed) {
+              tap_code16(LCTL(LALT(KC_L)));
+          }
+          return false;
 
-           tap_code(KC_O);
-           unregister_code(KC_LALT);
-           unregister_code(KC_LCTL);
-       }
-       return false;
-       break;
-
-     case  JET_FORMAT:
-       if (record->event.pressed) {
-           register_code(KC_LCTL);
-           register_code(KC_LALT);
-
-           tap_code(KC_L);
-           unregister_code(KC_LALT);
-           unregister_code(KC_LCTL);
-       }
-       return false;
-       break;
-
-     case  JET_FORMAT_OSX:
-       if (record->event.pressed) {
-           register_code(KC_LALT);
-           register_code(KC_LGUI);
-
-           tap_code(KC_L);
-           unregister_code(KC_LALT);
-           unregister_code(KC_LGUI);
-       }
-       return false;
-       break;
+      case  JET_FORMAT_OSX:
+          if (record->event.pressed) {
+              tap_code16(LALT(LGUI(KC_L)));
+          }
+          return false;
 
 #ifdef OLED_ENABLE
      case TOGGLE_OLED:

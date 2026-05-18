@@ -247,17 +247,12 @@ void td_lgui_finished (tap_dance_state_t *state, void *user_data) {
 
 void td_lgui_reset (tap_dance_state_t *state, void *user_data) {
     // do NOT touch is_hold_tapdance_disabled here
-    switch (lgui_tap_state.state) {
-        case SINGLE_TAP:
-        case SINGLE_HOLD:
-            unregister_code(KC_LGUI);
-            break;
-
-        case DOUBLE_SINGLE_TAP:
-        case DOUBLE_HOLD:
-            layer_off(_NUM_PADS);
-            break;
-    }
+    // Unconditional unregister/layer_off: no-op if not active, but
+    // prevents a stuck modifier/layer if a macro (e.g. JET_*) or
+    // another code path toggled the modifier bit underneath us.
+    // See IA_FIX.md.
+    unregister_code(KC_LGUI);
+    layer_off(_NUM_PADS);
     lgui_tap_state.state = 0;
 }
 
@@ -279,16 +274,11 @@ void td_lctl_finished (tap_dance_state_t *state, void *user_data) {
 }
 
 void td_lctl_reset (tap_dance_state_t *state, void *user_data) {
-    switch (lctl_tap_state.state) {
-        case SINGLE_TAP:
-        case SINGLE_HOLD:
-            unregister_code(KC_LCTL);
-            break;
-
-        case DOUBLE_SINGLE_TAP:
-        case DOUBLE_HOLD:
-            unregister_code(KC_LALT);
-            break;
-    }
+    // Both calls are no-ops when not active; calling unconditionally
+    // prevents any state mismatch from leaving KC_LCTL or KC_LALT
+    // registered if a macro toggled the modifier bits underneath us.
+    // See IA_FIX.md.
+    unregister_code(KC_LCTL);
+    unregister_code(KC_LALT);
     lctl_tap_state.state = 0;
 }
