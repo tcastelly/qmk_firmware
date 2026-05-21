@@ -1,0 +1,19 @@
+USER_NAME := keyball44_tcy
+
+-include users/tcy/rules.mk
+
+BOOTLOADER = atmel-dfu
+RGBLIGHT_ENABLE = no
+RGB_MATRIX_ENABLE = no
+
+POINTING_DEVICE_ENABLE = yes
+
+OLED_ENABLE = yes
+
+TAP_DANCE_ENABLE = yes
+
+NO_DEBUG = yes
+SPACE_CADET_ENABLE = no
+GRAVE_ESC_ENABLE = no
+MAGIC_ENABLE = no
+WPM_ENABLE = no

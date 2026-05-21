@@ -71,6 +71,11 @@ bool keep_rgb_off = false;
 
 bool lock_mode = false;
 
+// Combo to be able to use Ctrl + z and `fg` with vim
+// set when KC_X is pressed while TD_A tap dance is pending (not yet resolved)
+static bool td_a_pressed  = false;
+static bool td_a_z_combo  = false;
+
 uint16_t bootloader_timer = 0;
 
 bool bootloader_active = false;
@@ -444,6 +449,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
        break;
 #endif
 
+    case KC_X:
+        if (record->event.pressed && td_a_pressed) {
+            tap_dance_state_t *st = tap_dance_get_state(TD_A);
+            if (st->count > 0 && !st->finished) {
+                td_a_z_combo = true;
+                touched_td = true;
+                tap_code(KC_Z);
+                return false;
+            }
+        }
+        return true;
+
     case TD(TD_O):  // list all tap dance keycodes with tap-hold configurations
     case TD(TD_A):
     case TD(TD_A_OSX):
@@ -474,6 +491,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       action = &tap_dance_actions[TD_INDEX(keycode)];
       tap_dance_state_t *state = tap_dance_get_state(TD_INDEX(keycode));
 
+      if (keycode == TD(TD_A) || keycode == TD(TD_A_OSX)) {
+          td_a_pressed = record->event.pressed;
+      }
+
       if (!record->event.pressed && state->count && !state->finished) {
           tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
           tap_code16(tap_hold->tap);
@@ -484,6 +505,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
           tap_code16(tap_hold->tap);
       }
+
+      // cleanup after TD_A + x → z combo: tap dance may have registered KC_A or
+      // KC_LCTL after the combo fired (it never saw x); undo both.
+      if ((keycode == TD(TD_A) || keycode == TD(TD_A_OSX)) && !record->event.pressed && td_a_z_combo) {
+          unregister_code(KC_LCTL);
+          unregister_code(KC_A);
+          td_a_z_combo = false;
+      }
+
       touched_td = true;
       break;
   }
