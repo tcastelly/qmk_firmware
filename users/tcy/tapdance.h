@@ -4,6 +4,7 @@ extern bool is_kc_caps;
 extern bool touched_td;
 extern bool scrolling_mode;
 extern bool is_hold_tapdance_disabled;
+extern bool is_osx;
 
 enum layer_names {
     _QWERTY,         // 0
@@ -55,6 +56,7 @@ enum custom_keycodes {
     JET_OPTI,
     JET_FORMAT,
     JET_FORMAT_OSX,
+    OSX_ALT,
 };
 
 // default tap dance states
@@ -131,6 +133,14 @@ extern void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_dat
 extern void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *user_data);
 extern void tap_dance_tap_hold_reset_layout(tap_dance_state_t *state, void *user_data);
 extern void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_data);
+extern void td_word_bspc_finished(tap_dance_state_t *state, void *user_data);
+extern void td_word_bspc_reset(tap_dance_state_t *state, void *user_data);
+extern void td_word_del_finished(tap_dance_state_t *state, void *user_data);
+extern void td_word_del_reset(tap_dance_state_t *state, void *user_data);
+extern void td_word_left_finished(tap_dance_state_t *state, void *user_data);
+extern void td_word_left_reset(tap_dance_state_t *state, void *user_data);
+extern void td_word_right_finished(tap_dance_state_t *state, void *user_data);
+extern void td_word_right_reset(tap_dance_state_t *state, void *user_data);
 
 #define ACTION_TAP_DANCE_TAP_HOLD(tap, hold) \
     { .fn = {NULL, tap_dance_tap_hold_finished, tap_dance_tap_hold_reset}, .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }

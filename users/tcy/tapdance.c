@@ -63,6 +63,93 @@ void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *use
     }
 }
 
+// OSX-aware word navigation tap dances.
+// is_osx selects Ctrl (Linux) vs Alt (macOS) for word jumps/deletions.
+static uint16_t word_bspc_held  = 0;
+static uint16_t word_del_held   = 0;
+static uint16_t word_left_held  = 0;
+static uint16_t word_right_held = 0;
+
+void td_word_bspc_finished(tap_dance_state_t *state, void *user_data) {
+    touched_td = false;
+    if (state->pressed) {
+        if (state->count == 1 && !is_hold_tapdance_disabled
+#ifndef PERMISSIVE_HOLD
+            && !state->interrupted
+#endif
+        ) {
+            word_bspc_held = is_osx ? LALT(KC_BSPC) : LCTL(KC_BSPC);
+        } else {
+            word_bspc_held = KC_BSPC;
+        }
+        register_code16(word_bspc_held);
+    }
+}
+void td_word_bspc_reset(tap_dance_state_t *state, void *user_data) {
+    unregister_code16(word_bspc_held);
+    word_bspc_held = 0;
+}
+
+void td_word_del_finished(tap_dance_state_t *state, void *user_data) {
+    touched_td = false;
+    if (state->pressed) {
+        if (state->count == 1
+#ifndef PERMISSIVE_HOLD
+            && !state->interrupted
+#endif
+        ) {
+            word_del_held = is_osx ? LALT(KC_DEL) : LCTL(KC_DEL);
+        } else {
+            word_del_held = KC_DEL;
+        }
+        register_code16(word_del_held);
+    }
+}
+void td_word_del_reset(tap_dance_state_t *state, void *user_data) {
+    unregister_code16(word_del_held);
+    word_del_held = 0;
+}
+
+void td_word_left_finished(tap_dance_state_t *state, void *user_data) {
+    touched_td = false;
+    if (state->pressed) {
+        if (state->count == 1
+#ifndef PERMISSIVE_HOLD
+            && !state->interrupted
+#endif
+        ) {
+            word_left_held = is_osx ? LALT(KC_LEFT) : LCTL(KC_LEFT);
+        } else {
+            word_left_held = KC_LEFT;
+        }
+        register_code16(word_left_held);
+    }
+}
+void td_word_left_reset(tap_dance_state_t *state, void *user_data) {
+    unregister_code16(word_left_held);
+    word_left_held = 0;
+}
+
+void td_word_right_finished(tap_dance_state_t *state, void *user_data) {
+    touched_td = false;
+    if (state->pressed) {
+        if (state->count == 1
+#ifndef PERMISSIVE_HOLD
+            && !state->interrupted
+#endif
+        ) {
+            word_right_held = is_osx ? LALT(KC_RIGHT) : LCTL(KC_RIGHT);
+        } else {
+            word_right_held = KC_RIGHT;
+        }
+        register_code16(word_right_held);
+    }
+}
+void td_word_right_reset(tap_dance_state_t *state, void *user_data) {
+    unregister_code16(word_right_held);
+    word_right_held = 0;
+}
+
 // START tap-hold layout
 // is_hold_tapdance_disabled is OWNED exclusively by this pair.
 // No other tap dance should ever read or write it.

@@ -56,6 +56,8 @@ int8_t oled_mode = OLED_BONGO;
 
 bool disable_tp = false;
 
+bool is_osx = false;
+
 uint8_t ps2_acceleration_setting = PS2_DEFAULT_ACCELERATION_SETTING;
 
 uint8_t current_layer = 0;
@@ -102,16 +104,16 @@ tap_dance_action_t tap_dance_actions[] = {
     [TD_LALT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lalt_finished, td_lalt_reset),
     [TD_LGUI] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lgui_finished, td_lgui_reset),
 
-    [TD_BSPC] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LCTL(KC_BSPC)),
+    [TD_BSPC] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_word_bspc_finished, td_word_bspc_reset),
     [TD_BSPC_OSX] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LALT(KC_BSPC)),
 
-    [TD_DEL] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_DEL, LCTL(KC_DEL)),
+    [TD_DEL] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_word_del_finished, td_word_del_reset),
     [TD_DEL_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_DEL, LALT(KC_DEL)),
 
-    [TD_LEFT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_LEFT, LCTL(KC_LEFT)),
+    [TD_LEFT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_word_left_finished, td_word_left_reset),
     [TD_LEFT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_LEFT, LALT(KC_LEFT)),
 
-    [TD_RIGHT] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LCTL(KC_RIGHT)),
+    [TD_RIGHT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_word_right_finished, td_word_right_reset),
     [TD_RIGHT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LALT(KC_RIGHT)),
 
     [TD_RALT_OSX] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_osx_finished, td_ralt_osx_reset),
@@ -144,6 +146,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
     case QWERTY:
         if (record->event.pressed) {
+            is_osx = false;
             layer_move(_QWERTY);
         }
         return false;
@@ -151,7 +154,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     case QWERTY_OSX:
         if (record->event.pressed) {
-            layer_move(_QWERTY_OSX);
+            is_osx = true;
+            layer_move(_QWERTY);
         }
         return false;
         break;
@@ -248,8 +252,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #endif
           is_hold_tapdance_disabled = false;
 
-          // OSX needs less speed
-          if (get_highest_layer(layer_state) == _QWERTY_OSX) {
+          if (is_osx) {
             ps2_acceleration_setting -= 1;
           }
       }
@@ -378,6 +381,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           touched_td = true;
           break;
 
+      case OSX_ALT:
+          if (record->event.pressed) {
+              ps2_acceleration_setting = PS2_MAX_ACCELERATION_SETTING;
+              is_hold_tapdance_disabled = true;
+              register_code(is_osx ? KC_LGUI : KC_LALT);
+          } else {
+              is_hold_tapdance_disabled = false;
+              ps2_acceleration_setting = is_osx
+                  ? PS2_DEFAULT_ACCELERATION_SETTING - 1
+                  : PS2_DEFAULT_ACCELERATION_SETTING;
+              unregister_code(is_osx ? KC_LGUI : KC_LALT);
+          }
+          return false;
+
       case JET_RNM:
           if (record->event.pressed) {
               // Use tap_code16 with weak mods so we don't disturb any
@@ -400,13 +417,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           }
           return false;
 
-      case  JET_FORMAT:
+      case JET_FORMAT:
           if (record->event.pressed) {
-              tap_code16(LCTL(LALT(KC_L)));
+              tap_code16(is_osx ? LALT(LGUI(KC_L)) : LCTL(LALT(KC_L)));
           }
           return false;
 
-      case  JET_FORMAT_OSX:
+      case JET_FORMAT_OSX:
           if (record->event.pressed) {
               tap_code16(LALT(LGUI(KC_L)));
           }
