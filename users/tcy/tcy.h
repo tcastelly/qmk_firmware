@@ -14,6 +14,10 @@ void play_audio(void);
 
 bool keep_rgb_off;
 
+extern bool lock_mode;
+extern uint16_t bootloader_timer;
+extern bool bootloader_active;
+
 report_mouse_t tcy_pointing_device_task(report_mouse_t mouse_report);
 
 uint8_t COLOR_RED[3];

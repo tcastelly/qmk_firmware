@@ -93,8 +93,13 @@ enum {
     TD_LEFT,
     TD_LEFT_OSX,
     TD_RIGHT,
-    TD_RIGHT_OSX
+    TD_RIGHT_OSX,
+    TD_LOWER,
+    TD_RAISE
 };
+
+extern int cur_dance(tap_dance_state_t *state);
+extern int cur_dance_permissive(tap_dance_state_t *state);
 
 typedef struct {
     bool is_press_action;
@@ -117,6 +122,10 @@ extern void td_lalt_reset(tap_dance_state_t *state, void *user_data);
 extern void td_lalt_finished(tap_dance_state_t *state, void *user_data);
 extern void td_lctl_reset(tap_dance_state_t *state, void *user_data);
 extern void td_lctl_finished(tap_dance_state_t *state, void *user_data);
+extern void td_lower_reset(tap_dance_state_t *state, void *user_data);
+extern void td_lower_finished(tap_dance_state_t *state, void *user_data);
+extern void td_raise_reset(tap_dance_state_t *state, void *user_data);
+extern void td_raise_finished(tap_dance_state_t *state, void *user_data);
 extern void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data);
 extern void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data);
 extern void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *user_data);

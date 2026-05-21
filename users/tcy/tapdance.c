@@ -1,6 +1,7 @@
 #include QMK_KEYBOARD_H
 
 #include "tapdance.h"
+#include "tcy.h"
 
 bool is_kc_caps  = false;
 
@@ -86,6 +87,36 @@ void tap_dance_tap_hold_reset_layout(tap_dance_state_t *state, void *user_data) 
 
 
 // START default tap-dance
+// Like cur_dance but ignores interrupted for the single-tap/hold decision.
+// Required for LOWER/RAISE: holding one while pressing the other sets
+// interrupted=true, which would wrongly collapse SINGLE_HOLD → SINGLE_TAP.
+int cur_dance_permissive (tap_dance_state_t *state) {
+    if (state->count == 1) {
+        if (!state->pressed) {
+            return SINGLE_TAP;
+        } else {
+            return SINGLE_HOLD;
+        }
+    } else if (state->count == 2) {
+        if (state->interrupted) {
+            return DOUBLE_SINGLE_TAP;
+        } else if (state->pressed) {
+            return DOUBLE_HOLD;
+        } else {
+            return DOUBLE_TAP;
+        }
+    } else if (state->count == 3) {
+        if (state->interrupted) {
+            return TRIPLE_SINGLE_TAP;
+        } else if (state->pressed) {
+            return TRIPLE_HOLD;
+        } else {
+            return TRIPLE_TAP;
+        }
+    }
+    return 8;
+}
+
 int cur_dance (tap_dance_state_t *state) {
     if (state->count == 1) {
         if (state->interrupted || !state->pressed) {
@@ -129,6 +160,8 @@ static tap ralt_osx_tap_state = { .is_press_action = true, .state = 0 };
 static tap lalt_tap_state     = { .is_press_action = true, .state = 0 };
 static tap lgui_tap_state     = { .is_press_action = true, .state = 0 };
 static tap lctl_tap_state     = { .is_press_action = true, .state = 0 };
+static tap lower_tap_state    = { .is_press_action = true, .state = 0 };
+static tap raise_tap_state    = { .is_press_action = true, .state = 0 };
 
 void td_ralt_finished (tap_dance_state_t *state, void *user_data) {
     ralt_tap_state.state = cur_dance(state);
@@ -281,4 +314,96 @@ void td_lctl_reset (tap_dance_state_t *state, void *user_data) {
     unregister_code(KC_LCTL);
     unregister_code(KC_LALT);
     lctl_tap_state.state = 0;
+}
+
+void td_lower_finished (tap_dance_state_t *state, void *user_data) {
+    lower_tap_state.state = cur_dance_permissive(state);
+
+    switch (lower_tap_state.state) {
+        case SINGLE_HOLD:
+            bootloader_timer = timer_read();
+            bootloader_active = true;
+            is_hold_tapdance_disabled = true;
+            lock_mode = true;
+            layer_on(_LOWER);
+            update_tri_layer(_LOWER, _RAISE, _ADJUST);
+            break;
+
+        case SINGLE_TAP:
+            break;
+
+        case DOUBLE_SINGLE_TAP:
+        case DOUBLE_HOLD:
+            register_code(KC_LCTL);
+            break;
+    }
+}
+
+void td_lower_reset (tap_dance_state_t *state, void *user_data) {
+    switch (lower_tap_state.state) {
+        case SINGLE_HOLD:
+            bootloader_active = false;
+            bootloader_timer = 0;
+            lock_mode = false;
+            layer_off(_LOWER);
+            update_tri_layer(_LOWER, _RAISE, _ADJUST);
+            is_hold_tapdance_disabled = false;
+            break;
+
+        case SINGLE_TAP:
+            break;
+
+        case DOUBLE_SINGLE_TAP:
+        case DOUBLE_HOLD:
+            unregister_code(KC_LCTL);
+            break;
+    }
+    lower_tap_state.state = 0;
+}
+
+void td_raise_finished (tap_dance_state_t *state, void *user_data) {
+    raise_tap_state.state = cur_dance_permissive(state);
+
+    switch (raise_tap_state.state) {
+        case SINGLE_TAP:
+            register_code(KC_BSPC);
+            break;
+
+        case SINGLE_HOLD:
+            bootloader_timer = timer_read();
+            bootloader_active = true;
+            is_hold_tapdance_disabled = true;
+            layer_on(_RAISE);
+            update_tri_layer(_LOWER, _RAISE, _ADJUST);
+            break;
+
+        case DOUBLE_SINGLE_TAP:
+        case DOUBLE_HOLD:
+            register_code(KC_RALT);
+            layer_on(_ACCENTS_RALT);
+            break;
+    }
+}
+
+void td_raise_reset (tap_dance_state_t *state, void *user_data) {
+    switch (raise_tap_state.state) {
+        case SINGLE_TAP:
+            unregister_code(KC_BSPC);
+            break;
+
+        case SINGLE_HOLD:
+            bootloader_active = false;
+            bootloader_timer = 0;
+            layer_off(_RAISE);
+            update_tri_layer(_LOWER, _RAISE, _ADJUST);
+            is_hold_tapdance_disabled = false;
+            break;
+
+        case DOUBLE_SINGLE_TAP:
+        case DOUBLE_HOLD:
+            unregister_code(KC_RALT);
+            layer_off(_ACCENTS_RALT);
+            break;
+    }
+    raise_tap_state.state = 0;
 }

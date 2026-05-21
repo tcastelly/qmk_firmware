@@ -22,17 +22,17 @@
 
 // clang-format off
 #define LAYOUT_qwerty LAYOUT_split_3x6_3( \
-    TD(TD_TAB),     KC_Q,         KC_W,    KC_E,    KC_R,    KC_T,                 KC_Y,       KC_U,    KC_I,    TD(TD_O),       TD(TD_P),    TD(TD_BSPC),     \
-    TD(TD_ESC),     TD(TD_A),     KC_S,    KC_D,    KC_F,    KC_G,                 KC_H,       KC_J,    KC_K,    TD(TD_L),       TD(TD_SCLN), KC_QUOT,         \
-    KC_LSFT,        KC_Z,         KC_X,    KC_C,    KC_V,    KC_B,                 KC_N,       KC_M,    KC_COMM, KC_DOT,         KC_SLSH,     TD(TD_ENT),      \
-                                           KC_LCTL, TD(TD_LALT), LOWER,            KC_SPC,     RAISE,   TD(TD_RALT)                                            \
+    TD(TD_TAB),     KC_Q,         KC_W,    KC_E,    KC_R,    KC_T,                 KC_Y,       KC_U,           KC_I,    TD(TD_O),       TD(TD_P),    TD(TD_BSPC),     \
+    TD(TD_ESC),     TD(TD_A),     KC_S,    KC_D,    KC_F,    KC_G,                 KC_H,       KC_J,           KC_K,    TD(TD_L),       TD(TD_SCLN), KC_QUOT,         \
+    KC_LSFT,        KC_Z,         KC_X,    KC_C,    KC_V,    KC_B,                 KC_N,       KC_M,           KC_COMM, KC_DOT,         KC_SLSH,     TD(TD_ENT),      \
+                                           KC_LCTL, TD(TD_LALT), TD(TD_LOWER),     KC_SPC,     TD(TD_RAISE),   TD(TD_RALT)                                            \
 )
 
 #define LAYOUT_qwerty_osx LAYOUT_split_3x6_3( \
-    TD(TD_TAB),     KC_Q,         KC_W,    KC_E,    KC_R,    KC_T,                 KC_Y,       KC_U,    KC_I,    TD(TD_O),       TD(TD_P),    TD(TD_BSPC_OSX), \
-    TD(TD_ESC_OSX), TD(TD_A_OSX), KC_S,    KC_D,    KC_F,    KC_G,                 KC_H,       KC_J,    KC_K,    TD(TD_L),       TD(TD_SCLN), KC_QUOT,         \
-    KC_LSFT,        KC_Z,         KC_X,    KC_C,    KC_V,    KC_B,                 KC_N,       KC_M,    KC_COMM, KC_DOT,         KC_SLSH,     TD(TD_ENT),      \
-                                  TD(TD_LCTL), TD(TD_LGUI), LOWER,                 KC_SPC,     RAISE,   TD(TD_RALT_OSX)                                        \
+    TD(TD_TAB),     KC_Q,         KC_W,    KC_E,    KC_R,    KC_T,                 KC_Y,       KC_U,           KC_I,    TD(TD_O),       TD(TD_P),    TD(TD_BSPC_OSX), \
+    TD(TD_ESC_OSX), TD(TD_A_OSX), KC_S,    KC_D,    KC_F,    KC_G,                 KC_H,       KC_J,           KC_K,    TD(TD_L),       TD(TD_SCLN), KC_QUOT,         \
+    KC_LSFT,        KC_Z,         KC_X,    KC_C,    KC_V,    KC_B,                 KC_N,       KC_M,           KC_COMM, KC_DOT,         KC_SLSH,     TD(TD_ENT),      \
+                                  TD(TD_LCTL), TD(TD_LGUI),  TD(TD_LOWER),         KC_SPC,     TD(TD_RAISE),   TD(TD_RALT_OSX)                                        \
 )
 
 #define LAYOUT_qwerty_gaming LAYOUT_split_3x6_3( \
