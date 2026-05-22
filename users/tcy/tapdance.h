@@ -14,7 +14,8 @@ enum layer_names {
     _ESC,
     _NUM_PADS,
     _ACCENTS_RALT,
-    _OLED_OFF_SIGNAL
+    _OLED_OFF_SIGNAL,
+    _OSX_SIGNAL
 };
 
 enum custom_keycodes {

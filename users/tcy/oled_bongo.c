@@ -180,20 +180,17 @@ static void draw_bongo(void) {
 
     // print layout
     oled_set_cursor(0, line_i);
+#ifdef LAYER_STATE_8BIT
     switch (get_highest_layer(layer_state)) {
+#else
+    bool is_osx = IS_LAYER_ON(_OSX_SIGNAL);
+    switch (get_highest_layer(layer_state & ~SIGNAL_LAYERS_MASK)) {
+#endif
         case _QWERTY:
-            if (is_osx) {
-                strcpy(layout_str, "Q-OSX");
-            } else {
-                strcpy(layout_str, "Q");
-            }
+            strcpy(layout_str, is_osx ? "Q-OSX" : "Q");
             break;
         case _ESC:
-            if (is_osx) {
-                strcpy(layout_str, "ESC-OSX");
-            } else {
-                strcpy(layout_str, "ESC");
-            }
+            strcpy(layout_str, is_osx ? "ESC-OSX" : "ESC");
             break;
         case _LOWER:
             strcpy(layout_str, "Lower");

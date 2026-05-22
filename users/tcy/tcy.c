@@ -158,15 +158,23 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
     case QWERTY:
         if (record->event.pressed) {
-            is_osx = false;
             layer_move(_QWERTY);
+#ifdef LAYER_STATE_8BIT
+            is_osx = false;
+#else
+            layer_off(_OSX_SIGNAL);
+#endif
         }
         return false;
 
     case QWERTY_OSX:
         if (record->event.pressed) {
-            is_osx = true;
             layer_move(_QWERTY);
+#ifdef LAYER_STATE_8BIT
+            is_osx = true;
+#else
+            layer_on(_OSX_SIGNAL);
+#endif
         }
         return false;
 
@@ -773,7 +781,12 @@ bool oled_task_user(void) {
 #endif
 
 layer_state_t layer_state_set_user(layer_state_t state) {
+#ifndef LAYER_STATE_8BIT
+    is_osx = IS_LAYER_ON_STATE(state, _OSX_SIGNAL);
+    current_layer = get_highest_layer(state & ~SIGNAL_LAYERS_MASK);
+#else
     current_layer = get_highest_layer(state);
+#endif
 
 #if defined(PS2_ENABLE) || defined(PS2_CUSTOM_ENABLE)
     switch (current_layer) {

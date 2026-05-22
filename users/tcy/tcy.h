@@ -2,6 +2,8 @@
 
 #include "tapdance.h"
 
+#define SIGNAL_LAYERS_MASK (((layer_state_t)1 << _OLED_OFF_SIGNAL) | ((layer_state_t)1 << _OSX_SIGNAL))
+
 uint8_t mcp_click_state;
 
 #if defined(PS2_ENABLE) || defined(PS2_CUSTOM_ENABLE)
