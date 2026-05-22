@@ -23,7 +23,6 @@ static void draw_minimal(void)
                                //
   char buf[32];                // temporary buffer for formatted string
 
-  const char *osx_sufix = "-OSX";
 #ifdef LAYER_STATE_8BIT
   switch (get_highest_layer(layer_state)) {
 #else
@@ -31,16 +30,16 @@ static void draw_minimal(void)
 #endif
       case _QWERTY:
 #if defined(PS2_ENABLE) || defined(PS2_CUSTOM_ENABLE)
-          snprintf(buf, sizeof(buf), "Q%s             %d",  is_osx ? osx_sufix : "", ps2_acceleration_setting);
+          snprintf(buf, sizeof(buf), is_osx ? "Q-OSX         %d" : "Q             %d", ps2_acceleration_setting);
 #else
-          snprintf(buf, sizeof(buf), "Q%s            ", is_osx ? osx_sufix : "");
+          strcpy(buf, is_osx ? "Q-OSX          " : "Q              ");
 #endif
           break;
       case _ESC:
 #if defined(PS2_ENABLE) || defined(PS2_CUSTOM_ENABLE)
-          snprintf(buf, sizeof(buf), "ESC%s           %d", is_osx ? osx_sufix : "", ps2_acceleration_setting);
+          snprintf(buf, sizeof(buf), is_osx ? "ESC-OSX       %d" : "ESC           %d", ps2_acceleration_setting);
 #else
-          snprintf(buf, sizeof(buf), "ESC%s          ", is_osx ? osx_sufix : "");
+          strcpy(buf, is_osx ? "ESC-OSX        " : "ESC            ");
 #endif
           break;
       case _LOWER:
