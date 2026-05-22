@@ -23,12 +23,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_QWERTY]        = LAYOUT_qwerty,
-    [_QWERTY_OSX]    = LAYOUT_qwerty_osx,
     [_QWERTY_GAMING] = LAYOUT_qwerty_gaming,
     [_LOWER]         = LAYOUT_lower,
     [_RAISE]         = LAYOUT_raise,
     [_ESC]           = LAYOUT_esc,
-    [_ESC_OSX]       = LAYOUT_esc_osx,
     [_NUM_PADS]      = LAYOUT_num_pads,
     [_ACCENTS_RALT]  = LAYOUT_accents_ralt,
     [_ADJUST]        = LAYOUT_adjust,
@@ -54,7 +52,6 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 
   switch (current_layer) {
     case _ESC:
-    case _ESC_OSX:
       color = COLOR_GREEN;
       break;
     case _QWERTY_GAMING:
@@ -64,11 +61,12 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
       color = COLOR_BLUE;
       break;
     case _QWERTY:
-      color = COLOR_PURPLE;
-      break;
-    case _QWERTY_OSX:
-      color = COLOR_PINK;
-      break;
+        if (is_osx) {
+            color = COLOR_PINK;
+        } else {
+            color = COLOR_PURPLE;
+        }
+        break;
     default:
       color = COLOR_RED;
       break;

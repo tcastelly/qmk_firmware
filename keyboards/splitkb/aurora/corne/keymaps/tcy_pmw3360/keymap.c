@@ -15,7 +15,6 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 
   switch (get_highest_layer(layer_state)) {
     case _ESC:
-    case _ESC_OSX:
       color = COLOR_GREEN;
       break;
     case _QWERTY_GAMING:
@@ -24,11 +23,12 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     case _ADJUST:
       color = COLOR_BLUE;
       break;
-    case _QWERTY:
-      color = COLOR_PURPLE;
-      break;
-    case _QWERTY_OSX:
-      color = COLOR_PINK;
+      case _QWERTY:
+        if (is_osx) {
+            color = COLOR_PINK;
+        } else {
+            color = COLOR_PURPLE;
+        }
       break;
     default:
       color = COLOR_RED;

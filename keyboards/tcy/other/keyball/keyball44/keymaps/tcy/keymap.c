@@ -33,7 +33,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+---- ----+-------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       KC_LSFT,     KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, TD(TD_ENT),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-        KC_PAGE_UP, KC_PAGE_DOWN, TD(TD_LCTL), OSX_ALT, LOWER,                  KC_SPC,  TD(TD_RAISE), _______, _______, KC_RALT
+        KC_PAGE_UP, KC_PAGE_DOWN, TD(TD_LCTL), TD(TD_LALT), LOWER,                  KC_SPC,  TD(TD_RAISE), _______, _______, KC_RALT
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -97,6 +97,10 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
     return OLED_ROTATION_180;
 }
 #endif
+
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    return tcy_pointing_device_task(mouse_report);
+}
 
 uint16_t keycode_config(uint16_t keycode) {
     return keycode;

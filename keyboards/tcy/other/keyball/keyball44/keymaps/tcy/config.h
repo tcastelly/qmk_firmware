@@ -33,7 +33,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #    define RGBLIGHT_EFFECT_TWINKLE
 #endif
 
-#define IDLE_FRAMES 4
-
+// Override keyboard-level SPLIT_HAND_MATRIX_GRID (solder-bridge detection):
+// let MASTER_RIGHT + SPLIT_USB_DETECT fully determine handedness instead.
+// USB side = master = right; non-USB side = slave = left.
+#undef SPLIT_HAND_MATRIX_GRID
+#define MASTER_RIGHT
+#define TCY_DISABLE_CPI_INIT
+#define KEYBALL_CPI_DEFAULT 500
+#define IDLE_FRAMES 5
 #define TAP_CODE_DELAY 5
 #define TAPPING_TERM 170

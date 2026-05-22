@@ -19,7 +19,6 @@ void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data) {
         tap_hold->held = 0;
     }
 }
-
 void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
     touched_td = false;
 
@@ -41,27 +40,6 @@ void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
     }
 }
 
-// allow call multiple tap dance simultaneously
-// e.g: TD_DEL/TD_DEL_OSX
-void tap_dance_tap_hold_finished_unprotected(tap_dance_state_t *state, void *user_data) {
-    touched_td = false;
-
-    tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
-
-    if (state->pressed) {
-        if (state->count == 1
-#ifndef PERMISSIVE_HOLD
-            && !state->interrupted
-#endif
-        ) {
-            register_code16(tap_hold->hold);
-            tap_hold->held = tap_hold->hold;
-        } else {
-            register_code16(tap_hold->tap);
-            tap_hold->held = tap_hold->tap;
-        }
-    }
-}
 
 // OSX-aware word navigation tap dances.
 // is_osx selects Ctrl (Linux) vs Alt (macOS) for word jumps/deletions.
@@ -164,7 +142,6 @@ void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_dat
         layer_on(tap_hold->hold);
     }
 }
-
 void tap_dance_tap_hold_reset_layout(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
     layer_off(tap_hold->hold);
@@ -241,16 +218,22 @@ int cur_dance (tap_dance_state_t *state) {
 
 // One state variable per tap dance — avoids cross-contamination when
 // multiple tap dances are active simultaneously (e.g. hold RALT + double-hold LALT)
-static tap ralt_tap_state     = { .is_press_action = true, .state = 0 };
-// dedicated state for OSX variant — was incorrectly sharing ralt_tap_state
-static tap ralt_osx_tap_state = { .is_press_action = true, .state = 0 };
-static tap lalt_tap_state     = { .is_press_action = true, .state = 0 };
+static tap ralt_tap_state  = { .is_press_action = true, .state = 0 };
+static tap lalt_tap_state  = { .is_press_action = true, .state = 0 };
 static tap lgui_tap_state     = { .is_press_action = true, .state = 0 };
 static tap lctl_tap_state     = { .is_press_action = true, .state = 0 };
 static tap lower_tap_state    = { .is_press_action = true, .state = 0 };
 static tap raise_tap_state    = { .is_press_action = true, .state = 0 };
 
 void td_ralt_finished (tap_dance_state_t *state, void *user_data) {
+    if (ralt_tap_state.state != 0) {
+        unregister_code(KC_RALT);
+        unregister_code(KC_LGUI);
+        unregister_code(KC_LCTL);
+        layer_off(_ACCENTS_RALT);
+        ralt_tap_state.state = 0;
+    }
+
     ralt_tap_state.state = cur_dance(state);
     // is_hold_tapdance_disabled is owned by the layout tap dance only
     // touching it here or in _reset would clear it while LOWER/RAISE is still held.
@@ -264,7 +247,8 @@ void td_ralt_finished (tap_dance_state_t *state, void *user_data) {
 
         case DOUBLE_SINGLE_TAP:
         case DOUBLE_HOLD:
-            register_code(KC_LCTL);
+            // OSX: CMD modifier for shortcuts; Linux: LCTL
+            register_code(is_osx ? KC_LGUI : KC_LCTL);
             break;
     }
 }
@@ -279,57 +263,29 @@ void td_ralt_reset (tap_dance_state_t *state, void *user_data) {
 
         case DOUBLE_SINGLE_TAP:
         case DOUBLE_HOLD:
+            unregister_code(KC_LGUI);
             unregister_code(KC_LCTL);
             break;
     }
     ralt_tap_state.state = 0;
 }
 
-void td_ralt_osx_finished (tap_dance_state_t *state, void *user_data) {
-    // use dedicated OSX state variable
-    ralt_osx_tap_state.state = cur_dance(state);
-    // do NOT touch is_hold_tapdance_disabled here
-
-    switch (ralt_osx_tap_state.state) {
-        case SINGLE_TAP:
-        case SINGLE_HOLD:
-            register_code(KC_RALT);
-            layer_on(_ACCENTS_RALT);
-            break;
-
-        case DOUBLE_SINGLE_TAP:
-        case DOUBLE_HOLD:
-            register_code(KC_LGUI);
-            break;
-    }
-}
-
-void td_ralt_osx_reset (tap_dance_state_t *state, void *user_data) {
-    // use dedicated OSX state variable
-    // do NOT touch is_hold_tapdance_disabled here
-    layer_off(_ACCENTS_RALT);
-    switch (ralt_osx_tap_state.state) {
-        case SINGLE_TAP:
-        case SINGLE_HOLD:
-            unregister_code(KC_RALT);
-            break;
-
-        case DOUBLE_SINGLE_TAP:
-        case DOUBLE_HOLD:
-            unregister_code(KC_LGUI);
-            break;
-    }
-    ralt_osx_tap_state.state = 0;
-}
-
 void td_lalt_finished (tap_dance_state_t *state, void *user_data) {
+    if (lalt_tap_state.state != 0) {
+        unregister_code(KC_LALT);
+        unregister_code(KC_LGUI);
+        layer_off(_NUM_PADS);
+        lalt_tap_state.state = 0;
+    }
+
     lalt_tap_state.state = cur_dance(state);
     // do NOT touch is_hold_tapdance_disabled here
 
     switch (lalt_tap_state.state) {
         case SINGLE_TAP:
         case SINGLE_HOLD:
-            register_code(KC_LALT);
+            // OSX thumb key is CMD (LGUI); Linux thumb key is LALT
+            register_code(is_osx ? KC_LGUI : KC_LALT);
             break;
 
         case DOUBLE_SINGLE_TAP:
@@ -341,9 +297,10 @@ void td_lalt_finished (tap_dance_state_t *state, void *user_data) {
 
 void td_lalt_reset (tap_dance_state_t *state, void *user_data) {
     // do NOT touch is_hold_tapdance_disabled here
-    // Both calls are no-ops when not active; calling unconditionally prevents
-    // any state mismatch from leaving KC_LALT registered or _NUM_PADS stuck on.
+    // Unconditional unregister of both covers OSX and Linux without
+    // needing to remember which was registered.
     unregister_code(KC_LALT);
+    unregister_code(KC_LGUI);
     layer_off(_NUM_PADS);
     lalt_tap_state.state = 0;
 }

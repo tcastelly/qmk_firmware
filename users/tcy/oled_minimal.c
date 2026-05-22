@@ -21,19 +21,15 @@ static void draw_minimal(void)
 
   oled_set_cursor(6, 0);       // Set cursor to origin
                                //
-  char buf[32];  // temporary buffer for formatted string
+  char buf[32];                // temporary buffer for formatted string
+
+  const char *osx_sufix = "-OSX";
   switch (get_highest_layer(layer_state)) {
       case _QWERTY:
-          snprintf(buf, sizeof(buf), "Q             %d", ps2_acceleration_setting);
-          break;
-      case _QWERTY_OSX:
-          snprintf(buf, sizeof(buf), "Q-OSX         %d", ps2_acceleration_setting);
+          snprintf(buf, sizeof(buf), "Q%s             %d",  is_osx ? osx_sufix : "", ps2_acceleration_setting);
           break;
       case _ESC:
-          snprintf(buf, sizeof(buf), "ESC           %d", ps2_acceleration_setting);
-          break;
-      case _ESC_OSX:
-          snprintf(buf, sizeof(buf), "ESC-OSX       %d", ps2_acceleration_setting);
+          snprintf(buf, sizeof(buf), "ESC%s           %d", is_osx ? osx_sufix : "", ps2_acceleration_setting);
           break;
       case _LOWER:
           snprintf(buf, sizeof(buf), "Lower          ");

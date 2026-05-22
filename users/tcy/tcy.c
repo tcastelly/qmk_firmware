@@ -12,6 +12,7 @@
 #include "pointing_device.h"
 #endif
 
+#if defined(RGB_MATRIX_ENABLE) || defined(RGBLIGHT_ENABLE)
 uint8_t COLOR_RED[3]    = {255, 0, 0};
 uint8_t COLOR_GREEN[3]  = {0, 255, 0};
 uint8_t COLOR_BLUE[3]   = {0, 0, 255};
@@ -19,6 +20,7 @@ uint8_t COLOR_PURPLE[3] = {191, 255, 100};
 uint8_t COLOR_YELLOW[3] = {255, 255, 0};
 uint8_t COLOR_PINK[3] = {255, 80, 120};
 uint8_t COLOR_ORANGE[3] = {50, 15, 0};
+#endif
 
 #ifdef AUDIO_ENABLE
 #include "audio.h"
@@ -36,7 +38,9 @@ float layer_sound_on[][2] = SONG(STARTUP_SOUND);
 #ifdef OLED_ENABLE
 enum oled_modes {
   OLED_BONGO,
+#ifdef OLED_ENABLE_MINIMAL
   OLED_MINIMAL,
+#endif
   OLED_OFF,
 };
 
@@ -54,11 +58,15 @@ int8_t oled_mode = OLED_BONGO;
 #endif
 #endif
 
+// disble trackpoint
 bool disable_tp = false;
 
+// use to know if we are on OSX layout
 bool is_osx = false;
 
+#if defined(PS2_ENABLE) || defined(PS2_CUSTOM_ENABLE)
 uint8_t ps2_acceleration_setting = PS2_DEFAULT_ACCELERATION_SETTING;
+#endif
 
 uint8_t current_layer = 0;
 
@@ -67,16 +75,19 @@ extern uint8_t mcp_click_state;
 
 static uint32_t key_timer = 0;
 
+#ifdef RGB_MATRIX_ENABLE
 static bool is_rgb_off = false;
-
 bool keep_rgb_off = false;
+#endif
 
 bool lock_mode = false;
 
+#ifdef TCY_FULL_TD
 // Combo to be able to use Ctrl + z and `fg` with vim
 // set when KC_X is pressed while TD_A tap dance is pending (not yet resolved)
 static bool td_a_pressed  = false;
 static bool td_a_z_combo  = false;
+#endif
 
 uint16_t bootloader_timer = 0;
 
@@ -84,10 +95,12 @@ bool bootloader_active = false;
 
 // Associate our tap dance key with its functionality
 tap_dance_action_t tap_dance_actions[] = {
-    [TD_A] = ACTION_TAP_DANCE_TAP_HOLD(KC_A, KC_LCTL),
-    [TD_A_OSX] = ACTION_TAP_DANCE_TAP_HOLD(KC_A, KC_LCTL),
+#ifdef TCY_FULL_TD
+    [TD_A]    = ACTION_TAP_DANCE_TAP_HOLD(KC_A, KC_LCTL),
+#else
+    [TD_A]    = ACTION_TAP_DANCE_FN_ADVANCED(NULL, NULL, NULL),
+#endif
     [TD_ESC] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC),
-    [TD_ESC_OSX] = ACTION_TAP_DANCE_TAP_HOLD_LAYOUT(KC_ESC, _ESC_OSX),
     [TD_TAB] = ACTION_TAP_DANCE_TAP_HOLD(KC_TAB, KC_TILD),
     [TD_O] = ACTION_TAP_DANCE_TAP_HOLD(KC_O, KC_LPRN),
     [TD_P] = ACTION_TAP_DANCE_TAP_HOLD(KC_P, KC_RPRN),
@@ -96,28 +109,27 @@ tap_dance_action_t tap_dance_actions[] = {
     [TD_ENT] = ACTION_TAP_DANCE_TAP_HOLD(KC_ENT, KC_LSFT),
 
     [TD_RAISE] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_raise_finished, td_raise_reset),
+#ifdef TCY_FULL_TD
     [TD_LOWER] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lower_finished, td_lower_reset),
-
-    // same tap-dance
-    // enable it for osx and linux
+#else
+    [TD_LOWER] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, NULL, NULL),
+#endif
     [TD_LCTL] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lctl_finished, td_lctl_reset),
     [TD_LALT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lalt_finished, td_lalt_reset),
+#ifdef TCY_FULL_TD
     [TD_LGUI] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lgui_finished, td_lgui_reset),
-
-    [TD_BSPC] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_word_bspc_finished, td_word_bspc_reset),
-    [TD_BSPC_OSX] = ACTION_TAP_DANCE_TAP_HOLD(KC_BSPC, LALT(KC_BSPC)),
-
-    [TD_DEL] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_word_del_finished, td_word_del_reset),
-    [TD_DEL_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_DEL, LALT(KC_DEL)),
-
-    [TD_LEFT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_word_left_finished, td_word_left_reset),
-    [TD_LEFT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_LEFT, LALT(KC_LEFT)),
-
+#else
+    [TD_LGUI] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, NULL, NULL),
+#endif
+    [TD_BSPC]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_word_bspc_finished, td_word_bspc_reset),
+    [TD_DEL]   = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_word_del_finished,  td_word_del_reset),
+    [TD_LEFT]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_word_left_finished, td_word_left_reset),
     [TD_RIGHT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_word_right_finished, td_word_right_reset),
-    [TD_RIGHT_OSX] = ACTION_TAP_DANCE_TAP_HOLD_UNPROTECTED(KC_RIGHT, LALT(KC_RIGHT)),
-
-    [TD_RALT_OSX] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_osx_finished, td_ralt_osx_reset),
-    [TD_RALT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_finished, td_ralt_reset)
+#ifdef TCY_FULL_TD
+    [TD_RALT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_ralt_finished, td_ralt_reset),
+#else
+    [TD_RALT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, NULL, NULL),
+#endif
 };
 
 // Set a long-ish tapping term for tap-dance keys
@@ -150,7 +162,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             layer_move(_QWERTY);
         }
         return false;
-        break;
 
     case QWERTY_OSX:
         if (record->event.pressed) {
@@ -158,14 +169,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             layer_move(_QWERTY);
         }
         return false;
-        break;
 
     case QWERTY_GAMING:
         if (record->event.pressed) {
             layer_move(_QWERTY_GAMING);
         }
         return false;
-        break;
 
     case LOWER:
       if (record->event.pressed) {
@@ -186,7 +195,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         is_hold_tapdance_disabled = false;
       }
       return false;
-      break;
 
     case RAISE:
       if (record->event.pressed) {
@@ -205,7 +213,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         is_hold_tapdance_disabled = false;
       }
       return false;
-      break;
 
 #ifdef RGB_MATRIX_ENABLE
     case TOGGLE_RGB:
@@ -221,7 +228,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
       }
       return false;
-      break;
 #endif
 
 
@@ -236,25 +242,32 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case KC_LGUI:
     case KC_LSFT:
       if (record->event.pressed) {
+#if defined(PS2_ENABLE) || defined(PS2_CUSTOM_ENABLE)
           ps2_acceleration_setting = PS2_MAX_ACCELERATION_SETTING;
+#endif
 #ifndef POINTING_DEVICE_COMBINED
 #ifdef POINTING_DEVICE_ENABLE
+#ifndef TCY_DISABLE_CPI_INIT
          pointing_device_set_cpi(POINTING_DEVICE_MAX_CPI);
+#endif
 #endif
 #endif
           is_hold_tapdance_disabled = true;
       } else {
+#if defined(PS2_ENABLE) || defined(PS2_CUSTOM_ENABLE)
           ps2_acceleration_setting = PS2_DEFAULT_ACCELERATION_SETTING;
-#ifndef POINTING_DEVICE_COMBINED
-#ifdef POINTING_DEVICE_ENABLE
-         pointing_device_set_cpi(POINTING_DEVICE_DEFAULT_CPI);
-#endif
-#endif
-          is_hold_tapdance_disabled = false;
-
           if (is_osx) {
             ps2_acceleration_setting -= 1;
           }
+#endif
+#ifndef POINTING_DEVICE_COMBINED
+#ifdef POINTING_DEVICE_ENABLE
+#ifndef TCY_DISABLE_CPI_INIT
+         pointing_device_set_cpi(POINTING_DEVICE_DEFAULT_CPI);
+#endif
+#endif
+#endif
+          is_hold_tapdance_disabled = false;
       }
       return true;
       break;
@@ -307,14 +320,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       touched_td = true;
       break;
 
+#ifdef TCY_FULL_TD
       // to be used with RALT already pressed
      case ACCENT_A_GRAVE_RALT:
        if (record->event.pressed) {
            tap_code(KC_GRV);
-           
+
            unregister_code(KC_RALT);
            tap_code(KC_A);
-           
+
            // will be unregister by `td_ralt_reset`
            register_code(KC_RALT);
        }
@@ -324,10 +338,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
      case ACCENT_I_CIRC_RALT:
        if (record->event.pressed) {
            tap_code(KC_6);
-           
+
            unregister_code(KC_RALT);
            tap_code(KC_I);
-           
+
            // will be unregister by `td_ralt_reset`
            register_code(KC_RALT);
        }
@@ -337,10 +351,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
      case ACCENT_O_CIRC_RALT:
        if (record->event.pressed) {
            tap_code(KC_6);
-           
+
            unregister_code(KC_RALT);
            tap_code(KC_O);
-           
+
            // will be unregister by `td_ralt_reset`
            register_code(KC_RALT);
        }
@@ -350,10 +364,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
      case ACCENT_U_AIGU_RALT:
        if (record->event.pressed) {
            tap_code(KC_GRV);
-           
+
            unregister_code(KC_RALT);
            tap_code(KC_U);
-           
+
            // will be unregister by `td_ralt_reset`
            register_code(KC_RALT);
        }
@@ -367,6 +381,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
        }
        touched_td = true;
        break;
+#endif
 
       case ACCENT_A_GRAVE:
           if (record->event.pressed) {
@@ -380,20 +395,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           }
           touched_td = true;
           break;
-
-      case OSX_ALT:
-          if (record->event.pressed) {
-              ps2_acceleration_setting = PS2_MAX_ACCELERATION_SETTING;
-              is_hold_tapdance_disabled = true;
-              register_code(is_osx ? KC_LGUI : KC_LALT);
-          } else {
-              is_hold_tapdance_disabled = false;
-              ps2_acceleration_setting = is_osx
-                  ? PS2_DEFAULT_ACCELERATION_SETTING - 1
-                  : PS2_DEFAULT_ACCELERATION_SETTING;
-              unregister_code(is_osx ? KC_LGUI : KC_LALT);
-          }
-          return false;
 
       case JET_RNM:
           if (record->event.pressed) {
@@ -420,12 +421,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       case JET_FORMAT:
           if (record->event.pressed) {
               tap_code16(is_osx ? LALT(LGUI(KC_L)) : LCTL(LALT(KC_L)));
-          }
-          return false;
-
-      case JET_FORMAT_OSX:
-          if (record->event.pressed) {
-              tap_code16(LALT(LGUI(KC_L)));
           }
           return false;
 
@@ -466,6 +461,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
        break;
 #endif
 
+#ifdef TCY_FULL_TD
     case KC_X:
         if (record->event.pressed && td_a_pressed) {
             tap_dance_state_t *st = tap_dance_get_state(TD_A);
@@ -477,47 +473,49 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
         }
         return true;
+#endif
 
     case TD(TD_O):  // list all tap dance keycodes with tap-hold configurations
     case TD(TD_A):
-    case TD(TD_A_OSX):
     case TD(TD_ESC):
-    case TD(TD_ESC_OSX):
     case TD(TD_TAB):
     case TD(TD_P):
     case TD(TD_L):
     case TD(TD_ENT):
     case TD(TD_SCLN):
     case TD(TD_BSPC):
-    case TD(TD_BSPC_OSX):
     case TD(TD_DEL):
-    case TD(TD_DEL_OSX):
     case TD(TD_LEFT):
-    case TD(TD_LEFT_OSX):
     case TD(TD_RIGHT):
-    case TD(TD_RIGHT_OSX):
-       if ((keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) && !record->event.pressed) {
+       if (keycode == TD(TD_ESC) && !record->event.pressed) {
          layer_off(_ESC);
-         layer_off(_ESC_OSX);
          is_hold_tapdance_disabled = false;
       }
-      if (keycode == TD(TD_ESC) || keycode == TD(TD_ESC_OSX)) {
+      if (keycode == TD(TD_ESC)) {
           scrolling_mode = record->event.pressed;
       }
 
       action = &tap_dance_actions[TD_INDEX(keycode)];
       tap_dance_state_t *state = tap_dance_get_state(TD_INDEX(keycode));
 
-      if (keycode == TD(TD_A) || keycode == TD(TD_A_OSX)) {
+#ifdef TCY_FULL_TD
+      if (keycode == TD(TD_A)) {
           td_a_pressed = record->event.pressed;
       }
+#endif
 
       if (!record->event.pressed && state->count && !state->finished) {
-          tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
-          tap_code16(tap_hold->tap);
+          if (action->user_data) {
+              tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
+              tap_code16(tap_hold->tap);
+          } else if (keycode == TD(TD_BSPC))  { tap_code16(KC_BSPC);  }
+          else if (keycode == TD(TD_DEL))     { tap_code16(KC_DEL);   }
+          else if (keycode == TD(TD_LEFT))    { tap_code16(KC_LEFT);  }
+          else if (keycode == TD(TD_RIGHT))   { tap_code16(KC_RIGHT); }
       }
 
-      if ((keycode == TD(TD_A) || keycode == TD(TD_A_OSX)) && !touched_td && !record->event.pressed && state->finished) {
+#ifdef TCY_FULL_TD
+      if (keycode == TD(TD_A) && !touched_td && !record->event.pressed && state->finished) {
           unregister_code(KC_LCTL);
           tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
           tap_code16(tap_hold->tap);
@@ -525,11 +523,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
       // cleanup after TD_A + x → z combo: tap dance may have registered KC_A or
       // KC_LCTL after the combo fired (it never saw x); undo both.
-      if ((keycode == TD(TD_A) || keycode == TD(TD_A_OSX)) && !record->event.pressed && td_a_z_combo) {
+      if (keycode == TD(TD_A) && !record->event.pressed && td_a_z_combo) {
           unregister_code(KC_LCTL);
           unregister_code(KC_A);
           td_a_z_combo = false;
       }
+#endif
 
       touched_td = true;
       break;
@@ -538,8 +537,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   return true;
 }
 
-void scan_i2c_bus(void) {
 #ifdef CONSOLE_ENABLE
+void scan_i2c_bus(void) {
   uprintf("Starting I2C scan...\n");
   uint8_t dat = 0;
   for (uint8_t address = 1; address < 128; address++) {
@@ -551,8 +550,8 @@ void scan_i2c_bus(void) {
     }
   }
   uprintf("Scan complete.\n");
-#endif
 }
+#endif
 
 void keyboard_post_init_user(void) {
 #ifdef PMW3360_CUSTOM_ENABLE
@@ -563,7 +562,9 @@ void keyboard_post_init_user(void) {
 
     wait_ms(500); // Let the trackpad boot
 
+#ifdef CONSOLE_ENABLE
     scan_i2c_bus();
+#endif
 
 #ifdef POINTING_DEVICE_COMBINED
     pointing_device_set_cpi_on_side(true, POINTING_LEFT_DEVICE_DEFAULT_CPI);   // left  (scroll, low CPI)
@@ -571,7 +572,9 @@ void keyboard_post_init_user(void) {
 #endif
 
 #ifndef POINTING_DEVICE_COMBINED
+#ifndef TCY_DISABLE_CPI_INIT
     pointing_device_set_cpi(POINTING_DEVICE_DEFAULT_CPI);
+#endif
 #endif
 
 #ifdef OLED_ENABLE
@@ -605,29 +608,25 @@ void play_audio(void) {
 // trackpad
 //
 
-// Modify these values to adjust the scrolling speed
-#define SCROLL_DIVISOR_H 8.0
-#define SCROLL_DIVISOR_V 8.0
+#define SCROLL_DIVISOR 8
 
-// Variables to store accumulated scroll values
-float scroll_accumulated_h = 0;
-float scroll_accumulated_v = 0;
+// Fixed-point accumulators (int16 avoids the soft-float library on AVR)
+static int16_t scroll_accumulated_h = 0;
+static int16_t scroll_accumulated_v = 0;
 
 report_mouse_t tcy_pointing_device_task(report_mouse_t mouse_report) {
     if (scrolling_mode) {
-        // Calculate and accumulate scroll values based on mouse movement and divisors
-        scroll_accumulated_h += (float)mouse_report.x / SCROLL_DIVISOR_H;
-        scroll_accumulated_v += (float)mouse_report.y / SCROLL_DIVISOR_V;
+        scroll_accumulated_h += mouse_report.x;
+        scroll_accumulated_v += mouse_report.y;
 
-        // Assign integer parts of accumulated scroll values to the mouse report
-        mouse_report.h = (int8_t)scroll_accumulated_h;
-        mouse_report.v = (int8_t)scroll_accumulated_v;
+        int16_t h_out = scroll_accumulated_h / SCROLL_DIVISOR;
+        int16_t v_out = scroll_accumulated_v / SCROLL_DIVISOR;
 
-        // Update accumulated scroll values by subtracting the integer parts
-        scroll_accumulated_h -= (int8_t)scroll_accumulated_h;
-        scroll_accumulated_v -= (int8_t)scroll_accumulated_v;
+        scroll_accumulated_h -= h_out * SCROLL_DIVISOR;
+        scroll_accumulated_v -= v_out * SCROLL_DIVISOR;
 
-        // Clear the X and Y values of the mouse report
+        mouse_report.h = (int8_t)h_out;
+        mouse_report.v = (int8_t)v_out;
         mouse_report.x = 0;
         mouse_report.y = 0;
     }
@@ -641,13 +640,16 @@ report_mouse_t tcy_pointing_device_task(report_mouse_t mouse_report) {
 
     bool has_moved = mouse_report.x > 0 || mouse_report.y > 0 || mouse_report.v > 0 || mouse_report.h > 0;
 
-    if (is_rgb_off && !keep_rgb_off && has_moved) {
-      key_timer = timer_read32();  // resets timer
+    if (has_moved) {
+      key_timer = timer_read32();
+    }
+
 #ifdef RGB_MATRIX_ENABLE
+    if (is_rgb_off && !keep_rgb_off && has_moved) {
       rgb_matrix_enable_noeeprom();
-#endif
       is_rgb_off = false;
     }
+#endif
 
     return mouse_report;
 }
@@ -667,15 +669,17 @@ void matrix_scan_user(void) {
     }
 #endif
 
-    // 30 seconds
-    int max_ms = 30000;
-
     // On the slave, key_timer is never updated (process_record_user only runs
     // on master). Use last_input_activity_elapsed() which is synced via
     // SPLIT_ACTIVITY_ENABLE so the slave always knows when activity occurred.
+#if defined(RGB_MATRIX_ENABLE) || defined(RGBLIGHT_ENABLE) || defined(OLED_ENABLE)
+    // 30 seconds
+    int max_ms = 30000;
+
     uint32_t elapsed = is_keyboard_master()
         ? timer_elapsed32(key_timer)
         : last_input_activity_elapsed();
+#endif
 
 #ifdef OLED_ENABLE
     if (keep_oled_off) {
@@ -701,18 +705,16 @@ void matrix_scan_user(void) {
     }
 #endif
 
-    // RGB is only on the master (right side) — slave must not touch it
+#ifdef RGB_MATRIX_ENABLE
     if (is_keyboard_master()) {
       is_rgb_off = elapsed > max_ms;
-
-#ifdef RGB_MATRIX_ENABLE
       if (is_rgb_off) {
         rgb_matrix_disable_noeeprom();
       } else if (!keep_rgb_off) {
         rgb_matrix_enable_noeeprom();
       }
-#endif
     }
+#endif
 }
 
 #ifdef OLED_ENABLE
@@ -773,14 +775,15 @@ bool oled_task_user(void) {
 layer_state_t layer_state_set_user(layer_state_t state) {
     current_layer = get_highest_layer(state);
 
+#if defined(PS2_ENABLE) || defined(PS2_CUSTOM_ENABLE)
     switch (current_layer) {
-      case _QWERTY_OSX:
-        // OSX needs less speed
+      case _QWERTY:
         ps2_acceleration_setting = PS2_DEFAULT_ACCELERATION_SETTING;
-        ps2_acceleration_setting -= 1;
+        if (is_osx) {
+          ps2_acceleration_setting -= 1;
+        }
         break;
       case _ESC:
-      case _ESC_OSX:
         if (scrolling_mode) {
           ps2_acceleration_setting = PS2_MIN_ACCELERATION_SETTING;
         }
@@ -789,6 +792,7 @@ layer_state_t layer_state_set_user(layer_state_t state) {
         ps2_acceleration_setting = PS2_DEFAULT_ACCELERATION_SETTING;
         break;
     }
+#endif
 
     return state;
 }
