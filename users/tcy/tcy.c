@@ -38,23 +38,22 @@ float layer_sound_on[][2] = SONG(STARTUP_SOUND);
 #ifdef OLED_ENABLE
 enum oled_modes {
   OLED_BONGO,
-#ifdef OLED_ENABLE_MINIMAL
   OLED_MINIMAL,
-#endif
   OLED_OFF,
 };
 
 // prevent the oled to comeback on after typing
 bool keep_oled_off = false;
 
+// oled_bongo.c always included: provides frame data, state machine, draw_bongo()
+#include "oled_bongo.c"
+
 #ifdef OLED_ENABLE_MINIMAL
+// oled_minimal.c uses the bongo frame data above to render a display-size-adapted view
 int8_t oled_mode = OLED_MINIMAL;
 #include "oled_minimal.c"
-#endif
-
-#ifndef OLED_ENABLE_MINIMAL
+#else
 int8_t oled_mode = OLED_BONGO;
-#include "oled_bongo.c"
 #endif
 #endif
 
@@ -442,9 +441,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
            } else {
 #ifdef OLED_ENABLE_MINIMAL
                oled_mode = OLED_MINIMAL;
-#endif
-
-#ifndef OLED_ENABLE_MINIMAL
+#else
                oled_mode = OLED_BONGO;
 #endif
 
@@ -705,9 +702,7 @@ void matrix_scan_user(void) {
        layer_off(_OLED_OFF_SIGNAL);   // signal slave via synced layer state
 #ifdef OLED_ENABLE_MINIMAL
       oled_mode = OLED_MINIMAL;
-#endif
-
-#ifndef OLED_ENABLE_MINIMAL
+#else
       oled_mode = OLED_BONGO;
 #endif
     }
@@ -739,7 +734,6 @@ bool oled_task_user(void) {
     }
 
     switch (oled_mode) {
-#ifndef OLED_ENABLE_MINIMAL
         case OLED_BONGO:
             if (!is_screen_on) {
                 oled_on();
@@ -747,7 +741,6 @@ bool oled_task_user(void) {
             }
             draw_bongo();
             break;
-#endif
 
 #ifdef OLED_ENABLE_MINIMAL
         case OLED_MINIMAL:
