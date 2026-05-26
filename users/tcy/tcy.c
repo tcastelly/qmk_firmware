@@ -38,7 +38,7 @@ float layer_sound_on[][2] = SONG(STARTUP_SOUND);
 #ifdef OLED_ENABLE
 enum oled_modes {
   OLED_BONGO,
-  OLED_MINIMAL,
+  OLED_BONGO_MINI,
   OLED_OFF,
 };
 
@@ -49,9 +49,9 @@ bool keep_oled_off = false;
 #include "oled_bongo.c"
 
 #ifdef OLED_ENABLE_MINIMAL
-// oled_minimal.c uses the bongo frame data above to render a display-size-adapted view
-int8_t oled_mode = OLED_MINIMAL;
-#include "oled_minimal.c"
+// oled_bongo_mini.c: 2:1 vertically-compressed frames for 16px OLED (256 bytes/frame)
+#include "oled_bongo_mini.c"
+int8_t oled_mode = OLED_BONGO_MINI;
 #else
 int8_t oled_mode = OLED_BONGO;
 #endif
@@ -440,7 +440,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                layer_on(_OLED_OFF_SIGNAL);   // signal slave via synced layer state
            } else {
 #ifdef OLED_ENABLE_MINIMAL
-               oled_mode = OLED_MINIMAL;
+               oled_mode = OLED_BONGO_MINI;
 #else
                oled_mode = OLED_BONGO;
 #endif
@@ -701,7 +701,7 @@ void matrix_scan_user(void) {
     } else {
        layer_off(_OLED_OFF_SIGNAL);   // signal slave via synced layer state
 #ifdef OLED_ENABLE_MINIMAL
-      oled_mode = OLED_MINIMAL;
+      oled_mode = OLED_BONGO_MINI;
 #else
       oled_mode = OLED_BONGO;
 #endif
@@ -743,7 +743,7 @@ bool oled_task_user(void) {
             break;
 
 #ifdef OLED_ENABLE_MINIMAL
-        case OLED_MINIMAL:
+        case OLED_BONGO_MINI:
             if (!is_screen_on) {
                 oled_on();
                 is_screen_on = true;
