@@ -9,7 +9,7 @@ bool touched_td = false;
 
 bool scrolling_mode = false;
 
-bool is_hold_tapdance_disabled = false;
+uint8_t hold_td_disable_count = 0;
 
 void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
@@ -26,7 +26,7 @@ void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
 
     if (state->pressed) {
         if (state->count == 1
-            && !is_hold_tapdance_disabled
+            && !hold_td_disable_count
 #ifndef PERMISSIVE_HOLD
             && !state->interrupted
 #endif
@@ -51,7 +51,7 @@ static uint16_t word_right_held = 0;
 void td_word_bspc_finished(tap_dance_state_t *state, void *user_data) {
     touched_td = false;
     if (state->pressed) {
-        if (state->count == 1 && !is_hold_tapdance_disabled
+        if (state->count == 1 && !hold_td_disable_count
 #ifndef PERMISSIVE_HOLD
             && !state->interrupted
 #endif
@@ -71,7 +71,7 @@ void td_word_bspc_reset(tap_dance_state_t *state, void *user_data) {
 void td_word_del_finished(tap_dance_state_t *state, void *user_data) {
     touched_td = false;
     if (state->pressed) {
-        if (state->count == 1
+        if (state->count == 1 && !hold_td_disable_count
 #ifndef PERMISSIVE_HOLD
             && !state->interrupted
 #endif
@@ -91,7 +91,7 @@ void td_word_del_reset(tap_dance_state_t *state, void *user_data) {
 void td_word_left_finished(tap_dance_state_t *state, void *user_data) {
     touched_td = false;
     if (state->pressed) {
-        if (state->count == 1
+        if (state->count == 1 && !hold_td_disable_count
 #ifndef PERMISSIVE_HOLD
             && !state->interrupted
 #endif
@@ -111,7 +111,7 @@ void td_word_left_reset(tap_dance_state_t *state, void *user_data) {
 void td_word_right_finished(tap_dance_state_t *state, void *user_data) {
     touched_td = false;
     if (state->pressed) {
-        if (state->count == 1
+        if (state->count == 1 && !hold_td_disable_count
 #ifndef PERMISSIVE_HOLD
             && !state->interrupted
 #endif
@@ -129,23 +129,20 @@ void td_word_right_reset(tap_dance_state_t *state, void *user_data) {
 }
 
 // START tap-hold layout
-// is_hold_tapdance_disabled is OWNED exclusively by this pair.
-// No other tap dance should ever read or write it.
 void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_data) {
     touched_td = false;
 
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
-    is_hold_tapdance_disabled = true;
-
     if (state->pressed) {
+        hold_td_disable_count++;
         layer_on(tap_hold->hold);
     }
 }
 void tap_dance_tap_hold_reset_layout(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
     layer_off(tap_hold->hold);
-    is_hold_tapdance_disabled = false;
+    if (hold_td_disable_count) hold_td_disable_count--;
 }
 // END tap-hold layout
 
@@ -235,8 +232,7 @@ void td_ralt_finished (tap_dance_state_t *state, void *user_data) {
     }
 
     ralt_tap_state.state = cur_dance(state);
-    // is_hold_tapdance_disabled is owned by the layout tap dance only
-    // touching it here or in _reset would clear it while LOWER/RAISE is still held.
+    // do NOT touch hold_td_disable_count here — ref-counted, owned by layout/lower/raise/modifiers
 
     switch (ralt_tap_state.state) {
         case SINGLE_TAP:
@@ -279,7 +275,7 @@ void td_lalt_finished (tap_dance_state_t *state, void *user_data) {
     }
 
     lalt_tap_state.state = cur_dance(state);
-    // do NOT touch is_hold_tapdance_disabled here
+    // do NOT touch hold_td_disable_count here
 
     switch (lalt_tap_state.state) {
         case SINGLE_TAP:
@@ -296,7 +292,7 @@ void td_lalt_finished (tap_dance_state_t *state, void *user_data) {
 }
 
 void td_lalt_reset (tap_dance_state_t *state, void *user_data) {
-    // do NOT touch is_hold_tapdance_disabled here
+    // do NOT touch hold_td_disable_count here
     // Unconditional unregister of both covers OSX and Linux without
     // needing to remember which was registered.
     unregister_code(KC_LALT);
@@ -307,7 +303,7 @@ void td_lalt_reset (tap_dance_state_t *state, void *user_data) {
 
 void td_lgui_finished (tap_dance_state_t *state, void *user_data) {
     lgui_tap_state.state = cur_dance(state);
-    // do NOT touch is_hold_tapdance_disabled here
+    // do NOT touch hold_td_disable_count here
 
     switch (lgui_tap_state.state) {
         case SINGLE_TAP:
@@ -323,11 +319,10 @@ void td_lgui_finished (tap_dance_state_t *state, void *user_data) {
 }
 
 void td_lgui_reset (tap_dance_state_t *state, void *user_data) {
-    // do NOT touch is_hold_tapdance_disabled here
+    // do NOT touch hold_td_disable_count here
     // Unconditional unregister/layer_off: no-op if not active, but
     // prevents a stuck modifier/layer if a macro (e.g. JET_*) or
     // another code path toggled the modifier bit underneath us.
-    // See IA_FIX.md.
     unregister_code(KC_LGUI);
     layer_off(_NUM_PADS);
     lgui_tap_state.state = 0;
@@ -335,7 +330,7 @@ void td_lgui_reset (tap_dance_state_t *state, void *user_data) {
 
 void td_lctl_finished (tap_dance_state_t *state, void *user_data) {
     lctl_tap_state.state = cur_dance(state);
-    // do NOT touch is_hold_tapdance_disabled here
+    // do NOT touch hold_td_disable_count here
 
     switch (lctl_tap_state.state) {
         case SINGLE_TAP:
@@ -354,7 +349,6 @@ void td_lctl_reset (tap_dance_state_t *state, void *user_data) {
     // Both calls are no-ops when not active; calling unconditionally
     // prevents any state mismatch from leaving KC_LCTL or KC_LALT
     // registered if a macro toggled the modifier bits underneath us.
-    // See IA_FIX.md.
     unregister_code(KC_LCTL);
     unregister_code(KC_LALT);
     lctl_tap_state.state = 0;
@@ -367,7 +361,7 @@ void td_lower_finished (tap_dance_state_t *state, void *user_data) {
         case SINGLE_HOLD:
             bootloader_timer = timer_read();
             bootloader_active = true;
-            is_hold_tapdance_disabled = true;
+            hold_td_disable_count++;
             lock_mode = true;
             layer_on(_LOWER);
             update_tri_layer(_LOWER, _RAISE, _ADJUST);
@@ -391,7 +385,7 @@ void td_lower_reset (tap_dance_state_t *state, void *user_data) {
             lock_mode = false;
             layer_off(_LOWER);
             update_tri_layer(_LOWER, _RAISE, _ADJUST);
-            is_hold_tapdance_disabled = false;
+            if (hold_td_disable_count) hold_td_disable_count--;
             break;
 
         case SINGLE_TAP:
@@ -416,7 +410,7 @@ void td_raise_finished (tap_dance_state_t *state, void *user_data) {
         case SINGLE_HOLD:
             bootloader_timer = timer_read();
             bootloader_active = true;
-            is_hold_tapdance_disabled = true;
+            hold_td_disable_count++;
             layer_on(_RAISE);
             update_tri_layer(_LOWER, _RAISE, _ADJUST);
             break;
@@ -440,7 +434,7 @@ void td_raise_reset (tap_dance_state_t *state, void *user_data) {
             bootloader_timer = 0;
             layer_off(_RAISE);
             update_tri_layer(_LOWER, _RAISE, _ADJUST);
-            is_hold_tapdance_disabled = false;
+            if (hold_td_disable_count) hold_td_disable_count--;
             break;
 
         case DOUBLE_SINGLE_TAP:

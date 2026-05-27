@@ -3,7 +3,7 @@
 extern bool is_kc_caps;
 extern bool touched_td;
 extern bool scrolling_mode;
-extern bool is_hold_tapdance_disabled;
+extern uint8_t hold_td_disable_count;
 
 enum layer_names {
     _QWERTY,

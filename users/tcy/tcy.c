@@ -188,7 +188,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         bootloader_timer = timer_read();
         bootloader_active = true;
 
-        is_hold_tapdance_disabled = true;
+        hold_td_disable_count++;
         lock_mode = true;
         layer_on(_LOWER);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
@@ -199,7 +199,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         lock_mode = false;
         layer_off(_LOWER);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
-        is_hold_tapdance_disabled = false;
+        if (hold_td_disable_count) hold_td_disable_count--;
       }
       return false;
 
@@ -208,7 +208,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         bootloader_timer = timer_read();
         bootloader_active = true;
 
-        is_hold_tapdance_disabled = true;
+        hold_td_disable_count++;
         layer_on(_RAISE);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
       } else {
@@ -217,7 +217,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         layer_off(_RAISE);
         update_tri_layer(_LOWER, _RAISE, _ADJUST);
-        is_hold_tapdance_disabled = false;
+        if (hold_td_disable_count) hold_td_disable_count--;
       }
       return false;
 
@@ -259,7 +259,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #endif
 #endif
 #endif
-          is_hold_tapdance_disabled = true;
+          hold_td_disable_count++;
       } else {
 #if defined(PS2_ENABLE) || defined(PS2_CUSTOM_ENABLE)
           ps2_acceleration_setting = PS2_DEFAULT_ACCELERATION_SETTING;
@@ -274,7 +274,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #endif
 #endif
 #endif
-          is_hold_tapdance_disabled = false;
+          if (hold_td_disable_count) hold_td_disable_count--;
       }
       return true;
       break;
@@ -407,7 +407,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           if (record->event.pressed) {
               // Use tap_code16 with weak mods so we don't disturb any
               // "real" modifier the user may already be holding
-              // (e.g. LALT via TD_LALT, LCTL via TD_LCTL). See IA_FIX.md.
+              // (e.g. LALT via TD_LALT, LCTL via TD_LCTL).
               tap_code16(S(KC_F6));
           }
        return false;
@@ -494,7 +494,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case TD(TD_RIGHT):
        if (keycode == TD(TD_ESC) && !record->event.pressed) {
          layer_off(_ESC);
-         is_hold_tapdance_disabled = false;
+         if (hold_td_disable_count) hold_td_disable_count--;
       }
       if (keycode == TD(TD_ESC)) {
           scrolling_mode = record->event.pressed;
