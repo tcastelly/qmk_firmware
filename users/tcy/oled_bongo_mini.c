@@ -152,7 +152,9 @@ static void draw_minimal(void) {
         case _LOWER:        layer_name = "Lower";                        break;
         case _RAISE:        layer_name = "Raise";                        break;
         case _ADJUST:       layer_name = "Adjust";                       break;
+#ifdef TCY_FULL_TD
         case _ACCENTS_RALT: layer_name = "Accents";                      break;
+#endif
         default:            layer_name = "";                              break;
     }
     oled_set_cursor(6, 0);

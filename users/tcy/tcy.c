@@ -141,6 +141,20 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
+#ifdef TCY_FULL_TD
+bool pre_process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // Track TD_A here (not just in process_record_user) so td_a_pressed is
+    // set before action_tapping_process potentially defers the TD_A event.
+    if (keycode == TD(TD_A)) {
+        td_a_pressed = record->event.pressed;
+    }
+    if (keycode == KC_X && record->event.pressed && td_a_pressed) {
+        td_a_z_combo = true;
+    }
+    return true;
+}
+#endif
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   tap_dance_action_t *action;
 
@@ -468,14 +482,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 #ifdef TCY_FULL_TD
     case KC_X:
-        if (record->event.pressed && td_a_pressed) {
-            tap_dance_state_t *st = tap_dance_get_state(TD_A);
-            if (st->count > 0 && !st->finished) {
-                td_a_z_combo = true;
+        if (td_a_z_combo) {
+            // LCTL stays held (tap_hold->held untouched, reset by td_a release).
+            // KC_Z tracks KC_X physically: held while X is down, released on X up.
+            if (record->event.pressed) {
                 touched_td = true;
-                tap_code(KC_Z);
-                return false;
+                register_code(KC_Z);
+            } else {
+                unregister_code(KC_Z);
             }
+            return false;
         }
         return true;
 #endif
@@ -531,6 +547,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       if (keycode == TD(TD_A) && !record->event.pressed && td_a_z_combo) {
           unregister_code(KC_LCTL);
           unregister_code(KC_A);
+          unregister_code(KC_Z);  // in case KC_X still physically held
           td_a_z_combo = false;
       }
 #endif

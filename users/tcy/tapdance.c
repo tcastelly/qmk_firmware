@@ -68,7 +68,8 @@ void td_word_bspc_reset(tap_dance_state_t *state, void *user_data) {
     word_bspc_held = 0;
 }
 
-void td_word_del_finished(tap_dance_state_t *state, void *user_data) {
+static void td_word_nav_finished(tap_dance_state_t *state, uint16_t *held,
+                                  uint16_t osx_kc, uint16_t linux_kc, uint16_t simple_kc) {
     touched_td = false;
     if (state->pressed) {
         if (state->count == 1
@@ -76,56 +77,37 @@ void td_word_del_finished(tap_dance_state_t *state, void *user_data) {
             && !state->interrupted
 #endif
         ) {
-            word_del_held = is_osx ? LALT(KC_DEL) : LCTL(KC_DEL);
+            *held = is_osx ? osx_kc : linux_kc;
         } else {
-            word_del_held = KC_DEL;
+            *held = simple_kc;
         }
-        register_code16(word_del_held);
+        register_code16(*held);
     }
 }
+static void td_word_nav_reset(uint16_t *held) {
+    unregister_code16(*held);
+    *held = 0;
+}
+
+void td_word_del_finished(tap_dance_state_t *state, void *user_data) {
+    td_word_nav_finished(state, &word_del_held, LALT(KC_DEL), LCTL(KC_DEL), KC_DEL);
+}
 void td_word_del_reset(tap_dance_state_t *state, void *user_data) {
-    unregister_code16(word_del_held);
-    word_del_held = 0;
+    td_word_nav_reset(&word_del_held);
 }
 
 void td_word_left_finished(tap_dance_state_t *state, void *user_data) {
-    touched_td = false;
-    if (state->pressed) {
-        if (state->count == 1
-#ifndef PERMISSIVE_HOLD
-            && !state->interrupted
-#endif
-        ) {
-            word_left_held = is_osx ? LALT(KC_LEFT) : LCTL(KC_LEFT);
-        } else {
-            word_left_held = KC_LEFT;
-        }
-        register_code16(word_left_held);
-    }
+    td_word_nav_finished(state, &word_left_held, LALT(KC_LEFT), LCTL(KC_LEFT), KC_LEFT);
 }
 void td_word_left_reset(tap_dance_state_t *state, void *user_data) {
-    unregister_code16(word_left_held);
-    word_left_held = 0;
+    td_word_nav_reset(&word_left_held);
 }
 
 void td_word_right_finished(tap_dance_state_t *state, void *user_data) {
-    touched_td = false;
-    if (state->pressed) {
-        if (state->count == 1
-#ifndef PERMISSIVE_HOLD
-            && !state->interrupted
-#endif
-        ) {
-            word_right_held = is_osx ? LALT(KC_RIGHT) : LCTL(KC_RIGHT);
-        } else {
-            word_right_held = KC_RIGHT;
-        }
-        register_code16(word_right_held);
-    }
+    td_word_nav_finished(state, &word_right_held, LALT(KC_RIGHT), LCTL(KC_RIGHT), KC_RIGHT);
 }
 void td_word_right_reset(tap_dance_state_t *state, void *user_data) {
-    unregister_code16(word_right_held);
-    word_right_held = 0;
+    td_word_nav_reset(&word_right_held);
 }
 
 // START tap-hold layout
@@ -215,19 +197,21 @@ int cur_dance (tap_dance_state_t *state) {
 
 // One state variable per tap dance — avoids cross-contamination when
 // multiple tap dances are active simultaneously (e.g. hold RALT + double-hold LALT)
-static tap ralt_tap_state  = { .is_press_action = true, .state = 0 };
-static tap lalt_tap_state  = { .is_press_action = true, .state = 0 };
-static tap lgui_tap_state     = { .is_press_action = true, .state = 0 };
-static tap lctl_tap_state     = { .is_press_action = true, .state = 0 };
-static tap lower_tap_state    = { .is_press_action = true, .state = 0 };
-static tap raise_tap_state    = { .is_press_action = true, .state = 0 };
+static tap ralt_tap_state;
+static tap lalt_tap_state;
+static tap lgui_tap_state;
+static tap lctl_tap_state;
+static tap lower_tap_state;
+static tap raise_tap_state;
 
 void td_ralt_finished (tap_dance_state_t *state, void *user_data) {
     if (ralt_tap_state.state != 0) {
         unregister_code(KC_RALT);
         unregister_code(KC_LGUI);
         unregister_code(KC_LCTL);
+#ifdef TCY_FULL_TD
         layer_off(_ACCENTS_RALT);
+#endif
         ralt_tap_state.state = 0;
     }
 
@@ -238,7 +222,9 @@ void td_ralt_finished (tap_dance_state_t *state, void *user_data) {
         case SINGLE_TAP:
         case SINGLE_HOLD:
             register_code(KC_RALT);
+#ifdef TCY_FULL_TD
             layer_on(_ACCENTS_RALT);
+#endif
             break;
 
         case DOUBLE_SINGLE_TAP:
@@ -250,7 +236,10 @@ void td_ralt_finished (tap_dance_state_t *state, void *user_data) {
 }
 
 void td_ralt_reset (tap_dance_state_t *state, void *user_data) {
+#ifdef TCY_FULL_TD
     layer_off(_ACCENTS_RALT);
+#endif
+
     switch (ralt_tap_state.state) {
         case SINGLE_TAP:
         case SINGLE_HOLD:
@@ -270,7 +259,9 @@ void td_lalt_finished (tap_dance_state_t *state, void *user_data) {
     if (lalt_tap_state.state != 0) {
         unregister_code(KC_LALT);
         unregister_code(KC_LGUI);
+#ifdef TCY_FULL_TD
         layer_off(_NUM_PADS);
+#endif
         lalt_tap_state.state = 0;
     }
 
@@ -284,10 +275,12 @@ void td_lalt_finished (tap_dance_state_t *state, void *user_data) {
             register_code(is_osx ? KC_LGUI : KC_LALT);
             break;
 
+#ifdef TCY_FULL_TD
         case DOUBLE_SINGLE_TAP:
         case DOUBLE_HOLD:
             layer_on(_NUM_PADS);
             break;
+#endif
     }
 }
 
@@ -297,7 +290,9 @@ void td_lalt_reset (tap_dance_state_t *state, void *user_data) {
     // needing to remember which was registered.
     unregister_code(KC_LALT);
     unregister_code(KC_LGUI);
+#ifdef TCY_FULL_TD
     layer_off(_NUM_PADS);
+#endif
     lalt_tap_state.state = 0;
 }
 
@@ -311,10 +306,12 @@ void td_lgui_finished (tap_dance_state_t *state, void *user_data) {
             register_code(KC_LGUI);
             break;
 
+#ifdef TCY_FULL_TD
         case DOUBLE_SINGLE_TAP:
         case DOUBLE_HOLD:
             layer_on(_NUM_PADS);
             break;
+#endif
     }
 }
 
@@ -324,7 +321,9 @@ void td_lgui_reset (tap_dance_state_t *state, void *user_data) {
     // prevents a stuck modifier/layer if a macro (e.g. JET_*) or
     // another code path toggled the modifier bit underneath us.
     unregister_code(KC_LGUI);
+#ifdef TCY_FULL_TD
     layer_off(_NUM_PADS);
+#endif
     lgui_tap_state.state = 0;
 }
 
@@ -418,7 +417,9 @@ void td_raise_finished (tap_dance_state_t *state, void *user_data) {
         case DOUBLE_SINGLE_TAP:
         case DOUBLE_HOLD:
             register_code(KC_RALT);
+#ifdef TCY_FULL_TD
             layer_on(_ACCENTS_RALT);
+#endif
             break;
     }
 }
@@ -440,7 +441,9 @@ void td_raise_reset (tap_dance_state_t *state, void *user_data) {
         case DOUBLE_SINGLE_TAP:
         case DOUBLE_HOLD:
             unregister_code(KC_RALT);
+#ifdef TCY_FULL_TD
             layer_off(_ACCENTS_RALT);
+#endif
             break;
     }
     raise_tap_state.state = 0;

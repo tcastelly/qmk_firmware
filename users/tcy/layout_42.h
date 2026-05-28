@@ -20,6 +20,24 @@
 #define RGB_SAD RM_SATD
 #define RGB_VAD RM_VALD
 
+#ifdef AUDIO_ENABLE
+#define TOGGLE_BUZZ TOGGLE_BUZZ
+#else
+#define TOGGLE_BUZZ _______
+#endif
+
+#if defined(RGB_MATRIX_ENABLE) || defined(RGBLIGHT_ENABLE)
+#define TOGGLE_RGB  TOGGLE_RGB
+#else
+#define TOGGLE_RGB  _______
+#endif
+
+#ifdef OLED_ENABLE
+#define TOGGLE_OLED TOGGLE_OLED
+#else
+#define TOGGLE_OLED _______
+#endif
+
 // clang-format off
 #define LAYOUT_qwerty LAYOUT_split_3x6_3( \
     TD(TD_TAB),     KC_Q,         KC_W,    KC_E,    KC_R,    KC_T,                 KC_Y,       KC_U,           KC_I,    TD(TD_O),       TD(TD_P),    TD(TD_BSPC),     \

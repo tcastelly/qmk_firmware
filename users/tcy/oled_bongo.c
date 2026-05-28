@@ -201,9 +201,11 @@ static void draw_bongo(void) {
         case _ADJUST:
             strcpy(layout_str, "Adjust");
             break;
+#ifdef TCY_FULL_TD
         case _ACCENTS_RALT:
             strcpy(layout_str, "Accents");
             break;
+#endif
         default:
             strcpy(layout_str, "");
             break;

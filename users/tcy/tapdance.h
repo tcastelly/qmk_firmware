@@ -12,8 +12,10 @@ enum layer_names {
     _RAISE,
     _ADJUST,
     _ESC,
+#ifdef TCY_FULL_TD
     _NUM_PADS,
     _ACCENTS_RALT,
+#endif
     _OLED_OFF_SIGNAL,
     _OSX_SIGNAL
 };
@@ -31,18 +33,26 @@ enum custom_keycodes {
     ACCENT_E_GRAVE,
     ACCENT_A_GRAVE,
 
+#ifdef AUDIO_ENABLE
     TOGGLE_BUZZ,
+#endif
 
+#if defined(RGB_MATRIX_ENABLE) || defined(RGBLIGHT_ENABLE)
     TOGGLE_RGB,
+#endif
 
+#ifdef OLED_ENABLE
     TOGGLE_OLED,
+#endif
 
+#ifdef TCY_FULL_TD
     // to be used with RALT already pressed
     ACCENT_I_CIRC_RALT,
     ACCENT_O_CIRC_RALT,
     ACCENT_U_AIGU_RALT,
     ACCENT_C_RALT,
     ACCENT_A_GRAVE_RALT,
+#endif
 
     // Jetbrains macros
     JET_FIND,
@@ -89,8 +99,7 @@ extern int cur_dance(tap_dance_state_t *state);
 extern int cur_dance_permissive(tap_dance_state_t *state);
 
 typedef struct {
-    bool is_press_action;
-    int  state;
+    int state;
 } tap;
 
 typedef struct {
