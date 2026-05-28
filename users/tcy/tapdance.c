@@ -71,7 +71,7 @@ void td_word_bspc_reset(tap_dance_state_t *state, void *user_data) {
 void td_word_del_finished(tap_dance_state_t *state, void *user_data) {
     touched_td = false;
     if (state->pressed) {
-        if (state->count == 1 && !hold_td_disable_count
+        if (state->count == 1
 #ifndef PERMISSIVE_HOLD
             && !state->interrupted
 #endif
@@ -91,7 +91,7 @@ void td_word_del_reset(tap_dance_state_t *state, void *user_data) {
 void td_word_left_finished(tap_dance_state_t *state, void *user_data) {
     touched_td = false;
     if (state->pressed) {
-        if (state->count == 1 && !hold_td_disable_count
+        if (state->count == 1
 #ifndef PERMISSIVE_HOLD
             && !state->interrupted
 #endif
@@ -111,7 +111,7 @@ void td_word_left_reset(tap_dance_state_t *state, void *user_data) {
 void td_word_right_finished(tap_dance_state_t *state, void *user_data) {
     touched_td = false;
     if (state->pressed) {
-        if (state->count == 1 && !hold_td_disable_count
+        if (state->count == 1
 #ifndef PERMISSIVE_HOLD
             && !state->interrupted
 #endif
