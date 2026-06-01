@@ -49,6 +49,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
   if (keep_rgb_off) return false;
 
   const uint8_t *color;
+  uint8_t brightness_scale = rgb_matrix_get_val(); // Get current brightness (0-255)
 
   switch (current_layer) {
     case _ESC:
@@ -73,8 +74,12 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
   }
 
   for (uint8_t i = led_min; i < led_max; i++) {
-    rgb_matrix_set_color(i, color[0], color[1], color[2]);
+    // Scale color by current brightness setting
+    rgb_matrix_set_color(i,
+                         (color[0] * brightness_scale) >> 8,
+                         (color[1] * brightness_scale) >> 8,
+                         (color[2] * brightness_scale) >> 8);
   }
-  
+
   return false;
 }

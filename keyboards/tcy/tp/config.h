@@ -25,3 +25,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define AZOTEQ_IQS5XX_TPS65
 #define AZOTEQ_IQS5XX_ROTATION_90
 
+//
+// one or the other setting to manage RGB power/brightness
+//
+// 1500mA limit
+// #define RGB_MATRIX_MAX_CURRENT 1500  
+                                     
+// max is 255
+#define RGB_MATRIX_MAXIMUM_BRIGHTNESS 127
+
+#define RGB_MATRIX_DEFAULT_VAL 100
