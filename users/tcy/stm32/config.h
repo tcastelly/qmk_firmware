@@ -30,6 +30,9 @@
 #define SPI_MOSI_PAL_MODE 0
 #define SPI_MISO_PAL_MODE 0
 
+// prevent the keyboard to sleep
+#define NO_USB_WAKE_FROM_SUSPEND
+
 #define PMW33XX_CS_PIN  A4
 #define PMW33XX_CPI     1600
 

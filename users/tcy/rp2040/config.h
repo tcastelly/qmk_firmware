@@ -21,6 +21,9 @@
 #define OLED_FADE_OUT_INTERVAL 2
 #define OLED_UPDATE_PROCESS_LIMIT 4
 
+// prevent the keyboard to sleep
+#define NO_USB_WAKE_FROM_SUSPEND
+
 #define PS2_MOUSE_X_MULTIPLIER 1
 #define PS2_MOUSE_Y_MULTIPLIER 1
 #define PS2_MOUSE_V_MULTIPLIER 2
