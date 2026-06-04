@@ -81,6 +81,8 @@ bool keep_rgb_off = false;
 
 bool lock_mode = false;
 
+bool esc_drag_active = false;
+
 #ifdef TCY_FULL_TD
 // Combo to be able to use Ctrl + z and `fg` with vim
 // set when KC_X is pressed while TD_A tap dance is pending (not yet resolved)
@@ -496,6 +498,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         return true;
 #endif
 
+    case MS_BTN1:
+        if (record->event.pressed) {
+          esc_drag_active = true;
+          return false;
+        } else if (esc_drag_active) {
+          esc_drag_active = false;
+          return false;
+        }
+        return true;
+
     case TD(TD_O):  // list all tap dance keycodes with tap-hold configurations
     case TD(TD_A):
     case TD(TD_ESC):
@@ -658,6 +670,10 @@ report_mouse_t tcy_pointing_device_task(report_mouse_t mouse_report) {
         mouse_report.v = 0;
         mouse_report.x = 0;
         mouse_report.y = 0;
+    }
+
+    if (esc_drag_active) {
+        mouse_report.buttons |= MOUSE_BTN1;
     }
 
     bool has_moved = mouse_report.x > 0 || mouse_report.y > 0 || mouse_report.v > 0 || mouse_report.h > 0;
