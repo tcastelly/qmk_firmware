@@ -10,6 +10,10 @@
 # For CLion compatibility, add as sufix
 # --compiledb && python3 gen_cmake.py
 
+# Crone
+# with right Azoteq trackpad
+qmk compile -j 0 -kb crkbd/rev1 -km tcy -e CONVERT_TO=rp2040_ce
+
 #
 # Aurora Corne
 #
