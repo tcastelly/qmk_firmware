@@ -18,11 +18,19 @@ void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data) {
         unregister_code16(tap_hold->held);
         tap_hold->held = 0;
     }
+
+    /* Prevent a real modifier (LSFT/LALT/LGUI), held at the instant this
+    * tap dance started, from leaking through QMK's per-tap weak-mods
+    * snapshot. The early-release path in tcy.c can otherwise desync the
+    * host mod bitmap and leave a modifier stuck. */
+    state->weak_mods = 0;
 }
 void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
     touched_td = false;
 
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
+
+    state->weak_mods = 0;
 
     if (state->pressed) {
         if (state->count == 1

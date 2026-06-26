@@ -520,13 +520,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case TD(TD_DEL):
     case TD(TD_LEFT):
     case TD(TD_RIGHT):
-       if (keycode == TD(TD_ESC) && !record->event.pressed) {
-         layer_off(_ESC);
-         if (hold_td_disable_count) hold_td_disable_count--;
-      }
-      if (keycode == TD(TD_ESC)) {
-          scrolling_mode = record->event.pressed;
-      }
+        if (keycode == TD(TD_ESC) && !record->event.pressed) {
+            /* Turn the layer off early so the button-remap checks
+             * (IS_LAYER_ON(_ESC)) in keymap.c see the correct state on
+             * this same release pass. The hold_td_disable_count-- is
+             * handled solely in tap_dance_tap_hold_reset_layout to avoid
+             * a double-decrement. layer_off here is idempotent with the
+             * one in _reset_layout. */
+            layer_off(_ESC);
+            scrolling_mode = false;
+        }
+        if (keycode == TD(TD_ESC)) {
+            scrolling_mode = record->event.pressed;
+        }
 
       action = &tap_dance_actions[TD_INDEX(keycode)];
       tap_dance_state_t *state = tap_dance_get_state(TD_INDEX(keycode));
@@ -538,13 +544,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #endif
 
       if (!record->event.pressed && state->count && !state->finished) {
+          /* Clear QMK's captured weak-mods snapshot so it cannot be
+           * re-applied on the upcoming finished/reset and stick on the
+           * host after the physical modifier is released. */
+          state->weak_mods = 0;
           if (action->user_data) {
               tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
               tap_code16(tap_hold->tap);
-          } else if (keycode == TD(TD_BSPC))  { tap_code16(KC_BSPC);  }
-          else if (keycode == TD(TD_DEL))     { tap_code16(KC_DEL);   }
-          else if (keycode == TD(TD_LEFT))    { tap_code16(KC_LEFT);  }
-          else if (keycode == TD(TD_RIGHT))   { tap_code16(KC_RIGHT); }
+          } else if (keycode == TD(TD_BSPC)) {
+              tap_code16(KC_BSPC);
+          } else if (keycode == TD(TD_DEL)) {
+              tap_code16(KC_DEL);
+          } else if (keycode == TD(TD_LEFT)) {
+              tap_code16(KC_LEFT);
+          } else if (keycode == TD(TD_RIGHT)) {
+              tap_code16(KC_RIGHT);
+          }
       }
 
 #ifdef TCY_FULL_TD
