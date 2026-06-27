@@ -1,0 +1,57 @@
+{
+    "maintainer": "Cipulot",
+    "bootloader": "stm32-dfu",
+    "build": {
+        "lto": true
+    },
+    "diode_direction": "COL2ROW",
+    "dynamic_keymap": {
+        "layer_count": 8
+    },
+    "eeprom": {
+        "wear_leveling": {
+            "backing_size": 8192
+        }
+    },
+    "features": {
+        "bootmagic": false,
+        "console": true,
+        "extrakey": true,
+        "mousekey": true,
+        "nkro": true,
+        "rgblight": true
+    },
+    "processor": "STM32F411",
+    "qmk": {
+        "locking": {
+            "enabled": true,
+            "resync": true
+        }
+    },
+    "rgblight": {
+        "animations": {
+            "alternating": true,
+            "breathing": true,
+            "christmas": true,
+            "knight": true,
+            "rainbow_mood": true,
+            "rainbow_swirl": true,
+            "rgb_test": true,
+            "snake": true,
+            "static_gradient": true,
+            "twinkle": true
+        },
+        "led_count": 19
+    },
+    "usb": {
+        "device_version": "0.0.1",
+        "shared_endpoint": {
+            "keyboard": true
+        },
+        "vid": "0x6369"
+    },
+    "ws2812": {
+        "driver": "pwm",
+        "pin": "B15"
+    }
+}

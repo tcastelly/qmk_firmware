@@ -13,6 +13,11 @@
         }
     },
     "diode_direction": "COL2ROW",
+    "eeprom": {
+        "wear_leveling": {
+            "backing_size": 8192
+        }
+    },
     "features": {
         "bootmagic": false,
         "console": true,

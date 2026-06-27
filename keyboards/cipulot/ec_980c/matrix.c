@@ -1,4 +1,4 @@
-/* Copyright 2023 Cipulot
+/* Copyright 2026 Cipulot
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,11 +19,11 @@
 
 // Custom matrix init function
 void matrix_init_custom(void) {
-    // Initialize EC
+    // Initialize the EC switch matrix
     ec_init();
 
-    // Get the noise floor at boot
-    ec_noise_floor();
+    // Initialize the noise floor and rescale per-key thresholds
+    ec_noise_floor_calibration();
 }
 
 // Custom matrix scan function

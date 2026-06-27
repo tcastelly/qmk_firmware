@@ -7,9 +7,12 @@
         "lto": true
     },
     "diode_direction": "COL2ROW",
+    "dynamic_keymap": {
+        "layer_count": 8
+    },
     "eeprom": {
         "wear_leveling": {
-            "backing_size": 4096
+            "backing_size": 8192
         }
     },
     "features": {
@@ -18,7 +21,7 @@
         "extrakey": true,
         "mousekey": true,
         "nkro": true,
-        "rgb_matrix": true
+        "rgblight": true
     },
     "processor": "STM32F411",
     "qmk": {
@@ -27,22 +30,24 @@
             "resync": true
         }
     },
-    "rgb_matrix": {
+    "rgblight": {
         "animations": {
+            "alternating": true,
             "breathing": true,
-            "cycle_left_right": true
+            "christmas": true,
+            "knight": true,
+            "rainbow_mood": true,
+            "rainbow_swirl": true,
+            "rgb_test": true,
+            "snake": true,
+            "static_gradient": true,
+            "twinkle": true
         },
-        "driver": "ws2812",
-        "layout": [
-            {"matrix": [0, 15], "x": 16, "y": 1, "flags": 4},
-            {"matrix": [0, 16], "x": 17, "y": 1, "flags": 4},
-            {"matrix": [0, 17], "x": 18, "y": 1, "flags": 4}
-        ],
-        "led_count": 3
+        "led_count": 4
     },
     "usb": {
         "device_version": "0.0.1",
-        "pid": "0x6BBE",
+        "pid": "0x6BFA",
         "shared_endpoint": {
             "keyboard": true
         },

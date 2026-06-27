@@ -9,7 +9,7 @@
     "diode_direction": "COL2ROW",
     "eeprom": {
         "wear_leveling": {
-            "backing_size": 4096
+            "backing_size": 8192
         }
     },
     "features": {
