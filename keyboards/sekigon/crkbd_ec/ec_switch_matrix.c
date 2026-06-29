@@ -24,8 +24,30 @@
 #    define cli() __interrupt_disable__()
 #    define sei() __interrupt_enable__(NULL)
 #else
-#    define WAIT_DISCHARGE()
-#    define WAIT_CHARGE()
+/* ChibiOS RP2040: the peak-hold capacitor needs explicit settle time, same as
+ * the pico-sdk path (AVR else-branch omitted it because AVR ADC is slow). */
+/* WAIT_DISCHARGE gives the mux analog switch time to settle after select_mux()
+ * changes the channel select pins. Without this, high-channel columns (6, 7)
+ * that require all select pins to flip simultaneously read near-zero because
+ * the mux output hasn't settled before charge_capacitor() fires. 1µs is
+ * well beyond any CD4051-class mux propagation delay (~200ns max).
+ * In the pico-sdk path, cli()=__interrupt_disable__() provided implicit
+ * settling time via instruction latency; our cli()=no-op has none. */
+#    define WAIT_DISCHARGE() wait_us(1)
+#    define WAIT_CHARGE() wait_us(4)
+/* api_compat.h maps cli()/sei() → __disable_irq()/__enable_irq() (CPSID I /
+ * CPSIE I on Cortex-M0+). This masks ALL interrupts including the RP2040 ADC
+ * FIFO IRQ. ChibiOS analogReadPin() uses adcConvert() which fires the hardware
+ * and then suspends the calling thread waiting for the ADC IRQ to resume it —
+ * with PRIMASK set that IRQ can never fire, so adcConvert() returns immediately
+ * with near-zero data from a not-yet-completed conversion.
+ * The cli()/sei() in ecsm_readkey_raw() only existed to make the AVR ADC read
+ * atomic. ChibiOS adcConvert() is already internally serialised; it must run
+ * with interrupts enabled on this platform. */
+#    undef cli
+#    undef sei
+#    define cli() ((void)0)
+#    define sei() ((void)0)
 #endif
 
 // pin connections
@@ -98,14 +120,23 @@ int ecsm_init(ecsm_config_t const* const ecsm_config) {
     setPinInput(DISCHARGE_PIN);
 #if defined(PLATFORM_PICO)
     gpio_set_drive_strength(DISCHARGE_PIN, GPIO_DRIVE_STRENGTH_12MA);
+#else
+    /* ChibiOS: prime the ADC once here so adcStart() runs in a clean context.
+     * Otherwise the first read happens inside the cli()/sei() of the scan, and
+     * adcStart() (which takes a kernel lock) would run with IRQs disabled.
+     * This mirrors the working cipulot EC driver's dummy adc_read() at init. */
+    analogReadPin(ANALOG_PORT);
 #endif
 
     return 0;
 }
 
 void ecsm_get_config(ecsm_config_t* ecsm_config) {
-    // Copy config
     *ecsm_config = config;
+}
+
+uint16_t ecsm_get_sw_value(uint8_t row, uint8_t col) {
+    return ecsm_sw_value[row][col];
 }
 
 // Read key value of key (row, col)
@@ -134,17 +165,21 @@ static uint16_t ecsm_readkey_raw(uint8_t row, uint8_t col) {
 }
 
 // Update press/release state of key at (row, col)
-static bool ecsm_update_key(matrix_row_t* current_row, uint8_t col, uint16_t sw_value) {
+static bool ecsm_update_key(matrix_row_t* current_row, uint8_t row, uint8_t col, uint16_t sw_value) {
     bool current_state = (*current_row >> col) & 1;
 
+    uint8_t  ncols = sizeof(col_channels);
+    uint16_t lo    = config.low_keys  ? config.low_keys[row * ncols + col]  : config.low_threshold;
+    uint16_t hi    = config.high_keys ? config.high_keys[row * ncols + col] : config.high_threshold;
+
     // press to release
-    if (current_state && sw_value < config.low_threshold) {
+    if (current_state && sw_value < lo) {
         *current_row &= ~(1 << col);
         return true;
     }
 
     // release to press
-    if ((!current_state) && sw_value > config.high_threshold) {
+    if ((!current_state) && sw_value > hi) {
         *current_row |= (1 << col);
         return true;
     }
@@ -183,7 +218,7 @@ bool ecsm_matrix_scan(matrix_row_t current_matrix[]) {
 #else
             ecsm_sw_value[row][col] = ecsm_readkey_raw(row, col);
 #endif
-            updated |= ecsm_update_key(&current_matrix[row], col, ecsm_sw_value[row][col]);
+            updated |= ecsm_update_key(&current_matrix[row], row, col, ecsm_sw_value[row][col]);
         }
     }
 

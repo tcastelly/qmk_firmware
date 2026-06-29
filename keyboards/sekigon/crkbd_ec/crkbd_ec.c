@@ -12,6 +12,7 @@
 #include "ec_switch_matrix.h"
 #include "eeconfig.h"
 #include "print.h"
+#include "analog.h"
 
 #ifdef VIA_ENABLE
 #    include "via.h"
@@ -35,7 +36,10 @@ typedef struct {
 } ec_thresholds_t;
 
 static void apply_thresholds(uint16_t low, uint16_t high) {
-    ecsm_config_t c = {.low_threshold = low, .high_threshold = high};
+    ecsm_config_t c;
+    ecsm_get_config(&c);   // preserve per-key array pointers set at matrix init
+    c.low_threshold  = low;
+    c.high_threshold = high;
     ecsm_init(&c);
 }
 
@@ -50,18 +54,22 @@ void eeconfig_init_kb(void) {
 static bool ec_plot = false;
 
 #ifdef VIRTSER_ENABLE
-// Override QMK's weak sendchar so print()/dprintf() go to the CDC serial.
+#ifndef CONSOLE_ENABLE
+// When CONSOLE_ENABLE is off, dprintf() is a no-op that never calls sendchar,
+// so this override has no effect on dprintf. Keep it for any direct sendchar
+// callers, but the plotter relies on dprintf — enable CONSOLE_ENABLE instead.
 int8_t sendchar(uint8_t c) {
     virtser_send(c);
     return 0;
 }
+#endif  // !CONSOLE_ENABLE
 
 void virtser_recv(uint8_t c) {
     if (c == 'e') {
         ec_plot = !ec_plot;
     }
 }
-#endif
+#endif  // VIRTSER_ENABLE
 
 void keyboard_post_init_kb(void) {
     debug_enable = true; // dprintf() in ecsm_dprint_matrix() is gated on this
@@ -71,8 +79,21 @@ void keyboard_post_init_kb(void) {
     if (t.low == 0 && t.high == 0) { // uninitialised eeprom
         t.low  = LOW_THRESHOLD;
         t.high = HIGH_THRESHOLD;
+        eeconfig_update_kb_datablock(&t, 0, sizeof(t));
+    } else if (t.high > 400 || t.high < HIGH_THRESHOLD) { // stale thresholds — auto-migrate
+        t.low  = LOW_THRESHOLD;
+        t.high = HIGH_THRESHOLD;
+        eeconfig_update_kb_datablock(&t, 0, sizeof(t));
     }
     apply_thresholds(t.low, t.high);
+
+    dprintf("EC thresholds low=%u high=%u\n", t.low, t.high);
+    {
+        matrix_row_t tmp[MATRIX_ROWS] = {0};
+        ecsm_matrix_scan(tmp);
+        dprintf("EC rest:\n");
+        ecsm_dprint_matrix();
+    }
 
     keyboard_post_init_user();
 }

@@ -24,9 +24,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MATRIX_ROWS 6
 #define MATRIX_COLS 7
 
-/* EC switch threshold with hysteresis */
-#define HIGH_THRESHOLD 800
-#define LOW_THRESHOLD 500
+/* EC switch threshold with hysteresis — calibrated for ChibiOS RP2040 ADC.
+ * Rest values 49-115 (right hand); pressed ~360+.
+ * LOW must exceed all rest values so keys release properly (value drops from
+ * pressed back toward rest and must cross LOW on the way down). */
+#define HIGH_THRESHOLD 250
+#define LOW_THRESHOLD 150
 
 // VIA config
 #define DYNAMIC_KEYMAP_LAYER_COUNT 8

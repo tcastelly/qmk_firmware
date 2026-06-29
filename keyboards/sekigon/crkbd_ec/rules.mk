@@ -5,6 +5,9 @@ SRC += analog.c ec_switch_matrix.c matrix.c
 # via ChibiOS, so the EC driver takes its non-PLATFORM_PICO (ChibiOS) path.
 
 SPLIT_KEYBOARD = yes
+# The ChibiOS bitbang serial driver (default) uses palWaitLineTimeout which
+# does not work reliably on RP2040. Use the RP2040-native PIO serial driver.
+SERIAL_DRIVER = vendor
 RGBLIGHT_ENABLE = no
 RGB_MATRIX_ENABLE = no
 # board frozen: no RGB / OLED / SPI (only tapdance shared via users/tcy)
