@@ -537,6 +537,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       action = &tap_dance_actions[TD_INDEX(keycode)];
       tap_dance_state_t *state = tap_dance_get_state(TD_INDEX(keycode));
 
+      /* NULL when QMK dropped this dance because TAP_DANCE_MAX_SIMULTANEOUS
+       * was exhausted at press time — the release then arrives with no state.
+       * Dereferencing it would read/write the flash-aliased vector table. */
+      if (state == NULL) {
+          break;
+      }
+
 #ifdef TCY_FULL_TD
       if (keycode == TD(TD_A)) {
           td_a_pressed = record->event.pressed;

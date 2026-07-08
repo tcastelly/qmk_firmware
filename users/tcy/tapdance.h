@@ -7,11 +7,13 @@ extern uint8_t hold_td_disable_count;
 
 enum layer_names {
     _QWERTY,
-    _QWERTY_GAMING,
     _LOWER,
     _RAISE,
     _ADJUST,
     _ESC,
+    /* after _ESC so keymaps that skip it (keyball44) don't carry a
+     * zero-filled gap row in PROGMEM */
+    _QWERTY_GAMING,
 #ifdef TCY_FULL_TD
     _NUM_PADS,
     _ACCENTS_RALT,

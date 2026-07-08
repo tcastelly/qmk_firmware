@@ -30,3 +30,8 @@ WPM_ENABLE = yes
 EEPROM_ENABLE = no
 
 OPT_DEFS += -DTCY_FULL_TD
+
+# QMK default is 3; with this many holdable tap dances (TD_ENT/TD_A/TD_ESC/
+# thumbs/word-nav) three held dances are realistic, and a 4th TD press is then
+# silently dropped by process_tap_dance. Each extra slot costs ~10 bytes RAM.
+OPT_DEFS += -DTAP_DANCE_MAX_SIMULTANEOUS=8

@@ -127,12 +127,21 @@ void tap_dance_tap_hold_finished_layout(tap_dance_state_t *state, void *user_dat
     if (state->pressed) {
         hold_td_disable_count++;
         layer_on(tap_hold->hold);
+        /* mark that this dance incremented, so reset only decrements when a
+         * matching increment happened. A plain tap resolves with
+         * state->pressed == false (no increment) but still runs reset —
+         * an unconditional decrement there would steal another owner's
+         * count (LSFT/LALT/LGUI held while tapping ESC). */
+        tap_hold->held = 1;
     }
 }
 void tap_dance_tap_hold_reset_layout(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
     layer_off(tap_hold->hold);
-    if (hold_td_disable_count) hold_td_disable_count--;
+    if (tap_hold->held) {
+        tap_hold->held = 0;
+        if (hold_td_disable_count) hold_td_disable_count--;
+    }
 }
 // END tap-hold layout
 
@@ -362,6 +371,12 @@ void td_lctl_reset (tap_dance_state_t *state, void *user_data) {
 }
 
 void td_lower_finished (tap_dance_state_t *state, void *user_data) {
+    if (lower_tap_state.state != 0) {
+        /* previous dance never reset (skipped reset callback) — run the
+         * reset now; it cleans up based on the stale state and zeroes it */
+        td_lower_reset(state, user_data);
+    }
+
     lower_tap_state.state = cur_dance_permissive(state);
 
     switch (lower_tap_state.state) {
@@ -407,6 +422,12 @@ void td_lower_reset (tap_dance_state_t *state, void *user_data) {
 }
 
 void td_raise_finished (tap_dance_state_t *state, void *user_data) {
+    if (raise_tap_state.state != 0) {
+        /* previous dance never reset (skipped reset callback) — run the
+         * reset now; it cleans up based on the stale state and zeroes it */
+        td_raise_reset(state, user_data);
+    }
+
     raise_tap_state.state = cur_dance_permissive(state);
 
     switch (raise_tap_state.state) {
@@ -433,6 +454,12 @@ void td_raise_finished (tap_dance_state_t *state, void *user_data) {
 }
 
 void td_raise_reset (tap_dance_state_t *state, void *user_data) {
+    /* unconditional, like td_ralt_reset — a no-op when the layer is already
+     * off, but heals a stranded layer if raise_tap_state was clobbered */
+#ifdef TCY_FULL_TD
+    layer_off(_ACCENTS_RALT);
+#endif
+
     switch (raise_tap_state.state) {
         case SINGLE_TAP:
             unregister_code(KC_BSPC);
@@ -449,9 +476,6 @@ void td_raise_reset (tap_dance_state_t *state, void *user_data) {
         case DOUBLE_SINGLE_TAP:
         case DOUBLE_HOLD:
             unregister_code(KC_RALT);
-#ifdef TCY_FULL_TD
-            layer_off(_ACCENTS_RALT);
-#endif
             break;
     }
     raise_tap_state.state = 0;
