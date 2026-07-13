@@ -2,6 +2,7 @@
 #include "i2c_master.h"
 #include "spi_master.h"
 #include "tapdance.h"
+#include "keymap_introspection.h"
 #include "print.h"
 
 #ifdef PMW3360_CUSTOM_ENABLE
@@ -82,6 +83,12 @@ bool keep_rgb_off = false;
 bool lock_mode = false;
 
 bool esc_drag_active = false;
+// Matrix position of the key that started the drag. The release is matched
+// on position, not keycode: if the layer stack changed between press and
+// release (layer key released first, signal layers, tap dance interrupts),
+// the release may resolve to a different keycode than MS_BTN1 and the
+// button would stay held on the host forever.
+static keypos_t esc_drag_key;
 
 #ifdef TCY_FULL_TD
 // Combo to be able to use Ctrl + z and `fg` with vim
@@ -159,6 +166,13 @@ bool pre_process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   tap_dance_action_t *action;
+
+  // Release of the key that started the drag always ends it, regardless of
+  // what keycode this release resolved to (see esc_drag_key above).
+  if (esc_drag_active && !record->event.pressed && KEYEQ(record->event.key, esc_drag_key)) {
+      esc_drag_active = false;
+      return false;
+  }
 
   key_timer = timer_read32();  // resets timer
                                //
@@ -501,8 +515,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case MS_BTN1:
         if (record->event.pressed) {
           esc_drag_active = true;
+          esc_drag_key    = record->event.key;
           return false;
         } else if (esc_drag_active) {
+          // Fallback for a second MS_BTN1 key (esc_drag_key holds only the
+          // most recent press); the primary release path is the position
+          // match at the top of this function.
           esc_drag_active = false;
           return false;
         }
@@ -694,9 +712,19 @@ report_mouse_t tcy_pointing_device_task(report_mouse_t mouse_report) {
         mouse_report.y = 0;
     }
 
+    // pointing_device_send() zeroes motion but PRESERVES buttons across
+    // cycles, so |= alone latches BTN1 in QMK's report forever — the PMW3360
+    // driver never rewrites buttons, so the first drag-click stuck left click
+    // permanently. (Azoteq boards self-healed: that driver rebuilds buttons
+    // every poll.) Clear our bit on the release edge only; clearing
+    // unconditionally would eat the Azoteq driver's own tap-gesture clicks.
+    static bool esc_drag_was_active = false;
     if (esc_drag_active) {
         mouse_report.buttons |= MOUSE_BTN1;
+    } else if (esc_drag_was_active) {
+        mouse_report.buttons &= ~MOUSE_BTN1;
     }
+    esc_drag_was_active = esc_drag_active;
 
     bool has_moved = mouse_report.x > 0 || mouse_report.y > 0 || mouse_report.v > 0 || mouse_report.h > 0;
 
@@ -827,6 +855,22 @@ bool oled_task_user(void) {
     return false;
 }
 #endif
+
+// The signal layers (_OLED_OFF_SIGNAL, _OSX_SIGNAL) exist only as bits in
+// layer_state (synced to the slave via SPLIT_LAYER_STATE_ENABLE); no keymap
+// defines rows for them. Without this override QMK's keycode lookup reads
+// past the end of keymaps[] (flash garbage) whenever one is active — e.g.
+// the first keypress after the OLED idle timeout, or permanently in OSX
+// mode — yielding random keycodes/layer switches.
+uint16_t keymap_key_to_keycode(uint8_t layer, keypos_t key) {
+    if (layer == _OLED_OFF_SIGNAL || layer == _OSX_SIGNAL) {
+        return KC_TRNS;
+    }
+    if (key.row < MATRIX_ROWS && key.col < MATRIX_COLS) {
+        return keycode_at_keymap_location(layer, key.row, key.col);
+    }
+    return KC_NO;
+}
 
 layer_state_t layer_state_set_user(layer_state_t state) {
 #ifndef LAYER_STATE_8BIT
