@@ -8,3 +8,4 @@ PS2_USE_USART = yes
 WPM_ENABLE = yes
 
 SRC += $(QMK_USERSPACE)/users/tcy/ps2_acceleration.c
+SRC += $(QMK_USERSPACE)/users/tcy/ps2_rotation.c

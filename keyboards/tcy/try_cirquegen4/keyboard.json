@@ -1,0 +1,38 @@
+{
+    "manufacturer": "Thomas CASTELLY",
+    "keyboard_name": "tcy/try_cirquegen4",
+    "maintainer": "tcastelly",
+    "processor": "RP2040",
+    "bootloader": "rp2040",
+    "url": "https://github.com/tcastelly/",
+    "tags": ["RP2040", "cirque", "trackpad", "test"],
+    "usb": {
+        "device_version": "1.0.0",
+        "pid": "0x0001",
+        "vid": "0xFEED"
+    },
+    "build": {
+        "lto": true
+    },
+    "features": {
+        "bootmagic": false,
+        "command": false,
+        "console": true,
+        "extrakey": true,
+        "mousekey": true,
+        "nkro": true
+    },
+    "diode_direction": "COL2ROW",
+    "matrix_pins": {
+        "direct": [
+            ["GP28"]
+        ]
+    },
+    "layouts": {
+        "LAYOUT": {
+            "layout": [
+                { "matrix": [0, 0], "x": 0, "y": 0 }
+            ]
+        }
+    }
+}

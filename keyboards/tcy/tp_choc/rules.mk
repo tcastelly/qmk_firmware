@@ -7,3 +7,4 @@ AUDIO_DRIVER = pwm_hardware
 PS2_USE_USART = yes
 
 SRC += $(QMK_USERSPACE)/users/tcy/ps2_acceleration.c
+SRC += $(QMK_USERSPACE)/users/tcy/ps2_rotation.c
