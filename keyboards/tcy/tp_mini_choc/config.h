@@ -62,16 +62,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* ── PS/2 trackpoint (custom driver in ps2.c) ───────────────
  * MANDATORY: PS2_PINSET selects the CLK/DAT pin pair.
  *
- *   PS2_PINSET 1 → PB8 (CLK) / PB9  (DAT)  ⚠ PB9 output driver dead (ESD)
+ *   PS2_PINSET 1 → PB8 (CLK) / PB9  (DAT)
  *   PS2_PINSET 2 → PB10(CLK) / PB11 (DAT)  shares pins with I2C2/MCP
- *   PS2_PINSET 4 → PB8 (CLK) / PB12 (DAT)  ← in use
- *
- * PB9's output driver is dead, so DATA can't be driven there. Fix without new
- * parts: trackpoint stays on the original pads (CLK→PB8/R8, DATA→PB9/R9), a
- * bridge wire ties PB9→PB12, and the driver uses the healthy PB12 for DATA.
- * Both existing pull-ups (R8/R9) reused; PB10/PB11 stay free for I2C2/MCP.
- * CLK on PB8 = EXTI8 (already declared in mcuconf); PB12 needs no EXTI.
  * ─────────────────────────────────────────────────────────── */
-#define PS2_PINSETS { 4 }
+#define PS2_PINSETS { 1 }
 
 #include "users/tcy/stm32/config.h"
