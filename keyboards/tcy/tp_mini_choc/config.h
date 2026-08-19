@@ -34,24 +34,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *   CIRQUE_GEN4_I2C_BUS 1 → QMK i2c_master (I2C1, config_i2c1.h)
  *   CIRQUE_GEN4_I2C_BUS 2 → ChibiOS I2CD2 (i2c2_handler.c, shared with MCP)
  *
- * DR (Data Ready) is pin 7 of the pad's 10-pin FFC — the pad next to SCL, on
- * the side away from SDA (order: ... 7=DR 8=SCL 9=SDA 10=GND).
- *
- * It matters MORE on this board than on a bare test board: without it the
- * driver reads blind on every poll, and an I2C-HID device with nothing to
- * report stretches the clock while it answers. QMK's I2C is blocking, so that
- * stalls the whole main loop — and here the bus is already shared with the
- * Azoteq. Measured on try_cirquegen4, DR took idle traffic from 100 reads/sec
- * to zero.
- *
- * A10 is free: RGB is not compiled on this board, so the WS2812_DI_PIN A10 in
- * users/tcy/stm32/config.h claims nothing. Note it is only RESERVED for RGB by
- * convention — if this board ever gets LEDs, one of the two must move. B13-B15
- * are unclaimed alternatives.
- *
- * Power the pad from 3.3V (spec is 3.0-5.5V) so DR and the I2C lines stay at
- * 3.3V logic.
- *
  * If the cursor never moves, or only responds when idle, the interrupt
  * polarity is inverted: add #define CIRQUE_GEN4_DR_ACTIVE_LOW 0
  * ─────────────────────────────────────────────────────────── */
