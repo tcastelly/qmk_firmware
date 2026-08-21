@@ -12,7 +12,8 @@
         "console": true,
         "extrakey": true,
         "mousekey": true,
-        "nkro": true
+        "nkro": true,
+        "oled": true
     },
     "url": "https://github.com/tcastelly/",
     "usb": {
