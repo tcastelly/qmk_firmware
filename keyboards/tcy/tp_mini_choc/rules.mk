@@ -3,7 +3,7 @@ OPT_DEFS += -include $(QMK_USERSPACE)/users/tcy/stm32/config_mcp_matrix.h
 
 -include $(QMK_USERSPACE)/users/$(KEYMAP)/stm32/rules.mk
 -include $(QMK_USERSPACE)/users/$(KEYMAP)/stm32/rules_mcp.mk
-# -include $(QMK_USERSPACE)/users/$(KEYMAP)/stm32/rules_pmw3360.mk
+-include $(QMK_USERSPACE)/users/$(KEYMAP)/stm32/rules_pmw3360.mk
 -include $(QMK_USERSPACE)/users/$(KEYMAP)/stm32/rules_ps2.mk
 # -include $(QMK_USERSPACE)/users/$(KEYMAP)/stm32/rules_cirque_gen4.mk
 
