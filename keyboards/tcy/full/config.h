@@ -64,6 +64,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ─────────────────────────────────────────────────────────── */
 #define RGBLED_NUM 58
 
+/* Everything is fed from one USB port, which only promises 500 mA: 58 LEDs at
+ * full brightness draw about 1.2 A in red and 3.5 A in white. 30 keeps full
+ * white near 410 mA. */
+#define RGBLIGHT_LIMIT_VAL 30
+
 /* Effects are limited to the ones that light the whole chain ONE colour. The
  * slave protocol is a single "set all LEDs" register (255), so per-LED effects
  * (swirl, knight, snake, static gradient) would collapse to whatever colour
